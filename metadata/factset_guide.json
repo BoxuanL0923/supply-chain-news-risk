@@ -1,0 +1,27 @@
+{
+  "filename": "Content-Disposition_ attachment_ filename=FactSet Standard DataFeed Supply Chain Relationships V1.4.3 UserGuide.pdf",
+  "local_path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\FactSetRevere\\FactSetRevere\\Content-Disposition_ attachment_ filename=FactSet Standard DataFeed Supply Chain Relationships V1.4.3 UserGuide.pdf",
+  "included": false,
+  "sha256": "bd82d245bf51b3b3cad9fad83297f07dc84ddedf8754d185be6d39d99c95b1a8",
+  "vendor": "FactSet",
+  "version": "1.4.3",
+  "definitions": {
+    "supply_revenue_pct": "Percent of supplier revenue derived from the customer; not buyer dependency.",
+    "record_dates": "Publication/history dates, with vendor-described exceptional discrepancies."
+  },
+  "relevant_pdf_pages_one_based": [
+    5,
+    6,
+    8,
+    9,
+    10,
+    13,
+    16,
+    19,
+    21,
+    22,
+    25,
+    28
+  ],
+  "revenue_definition_found": true
+}

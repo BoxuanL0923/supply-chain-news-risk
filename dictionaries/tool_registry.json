@@ -1,0 +1,535 @@
+{
+  "extraction": "Static AST inspection; no server or model launched.",
+  "variants": {
+    "completed_50firm_original": {
+      "OWN": [
+        {
+          "tool": "market_state",
+          "signature": "market_state()",
+          "implementation": "code/news_network_50_2025/toolkit.py:37",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "search_events",
+          "signature": "search_events(query: str, limit: int=5, hops: int=1, via: str='')",
+          "implementation": "code/news_network_50_2025/toolkit.py:45",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "inspect_event",
+          "signature": "inspect_event(source_id: str, page: int=0)",
+          "implementation": "code/news_network_50_2025/toolkit.py:94",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "inspect_events",
+          "signature": "inspect_events(requests: list[dict])",
+          "implementation": "code/news_network_50_2025/toolkit.py:135",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "exposure_paths",
+          "signature": "exposure_paths(hops: int=1, via: str='', query: str='', offset: int=0)",
+          "implementation": "code/news_network_50_2025/toolkit.py:112",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "event_logbook",
+          "signature": "event_logbook(query: str='pending earnings acquisition disruption', limit: int=5)",
+          "implementation": "code/news_network_50_2025/toolkit.py:146",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        }
+      ],
+      "NET": [
+        {
+          "tool": "market_state",
+          "signature": "market_state()",
+          "implementation": "code/news_network_50_2025/toolkit.py:37",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "search_events",
+          "signature": "search_events(query: str, limit: int=5, hops: int=1, via: str='')",
+          "implementation": "code/news_network_50_2025/toolkit.py:45",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "inspect_event",
+          "signature": "inspect_event(source_id: str, page: int=0)",
+          "implementation": "code/news_network_50_2025/toolkit.py:94",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "inspect_events",
+          "signature": "inspect_events(requests: list[dict])",
+          "implementation": "code/news_network_50_2025/toolkit.py:135",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "exposure_paths",
+          "signature": "exposure_paths(hops: int=1, via: str='', query: str='', offset: int=0)",
+          "implementation": "code/news_network_50_2025/toolkit.py:112",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "event_logbook",
+          "signature": "event_logbook(query: str='pending earnings acquisition disruption', limit: int=5)",
+          "implementation": "code/news_network_50_2025/toolkit.py:146",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        }
+      ],
+      "note": "exposure_paths is registered in OWN transport but rejects OWN graph access."
+    },
+    "later_grounded_v11": {
+      "OWN": [
+        {
+          "tool": "inventory",
+          "signature": "inventory(group: Literal['all', 'own_common', 'direct_economic', 'comention_without_direct', 'higher_hop_only', 'unlinked']='all', offset: int=0, limit: int=10)",
+          "implementation": "code/network50_grounded_toolkit.py:193",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "List shortlisted source IDs and graph leads. Choose own_common for OWN; archive search covers omitted sources."
+        },
+        {
+          "tool": "market_state",
+          "signature": "market_state()",
+          "implementation": "code/network50_grounded_toolkit.py:212",
+          "declaring_class": "GroundedToolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "search_events",
+          "signature": "search_events(query: str, limit: int=5, hops: int=1, via: str='')",
+          "implementation": "code/news_network_50_2025/toolkit.py:45",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "inspect_event",
+          "signature": "inspect_event(source_id: str, page: int=0)",
+          "implementation": "code/network50_grounded_toolkit.py:206",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Read a short-list source or any eligible archive result with the same source ID and page arguments."
+        },
+        {
+          "tool": "inspect_events",
+          "signature": "inspect_events(requests: list[dict])",
+          "implementation": "code/news_network_50_2025/toolkit.py:135",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "event_logbook",
+          "signature": "event_logbook(query: str='pending earnings acquisition disruption', limit: int=5)",
+          "implementation": "code/news_network_50_2025/toolkit.py:146",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "search_archive",
+          "signature": "search_archive(query: str, scope: Literal['own', 'common', 'network']='own', limit: int=8)",
+          "implementation": "code/network50_grounded_toolkit.py:198",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Search the full eligible headline catalogue. Use focused conjunctive terms; numerical limit is 1..20. Prefer full UPDATE articles for missing transaction terms."
+        },
+        {
+          "tool": "inspect_archive",
+          "signature": "inspect_archive(source_id: str, page: int=0)",
+          "implementation": "code/network50_grounded_toolkit.py:202",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Read a verified archive page; page is a zero-based integer, not a string. Read the returned page_count before requesting later pages."
+        },
+        {
+          "tool": "risk_check",
+          "signature": "risk_check(score: float)",
+          "implementation": "code/network50_grounded_toolkit.py:330",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Compute authoritative risk units and horizon. Final summaries are host-rendered, not model-written."
+        },
+        {
+          "tool": "record_facts",
+          "signature": "record_facts(facts: list[dict])",
+          "implementation": "code/network50_grounded_toolkit.py:249",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Bind exact quotes to inspected source/page pairs. Returns fact IDs; this checks provenance, not truth or economic materiality."
+        },
+        {
+          "tool": "resolve_event_date",
+          "signature": "resolve_event_date(fact_id: str, phrase: str)",
+          "implementation": "code/network50_grounded_toolkit.py:282",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Compute date/window membership from an exact phrase in a bound fact. Approximate/ambiguous wording stays uncertain."
+        },
+        {
+          "tool": "fact_ledger",
+          "signature": "fact_ledger()",
+          "implementation": "code/network50_grounded_toolkit.py:324",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Read bound facts, computed event dates, and frozen OWN event keys. OWN facts cannot be rewritten by NET."
+        },
+        {
+          "tool": "submit_own",
+          "signature": "submit_own(forecast: dict)",
+          "implementation": "code/network50_grounded_toolkit.py:501",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "OWN only: score, drivers, background_fact_ids, transaction_facts, unknowns. All factual fields reference bound fact IDs; no free-form factual recap or date/units overrides."
+        }
+      ],
+      "NET": [
+        {
+          "tool": "inventory",
+          "signature": "inventory(group: Literal['all', 'own_common', 'direct_economic', 'comention_without_direct', 'higher_hop_only', 'unlinked']='all', offset: int=0, limit: int=10)",
+          "implementation": "code/network50_grounded_toolkit.py:193",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "List shortlisted source IDs and graph leads. Choose own_common for OWN; archive search covers omitted sources."
+        },
+        {
+          "tool": "market_state",
+          "signature": "market_state()",
+          "implementation": "code/network50_grounded_toolkit.py:212",
+          "declaring_class": "GroundedToolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "search_events",
+          "signature": "search_events(query: str, limit: int=5, hops: int=1, via: str='')",
+          "implementation": "code/news_network_50_2025/toolkit.py:45",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "inspect_event",
+          "signature": "inspect_event(source_id: str, page: int=0)",
+          "implementation": "code/network50_grounded_toolkit.py:206",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Read a short-list source or any eligible archive result with the same source ID and page arguments."
+        },
+        {
+          "tool": "inspect_events",
+          "signature": "inspect_events(requests: list[dict])",
+          "implementation": "code/news_network_50_2025/toolkit.py:135",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "event_logbook",
+          "signature": "event_logbook(query: str='pending earnings acquisition disruption', limit: int=5)",
+          "implementation": "code/news_network_50_2025/toolkit.py:146",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "search_archive",
+          "signature": "search_archive(query: str, scope: Literal['own', 'common', 'network']='own', limit: int=8)",
+          "implementation": "code/network50_grounded_toolkit.py:198",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Search the full eligible headline catalogue. Use focused conjunctive terms; numerical limit is 1..20. Prefer full UPDATE articles for missing transaction terms."
+        },
+        {
+          "tool": "inspect_archive",
+          "signature": "inspect_archive(source_id: str, page: int=0)",
+          "implementation": "code/network50_grounded_toolkit.py:202",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Read a verified archive page; page is a zero-based integer, not a string. Read the returned page_count before requesting later pages."
+        },
+        {
+          "tool": "risk_check",
+          "signature": "risk_check(score: float)",
+          "implementation": "code/network50_grounded_toolkit.py:330",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Compute authoritative risk units and horizon. Final summaries are host-rendered, not model-written."
+        },
+        {
+          "tool": "record_facts",
+          "signature": "record_facts(facts: list[dict])",
+          "implementation": "code/network50_grounded_toolkit.py:249",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Bind exact quotes to inspected source/page pairs. Returns fact IDs; this checks provenance, not truth or economic materiality."
+        },
+        {
+          "tool": "resolve_event_date",
+          "signature": "resolve_event_date(fact_id: str, phrase: str)",
+          "implementation": "code/network50_grounded_toolkit.py:282",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Compute date/window membership from an exact phrase in a bound fact. Approximate/ambiguous wording stays uncertain."
+        },
+        {
+          "tool": "fact_ledger",
+          "signature": "fact_ledger()",
+          "implementation": "code/network50_grounded_toolkit.py:324",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Read bound facts, computed event dates, and frozen OWN event keys. OWN facts cannot be rewritten by NET."
+        },
+        {
+          "tool": "exposure_paths",
+          "signature": "exposure_paths(hops: int=1, via: str='', query: str='', offset: int=0)",
+          "implementation": "code/network50_grounded_toolkit.py:302",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Look up typed paths with stable relation IDs. A relation is a retrieval lead, not verified transmission."
+        },
+        {
+          "tool": "network_leads",
+          "signature": "network_leads(query: str='', relation_id: str='', offset: int=0, limit: int=12)",
+          "implementation": "code/network50_grounded_toolkit.py:315",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Use empty query first for balanced event discovery; optional query matches any term, ranked by overlap. Graph leads are not proof of transmission."
+        },
+        {
+          "tool": "submit_network",
+          "signature": "submit_network(supplement: dict)",
+          "implementation": "code/network50_grounded_toolkit.py:521",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "NET only: total_score, new_events, corroborating_fact_ids, rejected_fact_ids, unknowns. Never copy OWN drivers. Empty new_events requires the identical OWN score; host preserves OWN facts and terms."
+        }
+      ]
+    },
+    "separate_evidence_v1": {
+      "OWN": [
+        {
+          "tool": "inventory",
+          "signature": "inventory(group: Literal['all', 'own_common', 'direct_economic', 'comention_without_direct', 'higher_hop_only', 'unlinked']='all', offset: int=0, limit: int=10)",
+          "implementation": "code/network50_grounded_toolkit.py:193",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "List shortlisted source IDs and graph leads. Choose own_common for OWN; archive search covers omitted sources."
+        },
+        {
+          "tool": "market_state",
+          "signature": "market_state()",
+          "implementation": "code/network50_grounded_toolkit.py:212",
+          "declaring_class": "GroundedToolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "search_events",
+          "signature": "search_events(query: str, limit: int=5, hops: int=1, via: str='')",
+          "implementation": "code/news_network_50_2025/toolkit.py:45",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "inspect_event",
+          "signature": "inspect_event(source_id: str, page: int=0)",
+          "implementation": "code/network50_grounded_toolkit.py:206",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Read a short-list source or any eligible archive result with the same source ID and page arguments."
+        },
+        {
+          "tool": "inspect_events",
+          "signature": "inspect_events(requests: list[dict])",
+          "implementation": "code/news_network_50_2025/toolkit.py:135",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "event_logbook",
+          "signature": "event_logbook(query: str='pending earnings acquisition disruption', limit: int=5)",
+          "implementation": "code/news_network_50_2025/toolkit.py:146",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "search_archive",
+          "signature": "search_archive(query: str, scope: Literal['own', 'common', 'network']='own', limit: int=8)",
+          "implementation": "code/network50_grounded_toolkit.py:198",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Search the full eligible headline catalogue. Use focused conjunctive terms; numerical limit is 1..20. Prefer full UPDATE articles for missing transaction terms."
+        },
+        {
+          "tool": "inspect_archive",
+          "signature": "inspect_archive(source_id: str, page: int=0)",
+          "implementation": "code/network50_grounded_toolkit.py:202",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Read a verified archive page; page is a zero-based integer, not a string. Read the returned page_count before requesting later pages."
+        },
+        {
+          "tool": "risk_check",
+          "signature": "risk_check(score: float)",
+          "implementation": "code/network50_grounded_toolkit.py:330",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Compute authoritative risk units and horizon. Final summaries are host-rendered, not model-written."
+        },
+        {
+          "tool": "record_facts",
+          "signature": "record_facts(facts: list[dict])",
+          "implementation": "code/network50_grounded_toolkit.py:249",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Bind exact quotes to inspected source/page pairs. Returns fact IDs; this checks provenance, not truth or economic materiality."
+        },
+        {
+          "tool": "resolve_event_date",
+          "signature": "resolve_event_date(fact_id: str, phrase: str)",
+          "implementation": "code/network50_grounded_toolkit.py:282",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Compute date/window membership from an exact phrase in a bound fact. Approximate/ambiguous wording stays uncertain."
+        },
+        {
+          "tool": "fact_ledger",
+          "signature": "fact_ledger()",
+          "implementation": "code/network50_grounded_toolkit.py:324",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Read bound facts, computed event dates, and frozen OWN event keys. OWN facts cannot be rewritten by NET."
+        },
+        {
+          "tool": "financial_history",
+          "signature": "financial_history()",
+          "implementation": "code/network50_evidence_toolkit.py:121",
+          "declaring_class": "EvidenceToolkit",
+          "docstring": "Compute observed pre-cutoff price/return statistics. No earnings attribution or future outcomes."
+        },
+        {
+          "tool": "deal_terms",
+          "signature": "deal_terms(transaction_facts: dict)",
+          "implementation": "code/network50_evidence_toolkit.py:152",
+          "declaring_class": "EvidenceToolkit",
+          "docstring": "Check bound shareholder consideration separately from funding; compute observed offer discount."
+        },
+        {
+          "tool": "submit_own",
+          "signature": "submit_own(forecast: dict)",
+          "implementation": "code/network50_grounded_toolkit.py:501",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "OWN only: score, drivers, background_fact_ids, transaction_facts, unknowns. All factual fields reference bound fact IDs; no free-form factual recap or date/units overrides."
+        }
+      ],
+      "NET": [
+        {
+          "tool": "inventory",
+          "signature": "inventory(group: Literal['all', 'own_common', 'direct_economic', 'comention_without_direct', 'higher_hop_only', 'unlinked']='all', offset: int=0, limit: int=10)",
+          "implementation": "code/network50_grounded_toolkit.py:193",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "List shortlisted source IDs and graph leads. Choose own_common for OWN; archive search covers omitted sources."
+        },
+        {
+          "tool": "market_state",
+          "signature": "market_state()",
+          "implementation": "code/network50_grounded_toolkit.py:212",
+          "declaring_class": "GroundedToolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "search_events",
+          "signature": "search_events(query: str, limit: int=5, hops: int=1, via: str='')",
+          "implementation": "code/news_network_50_2025/toolkit.py:45",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "inspect_event",
+          "signature": "inspect_event(source_id: str, page: int=0)",
+          "implementation": "code/network50_grounded_toolkit.py:206",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Read a short-list source or any eligible archive result with the same source ID and page arguments."
+        },
+        {
+          "tool": "inspect_events",
+          "signature": "inspect_events(requests: list[dict])",
+          "implementation": "code/news_network_50_2025/toolkit.py:135",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "event_logbook",
+          "signature": "event_logbook(query: str='pending earnings acquisition disruption', limit: int=5)",
+          "implementation": "code/news_network_50_2025/toolkit.py:146",
+          "declaring_class": "Toolkit",
+          "docstring": ""
+        },
+        {
+          "tool": "search_archive",
+          "signature": "search_archive(query: str, scope: Literal['own', 'common', 'network']='own', limit: int=8)",
+          "implementation": "code/network50_grounded_toolkit.py:198",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Search the full eligible headline catalogue. Use focused conjunctive terms; numerical limit is 1..20. Prefer full UPDATE articles for missing transaction terms."
+        },
+        {
+          "tool": "inspect_archive",
+          "signature": "inspect_archive(source_id: str, page: int=0)",
+          "implementation": "code/network50_grounded_toolkit.py:202",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Read a verified archive page; page is a zero-based integer, not a string. Read the returned page_count before requesting later pages."
+        },
+        {
+          "tool": "risk_check",
+          "signature": "risk_check(score: float)",
+          "implementation": "code/network50_grounded_toolkit.py:330",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Compute authoritative risk units and horizon. Final summaries are host-rendered, not model-written."
+        },
+        {
+          "tool": "record_facts",
+          "signature": "record_facts(facts: list[dict])",
+          "implementation": "code/network50_grounded_toolkit.py:249",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Bind exact quotes to inspected source/page pairs. Returns fact IDs; this checks provenance, not truth or economic materiality."
+        },
+        {
+          "tool": "resolve_event_date",
+          "signature": "resolve_event_date(fact_id: str, phrase: str)",
+          "implementation": "code/network50_grounded_toolkit.py:282",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Compute date/window membership from an exact phrase in a bound fact. Approximate/ambiguous wording stays uncertain."
+        },
+        {
+          "tool": "fact_ledger",
+          "signature": "fact_ledger()",
+          "implementation": "code/network50_grounded_toolkit.py:324",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Read bound facts, computed event dates, and frozen OWN event keys. OWN facts cannot be rewritten by NET."
+        },
+        {
+          "tool": "financial_history",
+          "signature": "financial_history()",
+          "implementation": "code/network50_evidence_toolkit.py:121",
+          "declaring_class": "EvidenceToolkit",
+          "docstring": "Compute observed pre-cutoff price/return statistics. No earnings attribution or future outcomes."
+        },
+        {
+          "tool": "deal_terms",
+          "signature": "deal_terms(transaction_facts: dict)",
+          "implementation": "code/network50_evidence_toolkit.py:152",
+          "declaring_class": "EvidenceToolkit",
+          "docstring": "Check bound shareholder consideration separately from funding; compute observed offer discount."
+        },
+        {
+          "tool": "exposure_paths",
+          "signature": "exposure_paths(hops: int=1, via: str='', query: str='', offset: int=0)",
+          "implementation": "code/network50_grounded_toolkit.py:302",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Look up typed paths with stable relation IDs. A relation is a retrieval lead, not verified transmission."
+        },
+        {
+          "tool": "network_leads",
+          "signature": "network_leads(query: str='', relation_id: str='', offset: int=0, limit: int=12)",
+          "implementation": "code/network50_grounded_toolkit.py:315",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "Use empty query first for balanced event discovery; optional query matches any term, ranked by overlap. Graph leads are not proof of transmission."
+        },
+        {
+          "tool": "check_network_channel",
+          "signature": "check_network_channel(event_key: str, relation_id: str, event_fact_ids: list[str], exposure_fact_ids: list[str], affected_item: str, channel: Literal['supplier_input', 'customer_output', 'competition'])",
+          "implementation": "code/network50_evidence_toolkit.py:157",
+          "declaring_class": "EvidenceToolkit",
+          "docstring": "Check a product/input channel across bound event and target-exposure quotes. Unknown is a lead."
+        },
+        {
+          "tool": "submit_network",
+          "signature": "submit_network(supplement: dict)",
+          "implementation": "code/network50_grounded_toolkit.py:521",
+          "declaring_class": "GroundedToolkit",
+          "docstring": "NET only: total_score, new_events, corroborating_fact_ids, rejected_fact_ids, unknowns. Never copy OWN drivers. Empty new_events requires the identical OWN score; host preserves OWN facts and terms."
+        }
+      ]
+    }
+  }
+}

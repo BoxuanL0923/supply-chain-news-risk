@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.env
+.env.*
+*.key
+credentials*
+*token*.txt
+data/
+results/
+*.parquet
+*.jsonl
+*.jsonl.gz
+*.sqlite
+*.gguf

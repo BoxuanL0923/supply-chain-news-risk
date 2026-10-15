@@ -1,0 +1,558 @@
+[
+  {
+    "dataset": "factset_supply_chain",
+    "local_path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\FactSetRevere\\FactSetRevere\\ent_scr_supply_chain.txt",
+    "bytes": 169417382,
+    "data_rows_included": false,
+    "fields": [
+      {
+        "field": "ID",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "SUPPLIER_FACTSET_ENTITY_ID",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "CUSTOMER_FACTSET_ENTITY_ID",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "START_DATE",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "END_DATE",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "REVENUE_PCT",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "SOURCE_FACTSET_ENTITY_ID",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      }
+    ],
+    "sha256": null,
+    "hash_note": "Not rehashed: header/schema inspection only"
+  },
+  {
+    "dataset": "factset_relationships",
+    "local_path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\FactSetRevere\\FactSetRevere\\ent_scr_relationships.txt",
+    "bytes": 313779097,
+    "data_rows_included": false,
+    "fields": [
+      {
+        "field": "ID",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "REL_TYPE",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "SOURCE_FACTSET_ENTITY_ID",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "TARGET_FACTSET_ENTITY_ID",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "START_DATE",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "END_DATE",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "REVENUE_PCT",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      }
+    ],
+    "sha256": null,
+    "hash_note": "Not rehashed: header/schema inspection only"
+  },
+  {
+    "dataset": "factset_names",
+    "local_path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\FactSetRevere\\FactSetRevere\\mapping.csv",
+    "bytes": 62204148,
+    "data_rows_included": false,
+    "fields": [
+      {
+        "field": "fsym_id",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "fsym_id_kind",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "PROPER_NAME",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "FSYM_REGIONAL_ID",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "FSYM_SECURITY_ID",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "FS_PERM_SEC_ID",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "FACTSET_ENTITY_ID",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "ENTITY_PROPER_NAME",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "cusip_fs",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "TICKER_EXCHANGE",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "PERMNO",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "PERMCO",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "HdrCUSIP",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "CUSIP",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "Ticker",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "IssuerNm",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "link_bdate",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "link_edate",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      }
+    ],
+    "sha256": null,
+    "hash_note": "Not rehashed: header/schema inspection only"
+  },
+  {
+    "dataset": "factset_permno_bridge",
+    "local_path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\processed\\factset_to_permno.csv",
+    "bytes": 3541342,
+    "data_rows_included": false,
+    "fields": [
+      {
+        "field": "FACTSET_ENTITY_ID",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "PERMNO",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "PERMCO",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "HdrCUSIP",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "Ticker",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "link_bdate",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "link_edate",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      }
+    ],
+    "sha256": "5dd8207deafea32e6ed07f145c9cc53dcd50683843a00ab83286621b23e8b837",
+    "hash_note": "Rehashed local file"
+  },
+  {
+    "dataset": "ric_ticker_bridge",
+    "local_path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\processed\\ric_to_ticker_map.csv",
+    "bytes": 1547772,
+    "data_rows_included": false,
+    "fields": [
+      {
+        "field": "ric",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "ticker",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "exchange",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      },
+      {
+        "field": "is_us",
+        "type": "delimited text; vendor/project definition in notes",
+        "nullable": "not inferred from header"
+      }
+    ],
+    "sha256": "0c94f30fc3780deabaa8661731c3bf8e206ff9142da35a38cf8a66ce15f2ae80",
+    "hash_note": "Rehashed local file"
+  },
+  {
+    "dataset": "crsp_daily_history",
+    "local_path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\processed\\crsp_daily.parquet",
+    "bytes": 472656948,
+    "data_rows_included": false,
+    "rows": 30810481,
+    "fields": [
+      {
+        "field": "permno",
+        "type": "int64",
+        "nullable": true
+      },
+      {
+        "field": "date",
+        "type": "string",
+        "nullable": true
+      },
+      {
+        "field": "ret",
+        "type": "double",
+        "nullable": true
+      },
+      {
+        "field": "prc",
+        "type": "double",
+        "nullable": true
+      },
+      {
+        "field": "shrout",
+        "type": "double",
+        "nullable": true
+      },
+      {
+        "field": "vol",
+        "type": "double",
+        "nullable": true
+      }
+    ],
+    "sha256": null,
+    "hash_note": "Not rehashed: header/schema inspection only"
+  },
+  {
+    "dataset": "crsp_daily_2025",
+    "local_path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\processed\\crsp_daily_2025.parquet",
+    "bytes": 69913780,
+    "data_rows_included": false,
+    "rows": 2940112,
+    "fields": [
+      {
+        "field": "permno",
+        "type": "int64",
+        "nullable": true
+      },
+      {
+        "field": "date",
+        "type": "string",
+        "nullable": true
+      },
+      {
+        "field": "ret",
+        "type": "double",
+        "nullable": true
+      },
+      {
+        "field": "prc",
+        "type": "double",
+        "nullable": true
+      },
+      {
+        "field": "vol",
+        "type": "double",
+        "nullable": true
+      },
+      {
+        "field": "shrout",
+        "type": "int64",
+        "nullable": true
+      },
+      {
+        "field": "cap",
+        "type": "double",
+        "nullable": true
+      }
+    ],
+    "sha256": null,
+    "hash_note": "Not rehashed: header/schema inspection only"
+  },
+  {
+    "dataset": "crsp_compact",
+    "local_path": "C:\\OptResearch\\data\\macro\\exp_crsp_daily_compact.parquet",
+    "bytes": 202419103,
+    "data_rows_included": false,
+    "rows": 18780868,
+    "fields": [
+      {
+        "field": "permno",
+        "type": "int32",
+        "nullable": true
+      },
+      {
+        "field": "date",
+        "type": "date32[day]",
+        "nullable": true
+      },
+      {
+        "field": "ret",
+        "type": "float",
+        "nullable": true
+      },
+      {
+        "field": "prc",
+        "type": "float",
+        "nullable": true
+      },
+      {
+        "field": "me",
+        "type": "float",
+        "nullable": true
+      },
+      {
+        "field": "exchcd",
+        "type": "int8",
+        "nullable": true
+      },
+      {
+        "field": "sic2",
+        "type": "int8",
+        "nullable": true
+      },
+      {
+        "field": "ff49",
+        "type": "int8",
+        "nullable": true
+      },
+      {
+        "field": "ind_src",
+        "type": "int8",
+        "nullable": true
+      },
+      {
+        "field": "share_type",
+        "type": "int8",
+        "nullable": true
+      }
+    ],
+    "sha256": null,
+    "hash_note": "Not rehashed: header/schema inspection only"
+  },
+  {
+    "dataset": "crsp_names",
+    "local_path": "C:\\OptResearch\\data\\gn\\gn_crsp_names.parquet",
+    "bytes": 529847,
+    "data_rows_included": false,
+    "rows": 19861,
+    "fields": [
+      {
+        "field": "permno",
+        "type": "int64",
+        "nullable": true
+      },
+      {
+        "field": "ticker",
+        "type": "string",
+        "nullable": true
+      },
+      {
+        "field": "namedt",
+        "type": "timestamp[ns]",
+        "nullable": true
+      },
+      {
+        "field": "nameenddt",
+        "type": "timestamp[ns]",
+        "nullable": true
+      },
+      {
+        "field": "comnam",
+        "type": "string",
+        "nullable": true
+      },
+      {
+        "field": "exchcd",
+        "type": "int64",
+        "nullable": true
+      },
+      {
+        "field": "carried_fwd",
+        "type": "bool",
+        "nullable": true
+      }
+    ],
+    "sha256": "95a0d80ea8b2001b14a97890a9d3f5c43cab4118183e9397eba3bb408c73e1f9",
+    "hash_note": "Rehashed local file"
+  },
+  {
+    "dataset": "trading_calendar",
+    "local_path": "C:\\OptResearch\\data\\macro\\cal_trading_days.parquet",
+    "bytes": 39667,
+    "data_rows_included": false,
+    "rows": 4276,
+    "fields": [
+      {
+        "field": "date",
+        "type": "timestamp[ns]",
+        "nullable": true
+      }
+    ],
+    "sha256": "b5639ca876c18f1412bba4281d84306da9794f2b4411030c4d502ac5302f1cc6",
+    "hash_note": "Rehashed local file"
+  },
+  {
+    "dataset": "completed_controls",
+    "local_path": "C:\\OptResearch\\results\\news_network_50_2025\\controls.parquet",
+    "bytes": 40961,
+    "data_rows_included": false,
+    "rows": 600,
+    "fields": [
+      {
+        "field": "case_id",
+        "type": "string",
+        "nullable": true
+      },
+      {
+        "field": "date",
+        "type": "string",
+        "nullable": true
+      },
+      {
+        "field": "ticker",
+        "type": "string",
+        "nullable": true
+      },
+      {
+        "field": "b",
+        "type": "double",
+        "nullable": true
+      },
+      {
+        "field": "rv1",
+        "type": "double",
+        "nullable": true
+      },
+      {
+        "field": "rv5",
+        "type": "double",
+        "nullable": true
+      },
+      {
+        "field": "rv22",
+        "type": "double",
+        "nullable": true
+      },
+      {
+        "field": "earnings_confirmed",
+        "type": "int64",
+        "nullable": true
+      },
+      {
+        "field": "calendar_unknown",
+        "type": "int64",
+        "nullable": true
+      },
+      {
+        "field": "post_earnings",
+        "type": "int64",
+        "nullable": true
+      },
+      {
+        "field": "pending_cash_deal",
+        "type": "int64",
+        "nullable": true
+      },
+      {
+        "field": "log_news_count",
+        "type": "double",
+        "nullable": true
+      },
+      {
+        "field": "log_neighbor_count",
+        "type": "double",
+        "nullable": true
+      },
+      {
+        "field": "log_degree",
+        "type": "double",
+        "nullable": true
+      }
+    ],
+    "sha256": "58be9374077806f7bce6472852fda29ff8c3c70dde52096c3ccf00d1b64268ad",
+    "hash_note": "Rehashed local file"
+  }
+]

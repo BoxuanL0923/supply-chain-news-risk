@@ -1,0 +1,29 @@
+{
+  "packaging_python": "3.13.13 (tags/v3.13.13:01104ce, Apr  7 2026, 19:25:48) [MSC v.1944 64 bit (AMD64)]",
+  "historical_run_recorded": {
+    "dspy": "3.4.0",
+    "gepa": "0.1.4",
+    "mcp": "2.3.0",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1"
+  },
+  "packaging_environment": {
+    "dspy": "3.4.0",
+    "gepa": "0.1.4",
+    "mcp": "2.3.0",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "arch": null,
+    "scipy": "1.18.1",
+    "sentence-transformers": null,
+    "torch": null,
+    "scikit-learn": null,
+    "exchange-calendars": "4.5.6",
+    "pydantic": "2.13.5",
+    "python-dateutil": "2.9.0.post0",
+    "filelock": "3.32.7"
+  },
+  "note": "Historical and current metadata are distinct. Source snapshot is not a portable environment lock."
+}

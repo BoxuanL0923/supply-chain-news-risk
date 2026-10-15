@@ -1,0 +1,868 @@
+{
+  "static_edges": [
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 10,
+      "dependency": "code/news_network_50_2025/data.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 11,
+      "dependency": "code/news_network_50_2025/toolkit.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 12,
+      "dependency": "code/news_network_50_2025/workflow.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 13,
+      "dependency": "code/news_network_50_2025/optimize.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 14,
+      "dependency": "code/news_network_50_2025/metrics.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 15,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 34,
+      "dependency": "code/news_network_50_2025/run.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 35,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 50,
+      "dependency": "code/news_network_50_2025/workflow.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 172,
+      "dependency": "code/news_network_50_2025/run.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 173,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 174,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 222,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/test_design.py",
+      "line": 223,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/news_network_50_2025/run.py",
+      "line": 14,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/run.py",
+      "line": 15,
+      "dependency": "code/news_event_risk_data_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/run.py",
+      "line": 16,
+      "dependency": "code/news_agent_r2_2025/config.py"
+    },
+    {
+      "source": "code/news_network_50_2025/run.py",
+      "line": 17,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/news_network_50_2025/run.py",
+      "line": 18,
+      "dependency": "code/news_network_50_2025/runtime.py"
+    },
+    {
+      "source": "code/news_network_50_2025/run.py",
+      "line": 19,
+      "dependency": "code/news_network_50_2025/workflow.py"
+    },
+    {
+      "source": "code/news_network_50_2025/run.py",
+      "line": 20,
+      "dependency": "code/news_network_50_2025/metrics.py"
+    },
+    {
+      "source": "code/news_network_50_2025/run.py",
+      "line": 76,
+      "dependency": "code/news_network_50_2025/workflow.py"
+    },
+    {
+      "source": "code/news_network_50_2025/run.py",
+      "line": 77,
+      "dependency": "code/news_network_50_2025/toolkit.py"
+    },
+    {
+      "source": "code/news_network_50_2025/run.py",
+      "line": 196,
+      "dependency": "code/news_network_50_2025/optimize.py"
+    },
+    {
+      "source": "code/news_network_50_2025/run.py",
+      "line": 223,
+      "dependency": "code/news_network_50_2025/metrics.py"
+    },
+    {
+      "source": "code/news_network_50_2025/metrics.py",
+      "line": 4,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/metrics.py",
+      "line": 5,
+      "dependency": "code/news_exposure_2025/metrics.py"
+    },
+    {
+      "source": "code/news_network_50_2025/metrics.py",
+      "line": 6,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/news_exposure_2025/metrics.py",
+      "line": 5,
+      "dependency": "code/news_exposure_2025/config.py"
+    },
+    {
+      "source": "code/news_network_50_2025/optimize.py",
+      "line": 6,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/optimize.py",
+      "line": 7,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/news_network_50_2025/toolkit.py",
+      "line": 5,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/workflow.py",
+      "line": 9,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/workflow.py",
+      "line": 10,
+      "dependency": "code/news_exposure_2025/workflow.py"
+    },
+    {
+      "source": "code/news_network_50_2025/workflow.py",
+      "line": 11,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/news_exposure_2025/workflow.py",
+      "line": 10,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_exposure_2025/workflow.py",
+      "line": 11,
+      "dependency": "code/news_exposure_2025/config.py"
+    },
+    {
+      "source": "code/news_exposure_2025/workflow.py",
+      "line": 12,
+      "dependency": "code/news_exposure_2025/tools.py"
+    },
+    {
+      "source": "code/news_exposure_2025/tools.py",
+      "line": 13,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_exposure_2025/tools.py",
+      "line": 14,
+      "dependency": "code/news_source_clock_2025.py"
+    },
+    {
+      "source": "code/news_exposure_2025/tools.py",
+      "line": 15,
+      "dependency": "code/midcap_tools/retrieval.py"
+    },
+    {
+      "source": "code/news_exposure_2025/tools.py",
+      "line": 16,
+      "dependency": "code/news_exposure_2025/config.py"
+    },
+    {
+      "source": "code/news_exposure_2025/tools.py",
+      "line": 17,
+      "dependency": "code/news_exposure_2025/data.py"
+    },
+    {
+      "source": "code/news_exposure_2025/tools.py",
+      "line": 18,
+      "dependency": "code/news_exposure_2025/graph.py"
+    },
+    {
+      "source": "code/news_exposure_2025/graph.py",
+      "line": 6,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_exposure_2025/graph.py",
+      "line": 7,
+      "dependency": "code/news_event_risk_data_2025.py"
+    },
+    {
+      "source": "code/news_exposure_2025/graph.py",
+      "line": 8,
+      "dependency": "code/news_exposure_2025/config.py"
+    },
+    {
+      "source": "code/news_exposure_2025/data.py",
+      "line": 14,
+      "dependency": "code/news_event_risk_data_2025.py"
+    },
+    {
+      "source": "code/news_exposure_2025/data.py",
+      "line": 15,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_exposure_2025/data.py",
+      "line": 16,
+      "dependency": "code/news_exposure_2025/config.py"
+    },
+    {
+      "source": "code/news_exposure_2025/data.py",
+      "line": 17,
+      "dependency": "code/news_exposure_2025/graph.py"
+    },
+    {
+      "source": "code/news_exposure_2025/data.py",
+      "line": 25,
+      "dependency": "code/news_event_calendar_2025.py"
+    },
+    {
+      "source": "code/news_exposure_2025/data.py",
+      "line": 271,
+      "dependency": "code/midcap_tools/retrieval.py"
+    },
+    {
+      "source": "code/midcap_tools/retrieval.py",
+      "line": 44,
+      "dependency": "code/midcap_tools/config.py"
+    },
+    {
+      "source": "code/midcap_tools/retrieval.py",
+      "line": 46,
+      "dependency": "code/midcap_tools/config.py"
+    },
+    {
+      "source": "code/news_source_clock_2025.py",
+      "line": 4,
+      "dependency": "code/news_event_calendar_2025.py"
+    },
+    {
+      "source": "code/news_source_clock_2025.py",
+      "line": 4,
+      "dependency": "code/news_event_calendar_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/runtime.py",
+      "line": 9,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/runtime.py",
+      "line": 10,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/news_network_50_2025/data.py",
+      "line": 11,
+      "dependency": "code/news_event_risk_data_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/data.py",
+      "line": 12,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_network_50_2025/data.py",
+      "line": 13,
+      "dependency": "code/news_exposure_2025/__init__.py"
+    },
+    {
+      "source": "code/news_network_50_2025/data.py",
+      "line": 13,
+      "dependency": "code/news_exposure_2025/data.py"
+    },
+    {
+      "source": "code/news_network_50_2025/data.py",
+      "line": 14,
+      "dependency": "code/news_exposure_2025/graph.py"
+    },
+    {
+      "source": "code/news_network_50_2025/data.py",
+      "line": 15,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/news_network_50_2025/data.py",
+      "line": 19,
+      "dependency": "code/news_event_calendar_2025.py"
+    },
+    {
+      "source": "code/run_network30_mixed_resume.py",
+      "line": 14,
+      "dependency": "code/run_network30_frozen_2025.py"
+    },
+    {
+      "source": "code/run_network30_mixed_resume.py",
+      "line": 15,
+      "dependency": "code/audit_network30_opus_smoke.py"
+    },
+    {
+      "source": "code/run_network30_mixed_resume.py",
+      "line": 15,
+      "dependency": "code/audit_network30_opus_smoke.py"
+    },
+    {
+      "source": "code/run_network30_mixed_resume.py",
+      "line": 16,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/run_network30_mixed_resume.py",
+      "line": 16,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/run_network30_mixed_resume.py",
+      "line": 17,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/audit_network30_opus_smoke.py",
+      "line": 7,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/audit_network30_opus_smoke.py",
+      "line": 7,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/audit_network30_opus_smoke.py",
+      "line": 8,
+      "dependency": "code/network50_grounded_toolkit.py"
+    },
+    {
+      "source": "code/audit_network30_opus_smoke.py",
+      "line": 8,
+      "dependency": "code/network50_grounded_toolkit.py"
+    },
+    {
+      "source": "code/network50_grounded_toolkit.py",
+      "line": 12,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_grounded_toolkit.py",
+      "line": 12,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_grounded_toolkit.py",
+      "line": 13,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/network50_grounded_toolkit.py",
+      "line": 14,
+      "dependency": "code/network50_archive_tools.py"
+    },
+    {
+      "source": "code/network50_grounded_toolkit.py",
+      "line": 14,
+      "dependency": "code/network50_archive_tools.py"
+    },
+    {
+      "source": "code/network50_grounded_toolkit.py",
+      "line": 15,
+      "dependency": "code/network50_enhanced_toolkit.py"
+    },
+    {
+      "source": "code/network50_grounded_toolkit.py",
+      "line": 15,
+      "dependency": "code/network50_enhanced_toolkit.py"
+    },
+    {
+      "source": "code/network50_enhanced_toolkit.py",
+      "line": 3,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_enhanced_toolkit.py",
+      "line": 3,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_enhanced_toolkit.py",
+      "line": 4,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/network50_enhanced_toolkit.py",
+      "line": 5,
+      "dependency": "code/network50_availability_toolkit.py"
+    },
+    {
+      "source": "code/network50_enhanced_toolkit.py",
+      "line": 5,
+      "dependency": "code/network50_availability_toolkit.py"
+    },
+    {
+      "source": "code/network50_enhanced_toolkit.py",
+      "line": 6,
+      "dependency": "code/network50_archive_tools.py"
+    },
+    {
+      "source": "code/network50_enhanced_toolkit.py",
+      "line": 6,
+      "dependency": "code/network50_archive_tools.py"
+    },
+    {
+      "source": "code/network50_enhanced_toolkit.py",
+      "line": 7,
+      "dependency": "code/network50_cached_followups.py"
+    },
+    {
+      "source": "code/network50_enhanced_toolkit.py",
+      "line": 7,
+      "dependency": "code/network50_cached_followups.py"
+    },
+    {
+      "source": "code/network50_enhanced_toolkit.py",
+      "line": 45,
+      "dependency": "code/network50_oneweek_diagnostic.py"
+    },
+    {
+      "source": "code/network50_enhanced_toolkit.py",
+      "line": 45,
+      "dependency": "code/network50_oneweek_diagnostic.py"
+    },
+    {
+      "source": "code/network50_oneweek_diagnostic.py",
+      "line": 12,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_oneweek_diagnostic.py",
+      "line": 12,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_oneweek_diagnostic.py",
+      "line": 13,
+      "dependency": "code/news_agent_r2_2025/config.py"
+    },
+    {
+      "source": "code/network50_oneweek_diagnostic.py",
+      "line": 14,
+      "dependency": "code/news_exposure_2025/workflow.py"
+    },
+    {
+      "source": "code/network50_oneweek_diagnostic.py",
+      "line": 15,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/network50_oneweek_diagnostic.py",
+      "line": 16,
+      "dependency": "code/news_network_50_2025/run.py"
+    },
+    {
+      "source": "code/network50_oneweek_diagnostic.py",
+      "line": 17,
+      "dependency": "code/news_network_50_2025/workflow.py"
+    },
+    {
+      "source": "code/network50_oneweek_diagnostic.py",
+      "line": 18,
+      "dependency": "code/network50_cached_followups.py"
+    },
+    {
+      "source": "code/network50_oneweek_diagnostic.py",
+      "line": 18,
+      "dependency": "code/network50_cached_followups.py"
+    },
+    {
+      "source": "code/network50_cached_followups.py",
+      "line": 5,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_cached_followups.py",
+      "line": 5,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_cached_followups.py",
+      "line": 6,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/network50_archive_tools.py",
+      "line": 12,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_archive_tools.py",
+      "line": 12,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_archive_tools.py",
+      "line": 13,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/network50_archive_tools.py",
+      "line": 14,
+      "dependency": "code/news_network_50_2025/toolkit.py"
+    },
+    {
+      "source": "code/network50_archive_tools.py",
+      "line": 15,
+      "dependency": "code/news_exposure_2025/__init__.py"
+    },
+    {
+      "source": "code/network50_archive_tools.py",
+      "line": 15,
+      "dependency": "code/news_exposure_2025/data.py"
+    },
+    {
+      "source": "code/network50_archive_tools.py",
+      "line": 15,
+      "dependency": "code/news_exposure_2025/__init__.py"
+    },
+    {
+      "source": "code/network50_archive_tools.py",
+      "line": 16,
+      "dependency": "code/news_event_risk_data_2025.py"
+    },
+    {
+      "source": "code/network50_availability_toolkit.py",
+      "line": 7,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_availability_toolkit.py",
+      "line": 7,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_availability_toolkit.py",
+      "line": 8,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/network50_availability_toolkit.py",
+      "line": 9,
+      "dependency": "code/news_network_50_2025/toolkit.py"
+    },
+    {
+      "source": "code/network50_availability_toolkit.py",
+      "line": 66,
+      "dependency": "code/news_network_50_2025/workflow.py"
+    },
+    {
+      "source": "code/run_network30_frozen_2025.py",
+      "line": 18,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/run_network30_frozen_2025.py",
+      "line": 18,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/run_network30_frozen_2025.py",
+      "line": 19,
+      "dependency": "code/news_agent_r2_2025/config.py"
+    },
+    {
+      "source": "code/run_network30_frozen_2025.py",
+      "line": 20,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/run_network30_frozen_2025.py",
+      "line": 21,
+      "dependency": "code/news_network_50_2025/workflow.py"
+    },
+    {
+      "source": "code/run_network30_frozen_2025.py",
+      "line": 22,
+      "dependency": "code/network50_grounded_debug.py"
+    },
+    {
+      "source": "code/run_network30_frozen_2025.py",
+      "line": 22,
+      "dependency": "code/network50_grounded_debug.py"
+    },
+    {
+      "source": "code/run_network30_frozen_2025.py",
+      "line": 23,
+      "dependency": "code/network50_grounded_toolkit.py"
+    },
+    {
+      "source": "code/run_network30_frozen_2025.py",
+      "line": 23,
+      "dependency": "code/network50_grounded_toolkit.py"
+    },
+    {
+      "source": "code/run_network30_frozen_2025.py",
+      "line": 186,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/run_network30_frozen_2025.py",
+      "line": 264,
+      "dependency": "code/news_network_50_2025/metrics.py"
+    },
+    {
+      "source": "code/network50_grounded_debug.py",
+      "line": 12,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_grounded_debug.py",
+      "line": 12,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_grounded_debug.py",
+      "line": 13,
+      "dependency": "code/news_agent_r2_2025/config.py"
+    },
+    {
+      "source": "code/network50_grounded_debug.py",
+      "line": 14,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/network50_grounded_debug.py",
+      "line": 15,
+      "dependency": "code/news_network_50_2025/run.py"
+    },
+    {
+      "source": "code/network50_grounded_debug.py",
+      "line": 16,
+      "dependency": "code/network50_grounded_toolkit.py"
+    },
+    {
+      "source": "code/network50_grounded_debug.py",
+      "line": 16,
+      "dependency": "code/network50_grounded_toolkit.py"
+    },
+    {
+      "source": "code/network50_grounded_debug.py",
+      "line": 92,
+      "dependency": "code/network50_archive_tools.py"
+    },
+    {
+      "source": "code/network50_grounded_debug.py",
+      "line": 92,
+      "dependency": "code/network50_archive_tools.py"
+    },
+    {
+      "source": "code/network50_grounded_debug.py",
+      "line": 93,
+      "dependency": "code/network50_grounded_toolkit.py"
+    },
+    {
+      "source": "code/network50_grounded_debug.py",
+      "line": 93,
+      "dependency": "code/network50_grounded_toolkit.py"
+    },
+    {
+      "source": "code/midcap_standard_2025/benchmarks.py",
+      "line": 9,
+      "dependency": "code/midcap_standard_2025/config.py"
+    },
+    {
+      "source": "code/news_exposure_2025/run.py",
+      "line": 18,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_exposure_2025/run.py",
+      "line": 19,
+      "dependency": "code/news_event_risk_data_2025.py"
+    },
+    {
+      "source": "code/news_exposure_2025/run.py",
+      "line": 20,
+      "dependency": "code/news_agent_r2_2025/config.py"
+    },
+    {
+      "source": "code/news_exposure_2025/run.py",
+      "line": 21,
+      "dependency": "code/news_exposure_2025/config.py"
+    },
+    {
+      "source": "code/news_exposure_2025/run.py",
+      "line": 22,
+      "dependency": "code/news_exposure_2025/graph.py"
+    },
+    {
+      "source": "code/news_exposure_2025/run.py",
+      "line": 23,
+      "dependency": "code/news_exposure_2025/metrics.py"
+    },
+    {
+      "source": "code/news_exposure_2025/run.py",
+      "line": 24,
+      "dependency": "code/news_exposure_2025/workflow.py"
+    },
+    {
+      "source": "code/news_exposure_2025/run.py",
+      "line": 25,
+      "dependency": "code/news_exposure_2025/optimize.py"
+    },
+    {
+      "source": "code/news_exposure_2025/optimize.py",
+      "line": 7,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_exposure_2025/optimize.py",
+      "line": 8,
+      "dependency": "code/news_exposure_2025/config.py"
+    },
+    {
+      "source": "code/news_exposure_2025/optimize.py",
+      "line": 9,
+      "dependency": "code/news_exposure_2025/metrics.py"
+    },
+    {
+      "source": "code/news_network_50_2025/transport_smoke.py",
+      "line": 2,
+      "dependency": "code/news_network_50_2025/test_design.py"
+    },
+    {
+      "source": "code/news_network_50_2025/transport_smoke.py",
+      "line": 3,
+      "dependency": "code/news_network_50_2025/runtime.py"
+    },
+    {
+      "source": "code/news_network_50_2025/transport_smoke.py",
+      "line": 4,
+      "dependency": "code/news_network_50_2025/config.py"
+    },
+    {
+      "source": "code/news_network_50_2025/transport_smoke.py",
+      "line": 5,
+      "dependency": "code/news_agent_r2_2025/config.py"
+    },
+    {
+      "source": "code/news_network_50_2025/transport_smoke.py",
+      "line": 6,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_percentile/build.py",
+      "line": 21,
+      "dependency": "code/news_percentile/common.py"
+    },
+    {
+      "source": "code/network50_evidence_toolkit.py",
+      "line": 11,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_evidence_toolkit.py",
+      "line": 11,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/network50_evidence_toolkit.py",
+      "line": 12,
+      "dependency": "code/network50_archive_tools.py"
+    },
+    {
+      "source": "code/network50_evidence_toolkit.py",
+      "line": 12,
+      "dependency": "code/network50_archive_tools.py"
+    },
+    {
+      "source": "code/network50_evidence_toolkit.py",
+      "line": 13,
+      "dependency": "code/network50_grounded_toolkit.py"
+    },
+    {
+      "source": "code/network50_evidence_toolkit.py",
+      "line": 13,
+      "dependency": "code/network50_grounded_toolkit.py"
+    },
+    {
+      "source": "code/news_exposure_2025/acceptance.py",
+      "line": 4,
+      "dependency": "code/news_agent_batched_runtime_2025.py"
+    },
+    {
+      "source": "code/news_exposure_2025/acceptance.py",
+      "line": 5,
+      "dependency": "code/news_exposure_2025/config.py"
+    },
+    {
+      "source": "code/news_exposure_2025/acceptance.py",
+      "line": 6,
+      "dependency": "code/news_exposure_2025/graph.py"
+    },
+    {
+      "source": "code/news_exposure_2025/acceptance.py",
+      "line": 7,
+      "dependency": "code/news_exposure_2025/tools.py"
+    }
+  ],
+  "explicit_dynamic_loader_supplements": [
+    "news_event_risk_data_2025.py",
+    "news_event_calendar_2025.py",
+    "midcap_tools/prepare.py",
+    "midcap_tools/config.py",
+    "midcap_standard_2025/benchmarks.py",
+    "midcap_standard_2025/config.py",
+    "news_percentile/build.py",
+    "news_percentile/common.py",
+    "network50_archive_tools.py",
+    "network50_availability_toolkit.py",
+    "network50_enhanced_toolkit.py",
+    "network50_grounded_toolkit.py",
+    "network50_evidence_toolkit.py",
+    "network50_grounded_debug.py",
+    "run_network30_frozen_2025.py",
+    "run_network30_mixed_resume.py"
+  ],
+  "boundary": "Local Python imports plus listed dynamic-loader supplements; not licensed artifacts or a portable execution environment."
+}

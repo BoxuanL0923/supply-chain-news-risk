@@ -1,0 +1,51 @@
+ticker,company,theme
+ALGM,ALLEGRO MICROSYSTEMS INC,chips
+AMD,ADVANCED MICRO DEVICES INC,chips
+AVGO,BROADCOM INC,chips
+INTC,INTEL CORP,chips
+LSCC,LATTICE SEMICONDUCTOR CORP,chips
+MU,MICRON TECHNOLOGY INC,chips
+NVDA,NVIDIA CORP,chips
+ON,ON SEMICONDUCTOR CORP,chips
+QRVO,QORVO INC,chips
+SWKS,SKYWORKS SOLUTIONS INC,chips
+AMZN,AMAZON COM INC,cloud_data
+APLD,APPLIED DIGITAL CORP,cloud_data
+CFLT,CONFLUENT INC,cloud_data
+CRM,SALESFORCE INC,cloud_data
+GOOGL,ALPHABET INC,cloud_data
+MDB,MONGODB INC,cloud_data
+META,META PLATFORMS INC,cloud_data
+MSFT,MICROSOFT CORP,cloud_data
+NOW,SERVICENOW INC,cloud_data
+ORCL,ORACLE CORP,cloud_data
+AMAT,APPLIED MATERIALS INC,hardware_power
+COHR,COHERENT CORP,hardware_power
+CSCO,CISCO SYSTEMS INC,hardware_power
+HPE,HEWLETT PACKARD ENTERPRISE CO,hardware_power
+JBL,JABIL INC,hardware_power
+KLAC,K L A CORP,hardware_power
+LRCX,LAM RESH CORP,hardware_power
+SMCI,SUPER MICRO COMPUTER INC,hardware_power
+TER,TERADYNE INC,hardware_power
+WDC,WESTERN DIGITAL CORP,hardware_power
+CAT,CATERPILLAR INC,industry_transport
+CHRW,CH ROBINSON WORLDWIDE INC,industry_transport
+DE,DEERE & CO,industry_transport
+ETN,EATON CORP PLC,industry_transport
+EXPD,EXPEDITORS INTERNATIONAL WA INC,industry_transport
+GE,GENERAL ELECTRIC CO,industry_transport
+HON,HONEYWELL INTERNATIONAL INC,industry_transport
+JBHT,HUNT J B TRANSPORT SERVICES INC,industry_transport
+UNP,UNION PACIFIC CORP,industry_transport
+XPO,X P O INC,industry_transport
+BURL,BURLINGTON STORES INC,retail_consumer
+COST,COSTCO WHOLESALE CORP NEW,retail_consumer
+DG,DOLLAR GENERAL CORP NEW,retail_consumer
+DKS,DICKS SPORTING GOODS INC,retail_consumer
+DLTR,DOLLAR TREE INC,retail_consumer
+HD,HOME DEPOT INC,retail_consumer
+TGT,TARGET CORP,retail_consumer
+TJX,T J X COMPANIES INC NEW,retail_consumer
+ULTA,ULTA BEAUTY INC,retail_consumer
+WMT,WALMART INC,retail_consumer

@@ -1,0 +1,68 @@
+[
+  {
+    "source": {
+      "bytes": 1228533737,
+      "mtime_ns": 1763593320000000000,
+      "path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\Reuters\\STORY.RTRS.2025-07.REC.JSON.txt",
+      "sha256": "67d1e7b9bd8252961ddb3cd6a4b59444c0d3995380c502f1a44fac9e168b0063"
+    },
+    "index": "C:\\OptResearch\\results\\news_exposure_2025\\reuters_index\\2025-07.jsonl.gz",
+    "index_sha256": "4a684cbe291f7c6321d167ea8a1ba8901ecf0dba03d535cfa006d89f31fa7da1",
+    "verification": "Existing recorded provenance only; raw month not rescanned by this builder."
+  },
+  {
+    "source": {
+      "bytes": 1123328451,
+      "mtime_ns": 1776977292745736500,
+      "path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\Reuters\\STORY.RTRS.2025-08.REC.JSON.txt",
+      "sha256": "4344b58231cc291e1d7cfa934239e38d0d987593c9a729bcaeb77aa55fca0070"
+    },
+    "index": "C:\\OptResearch\\results\\news_exposure_2025\\reuters_index\\2025-08.jsonl.gz",
+    "index_sha256": "9c699bd7afbe8a4242817c3ff225b9690f88bde8992e86f78d12c0f22ea2c698",
+    "verification": "Existing recorded provenance only; raw month not rescanned by this builder."
+  },
+  {
+    "source": {
+      "bytes": 1006911314,
+      "mtime_ns": 1776977772703432500,
+      "path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\Reuters\\STORY.RTRS.2025-09.REC.JSON.txt",
+      "sha256": "c15711e53271562dc023514844c4c683e1d0e9bcaf19ffec97a2171307b958fb"
+    },
+    "index": "C:\\OptResearch\\results\\news_exposure_2025\\reuters_index\\2025-09.jsonl.gz",
+    "index_sha256": "cae808167e43dbb3cd183167db4b84a4ee4fd31a549dc0c59aeaf6038dc5da74",
+    "verification": "Existing recorded provenance only; raw month not rescanned by this builder."
+  },
+  {
+    "source": {
+      "bytes": 1160357273,
+      "mtime_ns": 1776977327694921500,
+      "path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\Reuters\\STORY.RTRS.2025-10.REC.JSON.txt",
+      "sha256": "40fd9fb32d14365a1d2f41930e7a98b228ed91928db871cfa088a49b09def5dd"
+    },
+    "index": "C:\\OptResearch\\results\\news_exposure_2025\\reuters_index\\2025-10.jsonl.gz",
+    "index_sha256": "1ab9cf9ad4fc0838b01efe9b4f8332aa7001ddb4518a8d8b89bb615bbdc54fac",
+    "verification": "Existing recorded provenance only; raw month not rescanned by this builder."
+  },
+  {
+    "source": {
+      "bytes": 1045822194,
+      "mtime_ns": 1776977630535746500,
+      "path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\Reuters\\STORY.RTRS.2025-11.REC.JSON.txt",
+      "sha256": "0b1af9700a35194db41ec8b277003e8f67417170fc75825487700813d6038c85"
+    },
+    "index": "C:\\OptResearch\\results\\news_exposure_2025\\reuters_index\\2025-11.jsonl.gz",
+    "index_sha256": "f7a031d7c9187715ed1fdbef0247765428eac3387291d4f425c01332db4b8dbb",
+    "verification": "Existing recorded provenance only; raw month not rescanned by this builder."
+  },
+  {
+    "source": {
+      "bytes": 925241074,
+      "mtime_ns": 1776977927804268000,
+      "path": "C:\\Users\\Boxuan\\Documents\\GitHub\\ReutersNewstTraining\\Reuters\\STORY.RTRS.2025-12.REC.JSON.txt",
+      "sha256": "e7d8a88ffa8c61cccedc2a06ddb10d73e2cc561439e5bcb30a53447f8c5bcab3"
+    },
+    "index": "C:\\OptResearch\\results\\news_exposure_2025\\reuters_index\\2025-12.jsonl.gz",
+    "index_sha256": "6705cce667fba553dcd4cde3c903f285d21b06d7973ef082b32284e7da6d2cda",
+    "verification": "Existing recorded provenance only; raw month not rescanned by this builder."
+  }
+]

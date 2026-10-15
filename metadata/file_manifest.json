@@ -1,0 +1,331 @@
+{
+  "hash": "sha256",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 126,
+      "sha256": "54cd4df554f72c8ba2cc3d67f9934c196327e26cd2bca7ff1cd3c04436bb872a"
+    },
+    {
+      "path": "DATA_DICTIONARY.md",
+      "bytes": 16597,
+      "sha256": "473f9db89aca49f0236b5b44bcf3a1a6b1e81303f81cc56d0b2bcb50758cc9b2"
+    },
+    {
+      "path": "dictionaries/observed_schemas.json",
+      "bytes": 15722,
+      "sha256": "0b7d819ae01ed5fb15c6cb9c7fc3f9b71e93310ff7ace8be215d151fadddb0ef"
+    },
+    {
+      "path": "dictionaries/raw_fields.csv",
+      "bytes": 17798,
+      "sha256": "5363f232ed78e69f4ec25ff9425be45a9e835ed192fe138706fe9e7b580e1398"
+    },
+    {
+      "path": "dictionaries/tool_registry.json",
+      "bytes": 26811,
+      "sha256": "0435d63495fb9ed909f2e30ab534cb55d1ce5fb93dbcc59431a977407d72ac80"
+    },
+    {
+      "path": "dictionaries/variables.csv",
+      "bytes": 5764,
+      "sha256": "72e57ab67f6993b44e9c3211f69f1a357559956d5da059d642f80a83bfd2d382"
+    },
+    {
+      "path": "dictionaries/variables.json",
+      "bytes": 10182,
+      "sha256": "8777765a1f37233161b1b0897df1f5177e43c295c10347db025efe08abbba78e"
+    },
+    {
+      "path": "examples/test_formulas.py",
+      "bytes": 2202,
+      "sha256": "d89012a309b5f2e98abb838da726b09634b64788e419b8c6e08e76eaa9c4ce98"
+    },
+    {
+      "path": "metadata/environment.json",
+      "bytes": 829,
+      "sha256": "46e39d148e77ae5993319b9de80d1eff371da3f4be0a95ce58bda2135fe49af7"
+    },
+    {
+      "path": "metadata/factset_guide.json",
+      "bytes": 930,
+      "sha256": "a3e63ea4ae915fc46a28d7626991a51869719ec8a78bd21fed9ef3e7ae61b6a1"
+    },
+    {
+      "path": "metadata/firm_universe.csv",
+      "bytes": 1835,
+      "sha256": "1e6ec406c4306de42c672d25732634f54696d3d06bfe4e846d6aed855917ccc1"
+    },
+    {
+      "path": "metadata/import_inventory.json",
+      "bytes": 25833,
+      "sha256": "dcaebddfe4ed3dcb7c92dc800913ad84ac1418ce9f2b850d99ee5c682cfee850"
+    },
+    {
+      "path": "metadata/package_summary.json",
+      "bytes": 816,
+      "sha256": "beae7f68c5ae6945592ee362aa52dcb72d2b45117bb2011ca4f724fb90175cc3"
+    },
+    {
+      "path": "metadata/reuters_source_provenance.json",
+      "bytes": 3544,
+      "sha256": "6c47b67811edea82dce41b0a6946aa0a034ca6a94cf0eb0e30c21978712ef294"
+    },
+    {
+      "path": "metadata/run_schedule.csv",
+      "bytes": 1525,
+      "sha256": "f45f4b2f4b4a17458eadc9b5d795c63915fee6a835b31e29f74d8e5a59f08892"
+    },
+    {
+      "path": "metadata/source_manifest.csv",
+      "bytes": 7549,
+      "sha256": "dc8ec81b7b94fc8d56006a905178e0134569e73b56a6ad81c6f13b9f651d5da5"
+    },
+    {
+      "path": "metadata/verification.json",
+      "bytes": 1113,
+      "sha256": "5c00d5dea90d41be93196072135dcbdee4469c16a75c0aabc49fec12933acb72"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5618,
+      "sha256": "4ab8b6c18194d48f7b18edfd240edbdec765602446b2d5f765d36e552f593451"
+    },
+    {
+      "path": "source/code/audit_network30_opus_smoke.py",
+      "bytes": 6400,
+      "sha256": "45a9c9bfa5713dab4427db88e69760e7acc22888fcd627ac8e4da15fceabc8e5"
+    },
+    {
+      "path": "source/code/midcap_standard_2025/benchmarks.py",
+      "bytes": 2895,
+      "sha256": "46f166c918b5cab15c7ae54d77ba289374a5c97e658820eab143a0dffc735fa9"
+    },
+    {
+      "path": "source/code/midcap_standard_2025/config.py",
+      "bytes": 2394,
+      "sha256": "27474bd078c2586df6d2335647f2698ddac8d86c5fad7fc5078f68b177d9e8e6"
+    },
+    {
+      "path": "source/code/midcap_tools/config.py",
+      "bytes": 1940,
+      "sha256": "9c5ffffe53c2b2020d22ac8dbb39854d67ee1ad19d30d208e16162c8270c0ebd"
+    },
+    {
+      "path": "source/code/midcap_tools/prepare.py",
+      "bytes": 50932,
+      "sha256": "e9f3c070cb2d598d192501b9f4e3ca721c291aa40a8d53fa818fe3fbe7421056"
+    },
+    {
+      "path": "source/code/midcap_tools/retrieval.py",
+      "bytes": 40155,
+      "sha256": "3c05b045e98373f034aee6e2f9452669e472cf45ebb814cfd14db2c5de62ad4d"
+    },
+    {
+      "path": "source/code/network50_archive_tools.py",
+      "bytes": 17124,
+      "sha256": "c7dac4da431151c3e2fb6eef6feade84988e302416142540c55648d5a4175041"
+    },
+    {
+      "path": "source/code/network50_availability_toolkit.py",
+      "bytes": 8913,
+      "sha256": "ff0d8883ec7dd91ad889d3923f5bcea7905e48be11d1877bec38b9cfe9a66595"
+    },
+    {
+      "path": "source/code/network50_cached_followups.py",
+      "bytes": 4382,
+      "sha256": "75f9f4a98988a687e22b668c5d73c1e2fa8031828de7a90172cd651f055c06eb"
+    },
+    {
+      "path": "source/code/network50_enhanced_toolkit.py",
+      "bytes": 7447,
+      "sha256": "0b105a80e08bbe0d925e59847f02fa037b5181a5f0130128ef45276af305e83b"
+    },
+    {
+      "path": "source/code/network50_evidence_toolkit.py",
+      "bytes": 19764,
+      "sha256": "6d623ec2adbc4c1c27dd8b991d644c43ec1f0d18454922d5aa387f8f7a7e8244"
+    },
+    {
+      "path": "source/code/network50_grounded_debug.py",
+      "bytes": 15275,
+      "sha256": "66ae2809f258961b191cbddd2aad803b742a065e6adcc35f56ea20d682fbd936"
+    },
+    {
+      "path": "source/code/network50_grounded_toolkit.py",
+      "bytes": 40250,
+      "sha256": "d9112e52a1d30829e88f3ba842ef0a963fff3d37de1e142a0c436e939a6a7d5e"
+    },
+    {
+      "path": "source/code/network50_oneweek_diagnostic.py",
+      "bytes": 16004,
+      "sha256": "aafa5db8c5e3a9c23950fc7b6c0937a354c2ce4224f70357a89a9d922c3353b0"
+    },
+    {
+      "path": "source/code/news_agent_batched_runtime_2025.py",
+      "bytes": 12198,
+      "sha256": "ace66baea495df1f18a663ef58584a8f4b7676d4a66e88f5bc7a298e1f6e4804"
+    },
+    {
+      "path": "source/code/news_agent_r2_2025/__init__.py",
+      "bytes": 63,
+      "sha256": "3140c240fc65a5c0b26b7daf965e62c428dec0402f808f6cc2921c2470ca3d49"
+    },
+    {
+      "path": "source/code/news_agent_r2_2025/config.py",
+      "bytes": 2490,
+      "sha256": "bc7c2bbb7eef1d3596396a4767be071625ef13593243a6615617f56ddd4818c1"
+    },
+    {
+      "path": "source/code/news_event_calendar_2025.py",
+      "bytes": 32163,
+      "sha256": "a3a1635073494e8e8749cc6edc92fb2c225e28799f4082f7db0d3c4fc93b19f0"
+    },
+    {
+      "path": "source/code/news_event_risk_data_2025.py",
+      "bytes": 38459,
+      "sha256": "53792dba8a58cf6fb2205098653c65919cddf7466508fdecd7a8a0390e8537ff"
+    },
+    {
+      "path": "source/code/news_exposure_2025/__init__.py",
+      "bytes": 85,
+      "sha256": "e18dc4938aa2fe1dbd03baf3dfff9dfda20d92fc2094d300c2fb9cb12db7c4d2"
+    },
+    {
+      "path": "source/code/news_exposure_2025/acceptance.py",
+      "bytes": 2714,
+      "sha256": "a578513ff7285e85cedf9ade26ca248c14a77d120af42f53b4482319bab4679b"
+    },
+    {
+      "path": "source/code/news_exposure_2025/config.py",
+      "bytes": 7405,
+      "sha256": "996b1369782b6320cbe56c68a76fbe5111b7649efc3fe53129ce07c1cc54eff4"
+    },
+    {
+      "path": "source/code/news_exposure_2025/data.py",
+      "bytes": 17999,
+      "sha256": "82310f6ff43d255351ff4511666d8517aae49866674287aa90a0164b36867c54"
+    },
+    {
+      "path": "source/code/news_exposure_2025/graph.py",
+      "bytes": 8750,
+      "sha256": "8aefc9313c70f133d76577de44ba820936d879c4e49715204c518422e8bb5732"
+    },
+    {
+      "path": "source/code/news_exposure_2025/metrics.py",
+      "bytes": 5896,
+      "sha256": "82cfe8833105ac3083bdf6809fc6bb92aee875b14278fc59b10ec5c8362a8b34"
+    },
+    {
+      "path": "source/code/news_exposure_2025/optimize.py",
+      "bytes": 14044,
+      "sha256": "4204baa148b5cd61f6cdb3d511b5bf4c541f2dcf6d0eec8d078181502b30bf97"
+    },
+    {
+      "path": "source/code/news_exposure_2025/run.py",
+      "bytes": 12739,
+      "sha256": "9879b4c7342448806b7e555e4f46156b21f4bc4490abb5c67146ff09de2e0588"
+    },
+    {
+      "path": "source/code/news_exposure_2025/tools.py",
+      "bytes": 17535,
+      "sha256": "44955d18492af16059840896b5b446ecbe7e146bf25065d4903e9807d1758ed3"
+    },
+    {
+      "path": "source/code/news_exposure_2025/workflow.py",
+      "bytes": 9264,
+      "sha256": "4004cc2012eef5e7f2c1c65a186a713bb9f77ab2ad2717d2fdf870d3bd6cecd5"
+    },
+    {
+      "path": "source/code/news_network_50_2025/__init__.py",
+      "bytes": 68,
+      "sha256": "c611daea6c130f2ebeb060f2450341042f7d2f5842422c31c9a3ac61ae4909cf"
+    },
+    {
+      "path": "source/code/news_network_50_2025/config.py",
+      "bytes": 4100,
+      "sha256": "2e36de5db7876fcd2b7d4ce1c1b40ba28270da8602bd5fc79a39217c248c94d0"
+    },
+    {
+      "path": "source/code/news_network_50_2025/data.py",
+      "bytes": 20465,
+      "sha256": "52fdb6d18093e776b042b7bb405dedb2c618759037d3248bfd78bf6a132b4a09"
+    },
+    {
+      "path": "source/code/news_network_50_2025/metrics.py",
+      "bytes": 5734,
+      "sha256": "ade97f2c0be91832d18087bdce3c459e539408826ccee20b3b667997357199da"
+    },
+    {
+      "path": "source/code/news_network_50_2025/optimize.py",
+      "bytes": 9834,
+      "sha256": "7c5957adac2f63e47f6c30e45bb067d1ba8bf40fc660a84f2f0f98aba98c929c"
+    },
+    {
+      "path": "source/code/news_network_50_2025/run.py",
+      "bytes": 17024,
+      "sha256": "9caa94f790ba8900513528bd55df19dbd76fb65220114e99354504ee8c045f86"
+    },
+    {
+      "path": "source/code/news_network_50_2025/runtime.py",
+      "bytes": 4377,
+      "sha256": "2c15de69ca9b459ff25b963d892f03e28f1f8b5b6e84fb6059e9ab658671d6e7"
+    },
+    {
+      "path": "source/code/news_network_50_2025/test_design.py",
+      "bytes": 13979,
+      "sha256": "6583e25554a03178fca96dbe320cdd6985f08b6ecb012e6f3bde846df628a90f"
+    },
+    {
+      "path": "source/code/news_network_50_2025/toolkit.py",
+      "bytes": 11295,
+      "sha256": "0e1af43fc9fe5f48e443f9d39317b627e8d38f53a609dffe53383abdaffd0759"
+    },
+    {
+      "path": "source/code/news_network_50_2025/transport_smoke.py",
+      "bytes": 916,
+      "sha256": "94e80d0cb4889df2967ba017eb42b5ffade1aa88a653b195e86ba9b67ff2e944"
+    },
+    {
+      "path": "source/code/news_network_50_2025/workflow.py",
+      "bytes": 18546,
+      "sha256": "7cd2b8d9e81b3a019874861341b75962d6ad1ce5053a0e4d966d46aa3084f00e"
+    },
+    {
+      "path": "source/code/news_percentile/build.py",
+      "bytes": 38267,
+      "sha256": "d45d68c8aacc94ef535f29a586e85fc5b4e9255b2c4674c4b30eb69e025a0bc7"
+    },
+    {
+      "path": "source/code/news_percentile/common.py",
+      "bytes": 3800,
+      "sha256": "5a8c82474031efd334694248d3f900eae75e4140f3b1e4ceb60f1bef45a3c323"
+    },
+    {
+      "path": "source/code/news_source_clock_2025.py",
+      "bytes": 2594,
+      "sha256": "c1a51b698aaf75972ba61dcea8bce1623b591608fd7f87a6f7d299f00035e548"
+    },
+    {
+      "path": "source/code/run_network30_frozen_2025.py",
+      "bytes": 22643,
+      "sha256": "b073081a83321df0416df912299ba81062e5812da075c3637ab2789aa5f1c53f"
+    },
+    {
+      "path": "source/code/run_network30_mixed_resume.py",
+      "bytes": 7199,
+      "sha256": "bff175af67f596cdee578b95a26f0175c84f058f30fabd9826ab5120728c0043"
+    },
+    {
+      "path": "specification.json",
+      "bytes": 7714,
+      "sha256": "625614eb7b110ae061d989ff60a7095c1ff66d8be327effefe77a8f39e68e691"
+    },
+    {
+      "path": "TOOL_SEARCH_UNIVERSE.md",
+      "bytes": 9514,
+      "sha256": "dc95d530c37ad0be1a7817afc1bbfbba85c581bd97895d4c70fec9fde80e2e6b"
+    }
+  ],
+  "excluded_from_self_hash": "metadata/file_manifest.json"
+}

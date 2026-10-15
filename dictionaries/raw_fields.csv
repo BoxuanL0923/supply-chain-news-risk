@@ -1,0 +1,115 @@
+dataset,field,type,nullable,meaning_and_use
+factset_supply_chain,ID,delimited text; vendor/project definition in notes,not inferred from header,Relationship identifier; versioned FactSet tables use ID together with START_DATE.
+factset_supply_chain,SUPPLIER_FACTSET_ENTITY_ID,delimited text; vendor/project definition in notes,not inferred from header,Entity selling goods/services; source of the constructed supplies edge.
+factset_supply_chain,CUSTOMER_FACTSET_ENTITY_ID,delimited text; vendor/project definition in notes,not inferred from header,Entity buying goods/services; target of the constructed supplies edge.
+factset_supply_chain,START_DATE,delimited text; vendor/project definition in notes,not inferred from header,"Record first-publication/history start, subject to vendor publication-date exceptions; active <= snapshot timestamp."
+factset_supply_chain,END_DATE,delimited text; vendor/project definition in notes,not inferred from header,"Record-history termination, null for active; implementation requires null or > snapshot timestamp."
+factset_supply_chain,REVENUE_PCT,delimited text; vendor/project definition in notes,not inferred from header,"Supply table: percent of supplier revenue derived from customer, not customer procurement share. Direct relationship table: reported customer-revenue percentage when disclosed. Agents receive no numerical edge weight; see locally identified vendor guide."
+factset_supply_chain,SOURCE_FACTSET_ENTITY_ID,delimited text; vendor/project definition in notes,not inferred from header,Entity reporting the relationship; not necessarily the supplier in a reverse-reported record.
+factset_relationships,ID,delimited text; vendor/project definition in notes,not inferred from header,Relationship identifier; versioned FactSet tables use ID together with START_DATE.
+factset_relationships,REL_TYPE,delimited text; vendor/project definition in notes,not inferred from header,Reported relationship code; only COMPETITOR rows from ent_scr_relationships enter this graph.
+factset_relationships,SOURCE_FACTSET_ENTITY_ID,delimited text; vendor/project definition in notes,not inferred from header,Entity reporting the relationship; not necessarily the supplier in a reverse-reported record.
+factset_relationships,TARGET_FACTSET_ENTITY_ID,delimited text; vendor/project definition in notes,not inferred from header,Entity reported as related to the reporting source.
+factset_relationships,START_DATE,delimited text; vendor/project definition in notes,not inferred from header,"Record first-publication/history start, subject to vendor publication-date exceptions; active <= snapshot timestamp."
+factset_relationships,END_DATE,delimited text; vendor/project definition in notes,not inferred from header,"Record-history termination, null for active; implementation requires null or > snapshot timestamp."
+factset_relationships,REVENUE_PCT,delimited text; vendor/project definition in notes,not inferred from header,"Supply table: percent of supplier revenue derived from customer, not customer procurement share. Direct relationship table: reported customer-revenue percentage when disclosed. Agents receive no numerical edge weight; see locally identified vendor guide."
+factset_names,fsym_id,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,fsym_id_kind,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,PROPER_NAME,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,FSYM_REGIONAL_ID,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,FSYM_SECURITY_ID,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,FS_PERM_SEC_ID,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,FACTSET_ENTITY_ID,delimited text; vendor/project definition in notes,not inferred from header,"FactSet company/entity identifier, joined to a dated PERMNO bridge."
+factset_names,ENTITY_PROPER_NAME,delimited text; vendor/project definition in notes,not inferred from header,"Entity name used for identity aids, not a dated operational profile."
+factset_names,cusip_fs,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,TICKER_EXCHANGE,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,PERMNO,delimited text; vendor/project definition in notes,not inferred from header,CRSP security identifier; capitalized in the project FactSet bridge.
+factset_names,PERMCO,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,HdrCUSIP,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,CUSIP,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,Ticker,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,IssuerNm,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_names,link_bdate,delimited text; vendor/project definition in notes,not inferred from header,"Project mapping interval start, used with <= end-of-snapshot timestamp."
+factset_names,link_edate,delimited text; vendor/project definition in notes,not inferred from header,"Project mapping interval end, null or > end-of-snapshot timestamp."
+factset_permno_bridge,FACTSET_ENTITY_ID,delimited text; vendor/project definition in notes,not inferred from header,"FactSet company/entity identifier, joined to a dated PERMNO bridge."
+factset_permno_bridge,PERMNO,delimited text; vendor/project definition in notes,not inferred from header,CRSP security identifier; capitalized in the project FactSet bridge.
+factset_permno_bridge,PERMCO,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_permno_bridge,HdrCUSIP,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_permno_bridge,Ticker,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+factset_permno_bridge,link_bdate,delimited text; vendor/project definition in notes,not inferred from header,"Project mapping interval start, used with <= end-of-snapshot timestamp."
+factset_permno_bridge,link_edate,delimited text; vendor/project definition in notes,not inferred from header,"Project mapping interval end, null or > end-of-snapshot timestamp."
+ric_ticker_bridge,ric,delimited text; vendor/project definition in notes,not inferred from header,Native Reuters instrument code; maps via US RIC-to-ticker and dated CRSP names.
+ric_ticker_bridge,ticker,delimited text; vendor/project definition in notes,not inferred from header,Ticker identifier; resolve through dated name intervals and reject ambiguous mappings.
+ric_ticker_bridge,exchange,delimited text; vendor/project definition in notes,not inferred from header,Not consumed by this specification; upstream meaning not verified in this package.
+ric_ticker_bridge,is_us,delimited text; vendor/project definition in notes,not inferred from header,Project RIC mapping US flag; non-US/unmapped tags do not retrieve PERMNO-linked sources.
+crsp_daily_history,permno,int64,True,"CRSP security identifier; joins use permno and session date, not current ticker alone."
+crsp_daily_history,date,string,True,Trading-session date for daily tables/calendar.
+crsp_daily_history,ret,double,True,Stored decimal daily total return; no risk-free subtraction or separate delisting adjustment here.
+crsp_daily_history,prc,double,True,CRSP stored price; absolute value used for dollar-price magnitude and formation calculations.
+crsp_daily_history,shrout,double,True,Shares outstanding in thousands; formation equity = abs(prc)*shrout*1000.
+crsp_daily_history,vol,double,True,Reported daily trading share volume; formation dollar volume = abs(prc)*vol.
+crsp_daily_2025,permno,int64,True,"CRSP security identifier; joins use permno and session date, not current ticker alone."
+crsp_daily_2025,date,string,True,Trading-session date for daily tables/calendar.
+crsp_daily_2025,ret,double,True,Stored decimal daily total return; no risk-free subtraction or separate delisting adjustment here.
+crsp_daily_2025,prc,double,True,CRSP stored price; absolute value used for dollar-price magnitude and formation calculations.
+crsp_daily_2025,vol,double,True,Reported daily trading share volume; formation dollar volume = abs(prc)*vol.
+crsp_daily_2025,shrout,int64,True,Shares outstanding in thousands; formation equity = abs(prc)*shrout*1000.
+crsp_daily_2025,cap,double,True,Not consumed by this specification; upstream meaning not verified in this package.
+crsp_compact,permno,int32,True,"CRSP security identifier; joins use permno and session date, not current ticker alone."
+crsp_compact,date,date32[day],True,Trading-session date for daily tables/calendar.
+crsp_compact,ret,float,True,Stored decimal daily total return; no risk-free subtraction or separate delisting adjustment here.
+crsp_compact,prc,float,True,CRSP stored price; absolute value used for dollar-price magnitude and formation calculations.
+crsp_compact,me,float,True,Not consumed by this specification; upstream meaning not verified in this package.
+crsp_compact,exchcd,int8,True,Not consumed by this specification; upstream meaning not verified in this package.
+crsp_compact,sic2,int8,True,Not consumed by this specification; upstream meaning not verified in this package.
+crsp_compact,ff49,int8,True,Not consumed by this specification; upstream meaning not verified in this package.
+crsp_compact,ind_src,int8,True,Not consumed by this specification; upstream meaning not verified in this package.
+crsp_compact,share_type,int8,True,Not consumed by this specification; upstream meaning not verified in this package.
+crsp_names,permno,int64,True,"CRSP security identifier; joins use permno and session date, not current ticker alone."
+crsp_names,ticker,string,True,Ticker identifier; resolve through dated name intervals and reject ambiguous mappings.
+crsp_names,namedt,timestamp[ns],True,CRSP name-record start date; implementation uses inclusive boundary.
+crsp_names,nameenddt,timestamp[ns],True,CRSP name-record end date; implementation uses inclusive boundary.
+crsp_names,comnam,string,True,Dated CRSP company name used for identity and sample labels.
+crsp_names,exchcd,int64,True,Not consumed by this specification; upstream meaning not verified in this package.
+crsp_names,carried_fwd,bool,True,Not consumed by this specification; upstream meaning not verified in this package.
+trading_calendar,date,timestamp[ns],True,Trading-session date for daily tables/calendar.
+completed_controls,case_id,string,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,date,string,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,ticker,string,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,b,double,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,rv1,double,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,rv5,double,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,rv22,double,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,earnings_confirmed,int64,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,calendar_unknown,int64,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,post_earnings,int64,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,pending_cash_deal,int64,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,log_news_count,double,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,log_neighbor_count,double,True,Derived project field; exact implementation/formula in variables.csv.
+completed_controls,log_degree,double,True,Derived project field; exact implementation/formula in variables.csv.
+reuters_story_json,data.altId,nested JSON; timestamps are strings,handled explicitly by parser,First-choice story identity; fallback data.id then top-level guid.
+reuters_story_json,data.id,nested JSON; timestamps are strings,handled explicitly by parser,Fallback story identity.
+reuters_story_json,guid,nested JSON; timestamps are strings,handled explicitly by parser,Top-level fallback story identity.
+reuters_story_json,data.firstCreated,nested JSON; timestamps are strings,handled explicitly by parser,Publication timestamp; ordinary-news availability maximum includes it.
+reuters_story_json,data.versionCreated,nested JSON; timestamps are strings,handled explicitly by parser,Version timestamp; version rank and availability.
+reuters_story_json,timestamps[].name,nested JSON; timestamps are strings,handled explicitly by parser,Only recorded timestamp entries enter availability.
+reuters_story_json,timestamps[].timestamp,nested JSON; timestamps are strings,handled explicitly by parser,Recorded receipt timestamp; maximum with supplied publication timestamps.
+reuters_story_json,data.takeSequence,nested JSON; timestamps are strings,handled explicitly by parser,"Sequence rank, default zero in ordinary-news normalization."
+reuters_story_json,data.pubStatus,nested JSON; timestamps are strings,handled explicitly by parser,Default stat:usable; superseding unusable records do not resurrect earlier takes.
+reuters_story_json,data.provider,nested JSON; timestamps are strings,handled explicitly by parser,"Provider, default NS:RTRS; ordinary usable news restricted to Reuters."
+reuters_story_json,data.language,nested JSON; timestamps are strings,handled explicitly by parser,Ordinary usable news requires en or missing.
+reuters_story_json,data.subjects,nested JSON; timestamps are strings,handled explicitly by parser,Native RIC tags and N2 topics; exact parser regex in news_percentile/build.py.
+reuters_story_json,data.headline,nested JSON; timestamps are strings,handled explicitly by parser,"Headline for ranking, scope/classification and source checks."
+reuters_story_json,data.body,nested JSON; timestamps are strings,handled explicitly by parser,"Full story/diary text, inspected through source-bound pages."
+reuters_story_json,data.ts,nested JSON; timestamps are strings,handled explicitly by parser,"Additional timestamp fallback in diary parser, not ordinary news normalize_article."
+reuters_story_json,data.version,nested JSON; timestamps are strings,handled explicitly by parser,Diary sequence fallback after takeSequence.
+reuters_story_json,version,nested JSON; timestamps are strings,handled explicitly by parser,Top-level diary version fallback.
+parsed_diary_row,ticker,project-derived field,see parser,"Exact explicit diary row field; see parse_diary_rows and DATA_DICTIONARY.md, no issuer-calendar completeness implied."
+parsed_diary_row,ric,project-derived field,see parser,"Exact explicit diary row field; see parse_diary_rows and DATA_DICTIONARY.md, no issuer-calendar completeness implied."
+parsed_diary_row,event_date,project-derived field,see parser,"Exact explicit diary row field; see parse_diary_rows and DATA_DICTIONARY.md, no issuer-calendar completeness implied."
+parsed_diary_row,period,project-derived field,see parser,"Exact explicit diary row field; see parse_diary_rows and DATA_DICTIONARY.md, no issuer-calendar completeness implied."
+parsed_diary_row,time_text,project-derived field,see parser,"Exact explicit diary row field; see parse_diary_rows and DATA_DICTIONARY.md, no issuer-calendar completeness implied."
+parsed_diary_row,timezone,project-derived field,see parser,"Exact explicit diary row field; see parse_diary_rows and DATA_DICTIONARY.md, no issuer-calendar completeness implied."
+parsed_diary_row,action,project-derived field,see parser,"Exact explicit diary row field; see parse_diary_rows and DATA_DICTIONARY.md, no issuer-calendar completeness implied."
+parsed_diary_row,quote,project-derived field,see parser,"Exact explicit diary row field; see parse_diary_rows and DATA_DICTIONARY.md, no issuer-calendar completeness implied."
+parsed_diary_row,span,project-derived field,see parser,"Exact explicit diary row field; see parse_diary_rows and DATA_DICTIONARY.md, no issuer-calendar completeness implied."

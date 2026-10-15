@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-15",
+  "source_files": 45,
+  "datasets_with_headers_or_schemas": 11,
+  "variables": 15,
+  "control_count": 11,
+  "tool_counts": {
+    "completed_50firm_original": {
+      "OWN": 6,
+      "NET": 6
+    },
+    "later_grounded_v11": {
+      "OWN": 13,
+      "NET": 15
+    },
+    "separate_evidence_v1": {
+      "OWN": 15,
+      "NET": 18
+    }
+  },
+  "verification": true,
+  "safety": {
+    "python_files_parsed": 45,
+    "credential_pattern_check": "passed (known formats only; not a license review)",
+    "raw_data_exclusion": "passed",
+    "source_bytes_match": true
+  },
+  "status": "local_only_not_uploaded",
+  "historical_source_match_counts": {
+    "matches_recorded_run": 16,
+    "differs_from_recorded_run": 3,
+    "not_recorded_in_original_run": 26
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "provider_calls": 0,
+  "outcome_files_opened": [],
+  "score_files_opened": [],
+  "panel_rows": 600,
+  "firms": 50,
+  "origins": 12,
+  "split_rows": {
+    "train": 200,
+    "valid": 100,
+    "test": 300
+  },
+  "trailing_variance_formula_checks": 1800,
+  "calendar_checks": 600,
+  "conventional_anchor_checks": "b equals input case; training control identity read without labels",
+  "pending_cash_deal_unique": [
+    0
+  ],
+  "calendar_complement_all_rows": true,
+  "training_design_columns_including_intercept": 12,
+  "training_design_rank": 10,
+  "counts_and_garch_refitting": "Not recomputed: requires archive or model fitting; exact code/formulas included.",
+  "input_sha256": {
+    "cases.json": "d93d643edb6e7381d13997afd16f1b7cfd7939c1cc67ec329c0c2a9dcecbb28d",
+    "controls.parquet": "58be9374077806f7bce6472852fda29ff8c3c70dde52096c3ccf00d1b64268ad",
+    "calendar_features.json": "48b40e424d8a7abec0e94babcec1b3089a04e27f2736c45e091f8ad0b0cbff53",
+    "numerical_manifest.json": "94437916f22a0c0be6686a17b64c52379e855ae7c74e7fe2aafac23dc408ae59"
+  }
+}
