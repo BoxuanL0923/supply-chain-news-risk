@@ -4,6 +4,11 @@ This package documents the inputs, variable definitions, and tool-accessible sea
 
 ## Start here
 
+- Explicit Skill invocation: Claude Code uses `/supply-chain-news-risk`; Codex
+  uses `$supply-chain-news-risk`. The provider-neutral bundle is
+  `skills/supply-chain-news-risk/`; the thin `.claude/skills/` wrapper disables
+  implicit Claude invocation. OpenAI's machine-readable policy also disables
+  implicit invocation. Neither entry point runs production forecasts.
 - [Data dictionary](DATA_DICTIONARY.md): raw fields, identifiers, formulas, clocks, missingness, and known limitations.
 - [Tool search universe](TOOL_SEARCH_UNIVERSE.md): what the analyst can search, which Python scripts implement it, and how versions differ.
 - `dictionaries/variables.csv` and `dictionaries/variables.json`: machine-readable response and covariate definitions.
@@ -31,6 +36,16 @@ Keep this package private until source-code ownership and data-license permissio
 The Python snapshot contains original workstation paths, including source-directory and executable settings. These are configuration details, not embedded data or credentials. Some legacy helpers use dynamic imports and fixed paths. This is an auditable source snapshot, not a portable one-command replication environment. Required licensed artifacts and cached indexes are deliberately absent. `metadata/import_inventory.json` lists static dependencies and explicit dynamic-import supplements. `metadata/environment.json` distinguishes recorded historical versions from the environment used to build this package.
 
 ## Safe local checks
+
+Audit the current forecasting dictionary without reading licensed rows, outcome
+files, scores, or model responses:
+
+```powershell
+python skills/supply-chain-news-risk/scripts/validate_dictionary.py --repo . --mode forecasting
+```
+
+Use `--mode causal` before making any shock-propagation or mechanism claim. A
+nonzero exit is intentional when the structured causal contract is incomplete.
 
 From the package directory, run:
 
