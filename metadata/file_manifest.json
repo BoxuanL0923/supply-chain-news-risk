@@ -88,8 +88,38 @@
     },
     {
       "path": "README.md",
-      "bytes": 5618,
-      "sha256": "4ab8b6c18194d48f7b18edfd240edbdec765602446b2d5f765d36e552f593451"
+      "bytes": 6378,
+      "sha256": "eccd0b921f2989f036a0e13498c3f288b76ffd541b8691568df172d63b9f4373"
+    },
+    {
+      "path": ".claude/skills/supply-chain-news-risk/SKILL.md",
+      "bytes": 438,
+      "sha256": "da252fb54805d00eb143becee6c4d7fadb2caa0e98c48c1419d42c9ceee79a4c"
+    },
+    {
+      "path": "skills/supply-chain-news-risk/SKILL.md",
+      "bytes": 2548,
+      "sha256": "24fe90b1944c81d76e1fcf69a3d928be6ac0b70b694b14922d70931e23278d41"
+    },
+    {
+      "path": "skills/supply-chain-news-risk/agents/openai.yaml",
+      "bytes": 320,
+      "sha256": "5bdff331585740f7fc6d2c681876c63e3b7564628b9e972c6e6f467ea8eb69ab"
+    },
+    {
+      "path": "skills/supply-chain-news-risk/references/data-contract.md",
+      "bytes": 2890,
+      "sha256": "900b0eb2be5a62813ce7ee80e1da3c40cca1a6f94f86944fd5e8c6315df7fbc0"
+    },
+    {
+      "path": "skills/supply-chain-news-risk/scripts/test_validate_dictionary.py",
+      "bytes": 3969,
+      "sha256": "58f107f7afe394e92f397fda2ccde65e1caadc6cb4f8249e5bee0ae000f55241"
+    },
+    {
+      "path": "skills/supply-chain-news-risk/scripts/validate_dictionary.py",
+      "bytes": 7166,
+      "sha256": "d98308eb29a27192abca0f8eac8bbbf5110e97407a464b8f66ecebb1e133758a"
     },
     {
       "path": "source/code/audit_network30_opus_smoke.py",

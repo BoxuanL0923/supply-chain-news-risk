@@ -1,0 +1,10 @@
+interface:
+  display_name: "Supply Chain News Risk"
+  short_description: "Audit forecasting and causal evidence contracts"
+  default_prompt: "Use $supply-chain-news-risk to audit this package before making forecasting or causal claims."
+
+policy:
+  products:
+    - "CHAT"
+    - "CODEX"
+  allow_implicit_invocation: false
