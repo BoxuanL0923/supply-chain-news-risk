@@ -25,6 +25,11 @@ Invoke explicitly as `/supply-chain-news-risk` in Claude Code or
    `metadata/verification.json`, and `metadata/source_manifest.csv`. Read
    `TOOL_SEARCH_UNIVERSE.md` only for retrieval or tool questions.
 4. Apply the claim gates in [references/data-contract.md](references/data-contract.md).
+   For a network result, record whether the candidate came from an exact
+   typed hop (1, 2, or 3), a co-mention, or no graph path. Check the event's
+   publication time against the forecast origin and the graph vintage against
+   the same origin. A path motif and a finance hypothesis are selector inputs,
+   not evidence that the affected product reaches the focal firm.
 5. Report the repository commit, validator mode, qualified findings, blocking
    gaps, and the smallest next action. Distinguish verified checks from author
    assertions and untested code.
@@ -37,6 +42,15 @@ Invoke explicitly as `/supply-chain-news-risk` in Claude Code or
   from the recorded run.
 - Missing is not zero, lack of retrieved news is not no event, and a graph path
   is not a transmission mechanism.
+- A direct `conditional_channel` receipt does not certify a second- or
+  third-hop path. For h2/h3, demand source-bound affected-item continuity at
+  every intermediate before discussing a product channel. Do not convert a
+  supplier revenue percentage into focal-firm input dependence or call
+  multiple paths measured supplier redundancy.
+- To claim an incremental h2 or h3 forecast contribution, use the same test
+  firm-periods and frozen target/anchor, report `H1`, `H2-H1`, and `H3-H2`
+  with missing and zero increments distinct, and disclose different retrieval
+  cost. A fitted regression or synthetic test alone is not held-out value.
 - A causal claim requires a measured shock, predetermined exposure, buffer or
   substitution measure, operational mediator, cash-flow mediator, and market
   outcome, each with observation and availability times.

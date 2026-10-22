@@ -12,6 +12,7 @@ class Toolkit:
         self.trace = []
         self.reads = {}
         self.inspected_entities = set()
+        self.inspected_paths = set()
         self.docs = capability["documents"]
         cutoff = datetime.fromisoformat(capability["case"]["asof"])
         if any(datetime.fromisoformat(r["available_at"]) >= cutoff for r in self.docs.values()):
@@ -31,7 +32,8 @@ class Toolkit:
         self.trace.append(item)
         if self.trace_path:
             write(self.trace_path, {"capability_hash": digest(self.data), "calls": self.trace,
-                                   "reads": self.reads, "inspected_entities": sorted(self.inspected_entities)})
+                                   "reads": self.reads, "inspected_entities": sorted(self.inspected_entities),
+                                   "inspected_paths": [list(path) for path in sorted(self.inspected_paths)]})
         return result
 
     def market_state(self):
@@ -45,16 +47,16 @@ class Toolkit:
     def search_events(self, query: str, limit: int = 5, hops: int = 1, via: str = ""):
         if not isinstance(query, str) or not 0 < len(query) <= 800 or not 1 <= limit <= 10:
             raise ValueError("Provide a focused query and limit 1..10")
-        if hops not in (1, 2):
-            raise ValueError("Only one/two-hop evidence allowed")
-        if self.data["network"] and hops == 2 and via not in self.inspected_entities:
-            raise ValueError("First inspect direct-neighbor evidence; supply its entity id as via")
+        if type(hops) is not int or hops not in (1, 2, 3):
+            raise ValueError("Only one/two/three-hop evidence allowed")
+        if self.data["network"] and not self._valid_via(hops, via):
+            raise ValueError("Inspect each preceding intermediate before searching a deeper hop")
         terms = set(re.findall(r"[a-z0-9]+", query.lower()))
         hits = []
         for sid, doc in self.docs.items():
             paths = self.paths_for(doc)
             if self.data["network"]:
-                paths = [p for p in paths if p["hops"] <= hops and (p["hops"] == 1 or via in p["path"])]
+                paths = [p for p in paths if self._accessible_path(p, hops, via)]
                 if not paths:
                     continue
             paragraphs = self.paragraphs(doc)
@@ -91,6 +93,26 @@ class Toolkit:
     def paths_for(self, doc):
         return [p for p in self.data.get("relations", []) if set(p["permnos"]) & set(doc["ids"])]
 
+    def _valid_via(self, hops, via):
+        if hops == 1:
+            return True
+        return any(
+            p.get("hops") == hops - 1 and p.get("entity") == via
+            and tuple(p.get("path", [])) in self.inspected_paths
+            for p in self.data.get("relations", []))
+
+    def _accessible_path(self, path, max_hops, via=None):
+        hops = path.get("hops")
+        chain = path.get("path", [])
+        if path.get("type") == "comention":
+            return hops == 1 and chain == []
+        if type(hops) is not int or not 1 <= hops <= max_hops or len(chain) != hops + 1:
+            return False
+        if any(tuple(chain[:depth + 1]) not in self.inspected_paths
+               for depth in range(1, hops)):
+            return False
+        return hops < max_hops or hops == 1 or via is None or chain[-2] == via
+
     def inspect_event(self, source_id: str, page: int = 0):
         if source_id not in self.docs:
             raise ValueError("Source outside this case/arm/as-of capability")
@@ -99,10 +121,12 @@ class Toolkit:
         if isinstance(page, bool) or not isinstance(page, int) or not 0 <= page < len(paragraphs):
             raise ValueError("Page outside article; request page 0 or search to find a relevant page")
         paths = self.paths_for(doc)
-        if self.data["network"] and not any(p["hops"] == 1 or
-                any(v in self.inspected_entities for v in p.get("path", [])[1:-1]) for p in paths):
-            raise ValueError("Inspect a direct intermediate before reading a two-hop-only source")
-        self.inspected_entities.update(p.get("entity") for p in paths if p["hops"] == 1 and p.get("entity"))
+        if self.data["network"]:
+            paths = [p for p in paths if self._accessible_path(p, 3)]
+            if not paths:
+                raise ValueError("Inspect every preceding intermediate before reading a deeper-hop source")
+        self.inspected_entities.update(p["entity"] for p in paths if p.get("entity"))
+        self.inspected_paths.update(tuple(p["path"]) for p in paths if p.get("path"))
         self.reads.setdefault(source_id, {})[str(page)] = paragraphs[page]
         return {"source_id": source_id, "headline": doc["headline"], "available_at": doc["available_at"],
                 "page": page, "page_count": len(paragraphs), "text": paragraphs[page],
@@ -112,8 +136,8 @@ class Toolkit:
     def exposure_paths(self, hops: int = 1, via: str = "", query: str = "", offset: int = 0):
         if not self.data["network"]:
             raise ValueError("Graph unavailable in OWN arm")
-        if hops not in (1, 2) or (hops == 2 and via not in self.inspected_entities):
-            raise ValueError("Two hops require an entity from inspected direct-neighbor evidence")
+        if type(hops) is not int or hops not in (1, 2, 3) or not self._valid_via(hops, via):
+            raise ValueError("Deeper hops require an inspected preceding intermediate")
         if offset < 0 or len(query) > 200:
             raise ValueError("Invalid query or offset")
         normalized = " ".join(query.lower().split())
@@ -121,14 +145,13 @@ class Toolkit:
                           for k in ("ticker", "company")}
         target_query = bool(normalized) and normalized in target_aliases
         terms = set(re.findall(r"[a-z0-9]+", normalized)) if not target_query else set()
-        available = [p for p in self.data["relations"] if p["hops"] <= hops and
-                     (p["hops"] == 1 or via in p["path"])]
+        available = [p for p in self.data["relations"] if self._accessible_path(p, hops, via)]
         paths = [p for p in available if terms <= set(re.findall(r"[a-z0-9]+",
                  " ".join(str(p.get(k, "")) for k in ("name", "entity", "permnos")).lower()))]
         return {"paths": paths[offset:offset+15], "next_offset": offset+15 if len(paths) > offset+15 else None,
                 "total": len(paths), "graph_date": "2025-06-06",
                 "available_before_query": len(available), "target_query_interpreted_as_root_lookup": target_query,
-                "query_note": "This tool is already scoped to the target. Empty query lists its neighbors. No filtered match is not no network. Use entity IDs from paths for two-hop via.",
+                "query_note": "This tool is scoped to the target. Empty query lists accessible paths. No filtered match is not no network. Inspect each intermediate before requesting the next hop via its entity ID.",
                 "assumption": "Held constant through 2025; effective-date reconstruction, not certified archived vintage",
                 "rules": "Paths are leads, not proof of propagation. Shared supplier is not competition. Unknown revenue denominator. No headquarters exposure inference."}
 
@@ -161,7 +184,7 @@ def serve(capability_path, trace_path):
 
     @server.tool()
     def search_events(query: str, limit: int = 5, hops: int = 1, via: str = "") -> dict:
-        """Search the scoped Reuters pool. Inspect result pages before citing; two hops need an inspected intermediate."""
+        """Search the scoped Reuters pool. Inspect result pages; hops two/three need inspected intermediates."""
         return kit.call("search_events", query=query, limit=limit, hops=hops, via=via)
 
     @server.tool()
@@ -171,7 +194,7 @@ def serve(capability_path, trace_path):
 
     @server.tool()
     def exposure_paths(hops: int = 1, via: str = "", query: str = "", offset: int = 0) -> dict:
-        """Target is preselected. Empty query lists neighbors; query filters partner names. For two hops, via is an inspected entity ID. OWN has no graph."""
+        """Target is preselected. Empty query lists neighbors; query filters names. Hops two/three need inspected via entities. OWN has no graph."""
         return kit.call("exposure_paths", hops=hops, via=via, query=query, offset=offset)
 
     @server.tool()

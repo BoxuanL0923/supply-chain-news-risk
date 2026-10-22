@@ -5,14 +5,18 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from contextvars import ContextVar
 from datetime import datetime, timezone
 from pathlib import Path
 
 import dspy
 
+from .domain_signals import finance_graph_signal
+
 
 SKILL_PATH = Path(__file__).resolve().parents[3] / "skills" / "supply-chain-context-selection" / "SKILL.md"
 SKILL_NAME = "supply-chain-context-selection"
+_ACTIVE_SELECTION = ContextVar("supply_chain_selection", default=None)
 CATEGORIES = {"supplier disruption", "customer demand", "shared bottleneck",
               "competitor substitution", "routine", "macro", "other"}
 
@@ -61,8 +65,10 @@ def _model_metadata(candidates: list[dict], asof: str):
         if available >= cutoff:
             continue
         alias = f"C{len(metadata) + 1}"
-        metadata.append({"source_id": alias, "event_type": _category(row.get("event_type")),
-                         "age_days": (cutoff - available).days})
+        category = _category(row.get("event_type"))
+        metadata.append({"source_id": alias, "event_type": category,
+                         "age_days": (cutoff - available).days,
+                         **finance_graph_signal(row, asof, event_category=category)})
         alias_to_id[alias] = row["source_id"]
     if not metadata:
         raise ValueError("No eligible context candidates")
@@ -103,20 +109,80 @@ def select_context(candidates: list[dict], ranked_ids: list[str], *, asof: str, 
     return selected, receipt
 
 
+def use_supply_chain_context_skill() -> str:
+    """Read the reviewed Skill during the active selector tool episode."""
+    session = _ACTIVE_SELECTION.get()
+    if session is None or session["sequence"]:
+        if session is not None:
+            session["invalid"] = True
+        raise ValueError("Skill must be invoked once before select_context")
+    session["sequence"].append("use_supply_chain_context_skill")
+    return session["skill_text"]
+
+
+def select_context_tool(ranked_ids: list[str]) -> dict:
+    """Execute local Python selection; expose only aliases in tool output."""
+    session = _ACTIVE_SELECTION.get()
+    if session is None or session["sequence"] != ["use_supply_chain_context_skill"]:
+        if session is not None:
+            session["invalid"] = True
+        raise ValueError("Skill must be invoked before select_context")
+    try:
+        ids = _resolve_aliases(ranked_ids, session["alias_to_id"])
+        events, receipt = select_context(session["candidates"], ids,
+                                         asof=session["asof"], max_events=session["max_events"])
+    except (TypeError, ValueError) as exc:
+        session["invalid"] = True
+        raise ValueError("Invalid select_context arguments") from exc
+    session.update(events=events, receipt=receipt, ranked_ids=ids,
+                   ranked_aliases=ranked_ids)
+    session["sequence"].append("select_context")
+    return {"selected_aliases": [alias for alias in ranked_ids
+                                 if session["alias_to_id"][alias] in receipt["selected_ids"]],
+            "selected_count": len(events), "tool_called": True}
+
+
 def openai_required_tool_call(responses, *, model: str, candidates: list[dict], asof: str,
                               max_events: int, ranking_instruction: str = ""):
-    """Optional Responses adapter: force one function call, then execute Python locally.
+    """Optional Responses adapter: force Skill read, then Python selection.
 
-    Only local aliases, age in days, and allowlisted event categories enter this request.
+    Only local aliases and allowlisted event, timing, graph, and finance bins
+    enter the selector request. Full evidence remains in the local candidates.
     The caller must ensure these fields are approved for its provider.
     """
     skill_text, skill_hash = skill_instructions()
     metadata, alias_to_id = _model_metadata(candidates, asof)
+    skill_response = responses.create(
+        model=model,
+        instructions=f"Use the {SKILL_NAME} skill. First call "
+                     "use_supply_chain_context_skill; wait for its output before selecting evidence.",
+        input=json.dumps({"candidates": metadata, "max_events": max_events}),
+        tools=[{"type": "function", "name": "use_supply_chain_context_skill",
+                "description": "Read the reviewed local Skill instructions",
+                "strict": True,
+                "parameters": {"type": "object", "properties": {},
+                               "required": [], "additionalProperties": False}}],
+        tool_choice={"type": "function", "name": "use_supply_chain_context_skill"},
+        parallel_tool_calls=False,
+    )
+    skill_calls = [item for item in skill_response.output if item.type == "function_call"]
+    if len(skill_calls) != 1 or skill_calls[0].name != "use_supply_chain_context_skill":
+        raise ValueError("Required Skill tool call missing")
+    try:
+        skill_args = json.loads(skill_calls[0].arguments)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Invalid Skill tool arguments") from exc
+    if skill_args != {}:
+        raise ValueError("Unexpected Skill tool arguments")
+    if not getattr(skill_response, "id", None) or not getattr(skill_calls[0], "call_id", None):
+        raise ValueError("Missing Skill tool call receipt")
     response = responses.create(
         model=model,
-        instructions=f"Use the {SKILL_NAME} skill.\n{skill_text}\n{ranking_instruction}\n"
-                     "Call select_context exactly once with ranked_ids. No final answer before the tool call.",
-        input=json.dumps({"candidates": metadata, "max_events": max_events}),
+        previous_response_id=skill_response.id,
+        instructions=f"Apply the {SKILL_NAME} skill and the ranking instruction.\n"
+                     f"{ranking_instruction}\nCall select_context exactly once with ranked_ids.",
+        input=[{"type": "function_call_output", "call_id": skill_calls[0].call_id,
+                "output": skill_text}],
         tools=[{"type": "function", "name": "select_context",
                 "description": "Rank eligible source IDs for the local Python context-selection tool",
                 "strict": True,
@@ -137,11 +203,16 @@ def openai_required_tool_call(responses, *, model: str, candidates: list[dict], 
         raise ValueError("Unexpected tool arguments")
     ranked_ids = _resolve_aliases(args["ranked_ids"], alias_to_id)
     events, receipt = select_context(candidates, ranked_ids, asof=asof, max_events=max_events)
-    return events, {**receipt, "skill_sha256": skill_hash, "tool_choice": "forced_function"}
+    return events, {**receipt, "skill_sha256": skill_hash, "tool_choice": "forced_functions",
+                    "tool_sequence": ["use_supply_chain_context_skill", "select_context"]}
 
 
 class RankEvidence(dspy.Signature):
-    """Rank source IDs for five-session supply-chain risk; never invent an ID."""
+    """Rank source IDs for five-session supply-chain risk; never invent an ID.
+
+    Graph motifs and finance hints are candidate evidence tiers, not verified
+    economic transmission or a directional stock-return forecast.
+    """
 
     task: str = dspy.InputField(desc="Explicit skill invocation and fixed instructions")
     candidates: str = dspy.InputField(desc="Eligible inspected event metadata and IDs")
@@ -149,23 +220,54 @@ class RankEvidence(dspy.Signature):
 
 
 class ContextProgram(dspy.Module):
-    """A DSPy-optimizable ranker whose output must pass the Python tool."""
+    """A DSPy ReAct agent that must use the Skill and Python tool in order."""
 
     def __init__(self, max_events: int, skill_path: Path = SKILL_PATH):
         super().__init__()
         self.max_events = max_events
         self.skill_text, self.skill_hash = skill_instructions(skill_path)
-        self.rank = dspy.Predict(RankEvidence)
+        self.rank = dspy.ReAct(RankEvidence, tools=[
+            dspy.Tool(use_supply_chain_context_skill,
+                      name="use_supply_chain_context_skill",
+                      desc="Read the reviewed local supply-chain context-selection Skill before ranking."),
+            dspy.Tool(select_context_tool, name="select_context",
+                      desc="Execute the local Python cutoff and evidence-budget gate on ranked C-aliases.")
+        ], max_iters=3)
+
+    def use_supply_chain_context_skill(self) -> str:
+        """Testing hook for the same tool registered with ReAct."""
+        return use_supply_chain_context_skill()
+
+    def select_context_tool(self, ranked_ids: list[str]) -> dict:
+        """Testing hook for the same tool registered with ReAct."""
+        return select_context_tool(ranked_ids)
 
     def forward(self, candidates: list[dict], asof: str):
         metadata, alias_to_id = _model_metadata(candidates, asof)
-        prediction = self.rank(task=f"Use the {SKILL_NAME} skill.\n{self.skill_text}",
-                               candidates=json.dumps(metadata, ensure_ascii=True))
-        aliases = [part.strip() for part in prediction.ranked_ids.split(",")]
-        ids = _resolve_aliases(aliases, alias_to_id)
-        events, receipt = select_context(candidates, ids, asof=asof, max_events=self.max_events)
-        return dspy.Prediction(events=events, receipt={**receipt, "skill_sha256": self.skill_hash},
-                               ranked_ids=ids)
+        session = {"candidates": candidates, "asof": asof, "alias_to_id": alias_to_id,
+                   "sequence": [], "events": None, "receipt": None, "ranked_ids": None,
+                   "skill_text": self.skill_text, "max_events": self.max_events,
+                   "invalid": False}
+        token = _ACTIVE_SELECTION.set(session)
+        try:
+            prediction = self.rank(task=f"Use the {SKILL_NAME} skill by calling "
+                           "use_supply_chain_context_skill first. Then call select_context "
+                           "exactly once with ranked C-aliases. Finish only after its receipt.",
+                      candidates=json.dumps(metadata, ensure_ascii=True))
+        finally:
+            _ACTIVE_SELECTION.reset(token)
+        if session["invalid"] or session["sequence"] != ["use_supply_chain_context_skill", "select_context"]:
+            raise ValueError("Skill and select_context tool calls required")
+        trajectory = getattr(prediction, "trajectory", None)
+        if trajectory is not None:
+            actions = [value for key, value in sorted(trajectory.items()) if key.startswith("tool_name_")]
+            if actions != ["use_supply_chain_context_skill", "select_context", "finish"]:
+                raise ValueError("Unexpected selector tool sequence")
+        return dspy.Prediction(events=session["events"],
+                               receipt={**session["receipt"], "skill_sha256": self.skill_hash,
+                                        "tool_sequence": session["sequence"],
+                                        "tool_choice": "dspy_react"},
+                               ranked_ids=session["ranked_ids"])
 
 
 def compile_context_program(rows, forecast_score, *, max_events: int,
@@ -197,11 +299,20 @@ def compile_context_program(rows, forecast_score, *, max_events: int,
     def default_proposer(*, candidate, reflective_dataset, components_to_update):
         # No raw example, label, or licensed text is sent to a reflection model.
         del reflective_dataset
-        categories = ("supplier disruption", "customer demand", "shared bottleneck",
-                      "competitor substitution")
-        return {name: candidate[name] + " Prioritize " + next(
-            (category for category in categories if "Prioritize " + category not in candidate[name]),
-            categories[0]) + " over routine news."
+        hypotheses = (
+            ("supplier disruption", "direct_supplier", "input_shock_hypothesis"),
+            ("customer demand", "direct_customer", "output_demand_hypothesis"),
+            ("competitor substitution", "direct_competitor", "substitution_hypothesis"),
+        )
+        def propose(instruction):
+            category, pattern, hint = next(
+                (item for item in hypotheses if "Prioritize " + item[0] not in instruction),
+                hypotheses[0])
+            return (instruction + f"\nFinance ranking policy: Prioritize {category} over routine news when "
+                    f"path_pattern is {pattern} and mechanism_hint is {hint}; "
+                    "path_only is a hypothesis, not verified target exposure. "
+                    "Treat mixed shortest paths and two- or three-hop product continuity as unresolved.")
+        return {name: propose(candidate[name])
                 for name in components_to_update}
 
     seed = ContextProgram(max_events)

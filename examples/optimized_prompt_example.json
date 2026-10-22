@@ -1,0 +1,181 @@
+{
+  "status": "synthetic_target_prompt_example_not_empirically_optimized",
+  "tool_trace_status": "illustrative_sequence_with_python_verified_projection_and_selection_not_a_model_transcript",
+  "forecast_target": "next five exchange sessions log mean squared daily total return",
+  "asof": "2025-10-03T12:00:00",
+  "max_events": 1,
+  "fixed_runtime_task": "Use the supply-chain-context-selection skill by calling use_supply_chain_context_skill first. Then call select_context exactly once with ranked C-aliases. Finish only after its receipt.",
+  "illustrative_gepa_instruction": "Rank pre-cutoff inspected evidence for the five-session log-risk forecast. Call use_supply_chain_context_skill first and apply its source, graph, and finance rules. For a typed all-upstream supplier-disruption path, use upstream_input_risk as a ranking hypothesis; if h>1 and evidence_gap=intermediate_product_continuity, retain path_only and never assert that the affected product reaches the focal firm. An all-downstream demand path is a separate demand-risk hypothesis. Conflicting shortest motifs or direction changes are ambiguous. Co-mentions and unknown paths are retrieval leads only. Do not convert path_count_bin or alternative_route into measured redundancy, infer return direction, or invent a source ID. Call select_context exactly once with ranked aliases, then finish after its receipt.",
+  "model_visible_candidates": [
+    {
+      "source_id": "C1",
+      "event_type": "supplier disruption",
+      "age_days": 1,
+      "scope": "network_supplement",
+      "graph_role": "supplier",
+      "hops": 3,
+      "path_pattern": "supplier_to_supplier_to_supplier",
+      "path_count_bin": "one",
+      "channel_status": "path_only",
+      "mechanism_hint": "intermediate_product_unverified",
+      "event_state": "ongoing",
+      "role_motif": "all_upstream",
+      "finance_hypothesis": "upstream_input_risk",
+      "evidence_gap": "intermediate_product_continuity",
+      "alternative_route": "none_observed"
+    },
+    {
+      "source_id": "C2",
+      "event_type": "routine",
+      "age_days": 1,
+      "scope": "own_common",
+      "graph_role": "none",
+      "hops": 0,
+      "path_pattern": "none",
+      "path_count_bin": "none",
+      "channel_status": "not_applicable",
+      "mechanism_hint": "own_or_common",
+      "event_state": "unknown",
+      "role_motif": "not_applicable",
+      "finance_hypothesis": "not_applicable",
+      "evidence_gap": "not_applicable",
+      "alternative_route": "not_applicable"
+    },
+    {
+      "source_id": "C3",
+      "event_type": "customer demand",
+      "age_days": 2,
+      "scope": "network_supplement",
+      "graph_role": "mixed_or_unknown",
+      "hops": 2,
+      "path_pattern": "mixed_shortest_paths",
+      "path_count_bin": "multiple",
+      "channel_status": "path_only",
+      "mechanism_hint": "ambiguous_path_hypothesis",
+      "event_state": "pending",
+      "role_motif": "conflicting_shortest",
+      "finance_hypothesis": "unaligned_or_ambiguous",
+      "evidence_gap": "path_and_product_ambiguity",
+      "alternative_route": "different_shortest_motifs"
+    }
+  ],
+  "host_only_synthetic_candidates": [
+    {
+      "source_id": "DUMMY-N3",
+      "available_at": "2025-10-02T09:00:00",
+      "event_type": "supplier disruption",
+      "status": "ongoing",
+      "_scope": "network_supplement",
+      "verified_paths": [
+        {
+          "hops": 3,
+          "vintage": "2025-06-06",
+          "steps": [
+            {
+              "neighbor_role": "supplier"
+            },
+            {
+              "neighbor_role": "supplier"
+            },
+            {
+              "neighbor_role": "supplier"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "DUMMY-OWN",
+      "available_at": "2025-10-02T10:00:00",
+      "event_type": "routine",
+      "status": "unknown",
+      "_scope": "own_common"
+    },
+    {
+      "source_id": "DUMMY-MIX",
+      "available_at": "2025-10-01T08:00:00",
+      "event_type": "customer demand",
+      "status": "pending",
+      "_scope": "network_supplement",
+      "verified_paths": [
+        {
+          "hops": 2,
+          "vintage": "2025-06-06",
+          "steps": [
+            {
+              "neighbor_role": "customer"
+            },
+            {
+              "neighbor_role": "customer"
+            }
+          ]
+        },
+        {
+          "hops": 2,
+          "vintage": "2025-06-06",
+          "steps": [
+            {
+              "neighbor_role": "supplier"
+            },
+            {
+              "neighbor_role": "customer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "DUMMY-FUTURE",
+      "available_at": "2025-10-04T08:00:00",
+      "event_type": "supplier disruption",
+      "status": "ongoing",
+      "_scope": "own_common"
+    }
+  ],
+  "model_tool_sequence": [
+    {
+      "tool": "use_supply_chain_context_skill",
+      "arguments": {},
+      "output_note": "Full reviewed SKILL.md is returned by local host; SHA-256 recorded in receipt."
+    },
+    {
+      "tool": "select_context",
+      "arguments": {
+        "ranked_ids": [
+          "C1",
+          "C2",
+          "C3"
+        ]
+      },
+      "output": {
+        "selected_aliases": [
+          "C1"
+        ],
+        "selected_count": 1,
+        "tool_called": true
+      }
+    },
+    {
+      "tool": "finish",
+      "arguments": {}
+    }
+  ],
+  "host_receipt": {
+    "tool": "select_context",
+    "tool_called": true,
+    "selected_ids": [
+      "DUMMY-N3"
+    ],
+    "excluded_future": [],
+    "candidate_count": 4,
+    "max_events": 1,
+    "skill_sha256": "abde49af5758ede4e93dc557d2f82b049399aa0e424bac325ddc10b90f73d576",
+    "tool_sequence": [
+      "use_supply_chain_context_skill",
+      "select_context"
+    ],
+    "tool_choice": "dspy_react"
+  },
+  "interpretation": "C1 is selected as a hypothesis-bearing retrieval candidate, not a verified three-hop product channel or measured forecast gain.",
+  "current_optimizer_limit": "Default GEPA proposer currently suggests direct supplier, customer, and competitor rules only; this illustrative h3 wording is a target candidate, not a saved optimizer output."
+}

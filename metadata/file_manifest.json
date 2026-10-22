@@ -2,6 +2,11 @@
   "hash": "sha256",
   "files": [
     {
+      "path": ".claude/skills/supply-chain-news-risk/SKILL.md",
+      "bytes": 438,
+      "sha256": "da252fb54805d00eb143becee6c4d7fadb2caa0e98c48c1419d42c9ceee79a4c"
+    },
+    {
       "path": ".gitignore",
       "bytes": 126,
       "sha256": "54cd4df554f72c8ba2cc3d67f9934c196327e26cd2bca7ff1cd3c04436bb872a"
@@ -10,6 +15,16 @@
       "path": "DATA_DICTIONARY.md",
       "bytes": 16597,
       "sha256": "473f9db89aca49f0236b5b44bcf3a1a6b1e81303f81cc56d0b2bcb50758cc9b2"
+    },
+    {
+      "path": "README.md",
+      "bytes": 6378,
+      "sha256": "eccd0b921f2989f036a0e13498c3f288b76ffd541b8691568df172d63b9f4373"
+    },
+    {
+      "path": "TOOL_SEARCH_UNIVERSE.md",
+      "bytes": 9514,
+      "sha256": "dc95d530c37ad0be1a7817afc1bbfbba85c581bd97895d4c70fec9fde80e2e6b"
     },
     {
       "path": "dictionaries/observed_schemas.json",
@@ -78,8 +93,8 @@
     },
     {
       "path": "metadata/source_manifest.csv",
-      "bytes": 7704,
-      "sha256": "b544cd5f3ebca9eda44ab264cc7c3fdad6e96a8bd7c063ecbe7fa17c94f19ae0"
+      "bytes": 8015,
+      "sha256": "e64eabde74bba3b78efe312f045aa5280d669fff890e27f6c0df2bd536bc14db"
     },
     {
       "path": "metadata/verification.json",
@@ -87,19 +102,9 @@
       "sha256": "5c00d5dea90d41be93196072135dcbdee4469c16a75c0aabc49fec12933acb72"
     },
     {
-      "path": "README.md",
-      "bytes": 6378,
-      "sha256": "eccd0b921f2989f036a0e13498c3f288b76ffd541b8691568df172d63b9f4373"
-    },
-    {
-      "path": ".claude/skills/supply-chain-news-risk/SKILL.md",
-      "bytes": 438,
-      "sha256": "da252fb54805d00eb143becee6c4d7fadb2caa0e98c48c1419d42c9ceee79a4c"
-    },
-    {
       "path": "skills/supply-chain-news-risk/SKILL.md",
-      "bytes": 2548,
-      "sha256": "24fe90b1944c81d76e1fcf69a3d928be6ac0b70b694b14922d70931e23278d41"
+      "bytes": 3566,
+      "sha256": "84520347370c8eb8f214b719ea64b04f7d092109e206b495dd05d83c140a3e42"
     },
     {
       "path": "skills/supply-chain-news-risk/agents/openai.yaml",
@@ -108,8 +113,8 @@
     },
     {
       "path": "skills/supply-chain-news-risk/references/data-contract.md",
-      "bytes": 2890,
-      "sha256": "900b0eb2be5a62813ce7ee80e1da3c40cca1a6f94f86944fd5e8c6315df7fbc0"
+      "bytes": 4116,
+      "sha256": "706ea3063c93c9a4783931dde7eccd710d7614682ff4c5a4c392232505854c43"
     },
     {
       "path": "skills/supply-chain-news-risk/scripts/test_validate_dictionary.py",
@@ -238,8 +243,8 @@
     },
     {
       "path": "source/code/news_exposure_2025/graph.py",
-      "bytes": 8750,
-      "sha256": "8aefc9313c70f133d76577de44ba820936d879c4e49715204c518422e8bb5732"
+      "bytes": 8988,
+      "sha256": "b48132c87a2217a6dd1a27172d3ad465d4531f643fb2c8c283e9d91c1d995e68"
     },
     {
       "path": "source/code/news_exposure_2025/metrics.py",
@@ -277,9 +282,24 @@
       "sha256": "2e36de5db7876fcd2b7d4ce1c1b40ba28270da8602bd5fc79a39217c248c94d0"
     },
     {
+      "path": "source/code/news_network_50_2025/context_selection.py",
+      "bytes": 18395,
+      "sha256": "92400ef07809ed2f320fb84a7f0f2a5cf0d706f79390b3c395d0535e2d3974ad"
+    },
+    {
       "path": "source/code/news_network_50_2025/data.py",
-      "bytes": 20465,
-      "sha256": "52fdb6d18093e776b042b7bb405dedb2c618759037d3248bfd78bf6a132b4a09"
+      "bytes": 22942,
+      "sha256": "da91f81f55189c158ba8e7bdef9961afb8e998d55b35138a18cc77d1cff42a96"
+    },
+    {
+      "path": "source/code/news_network_50_2025/domain_signals.py",
+      "bytes": 6815,
+      "sha256": "1bd610773cfe291012b6809d5933c344a3ffbb6a33ce15158aaad89b5c19eae4"
+    },
+    {
+      "path": "source/code/news_network_50_2025/hop_ablation.py",
+      "bytes": 15631,
+      "sha256": "9a20550bd32f25d31a51ee0508393933e086511663bb3f4fdf2c8e62f8da498c"
     },
     {
       "path": "source/code/news_network_50_2025/metrics.py",
@@ -308,8 +328,8 @@
     },
     {
       "path": "source/code/news_network_50_2025/toolkit.py",
-      "bytes": 11295,
-      "sha256": "0e1af43fc9fe5f48e443f9d39317b627e8d38f53a609dffe53383abdaffd0759"
+      "bytes": 12268,
+      "sha256": "dc469265eacc33b9036627f20f0d0f37bcaee23808a9601b2152b4382299a92f"
     },
     {
       "path": "source/code/news_network_50_2025/transport_smoke.py",
@@ -318,8 +338,8 @@
     },
     {
       "path": "source/code/news_network_50_2025/workflow.py",
-      "bytes": 20333,
-      "sha256": "1d2ccd919fbcf1715b6ae686fed33ba23ab166c2cf88da6d7c12650ff1fd35f3"
+      "bytes": 21577,
+      "sha256": "84ef01e6e3d06e195b878efeee4e6df127c2433c966b274bb175fa49f50514e4"
     },
     {
       "path": "source/code/news_percentile/build.py",
@@ -350,11 +370,6 @@
       "path": "specification.json",
       "bytes": 7714,
       "sha256": "625614eb7b110ae061d989ff60a7095c1ff66d8be327effefe77a8f39e68e691"
-    },
-    {
-      "path": "TOOL_SEARCH_UNIVERSE.md",
-      "bytes": 9514,
-      "sha256": "dc95d530c37ad0be1a7817afc1bbfbba85c581bd97895d4c70fec9fde80e2e6b"
     }
   ],
   "excluded_from_self_hash": "metadata/file_manifest.json"

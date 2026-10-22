@@ -103,8 +103,12 @@ class Graph:
         for items in self.adj.values():
             items.sort(key=lambda x: (x[1], x[0], x[2]["id"]))
 
-    def paths(self, ticker, hops=1, via=None, limit=1500):
-        if hops not in (1, 2, 3) or (hops == 3 and not via):
+    def pool_paths(self, ticker, hops=2, limit=1500):
+        """Outcome-free offline enumeration; runtime tools still require inspected via."""
+        return self.paths(ticker, hops, limit=limit, _pool=True)
+
+    def paths(self, ticker, hops=1, via=None, limit=1500, *, _pool=False):
+        if hops not in (1, 2, 3) or (hops == 3 and not (via or _pool)):
             raise ValueError("Three-hop search requires a specific inspected intermediate")
         roots = self.data["targets"][ticker]
         def expand(node, chain, steps, role, edges):

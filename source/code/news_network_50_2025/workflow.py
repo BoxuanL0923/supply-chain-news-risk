@@ -31,7 +31,8 @@ def context_rule(network):
 def apply_context_program(evidence, program, asof):
     """Limit the scoring packet to Python-verified evidence chosen by DSPy."""
     from .context_selection import select_context
-    candidates = [event for arm in evidence.values() for event in arm["events"]]
+    candidates = [{**event, "_scope": name} for name, arm in evidence.items()
+                  for event in arm["events"]]
     if not candidates:
         return evidence, {"tool": "select_context", "tool_called": False,
                           "selected_ids": [], "empty_candidate_pool": True}
@@ -78,8 +79,11 @@ def validate_evidence(answer, trace, capability):
         for field in ("fact", "interpretation", "qualifications", "event_type", "status"):
             if not isinstance(event.get(field), str):
                 raise ValueError("Missing evidence field " + field)
+        inspected_paths = {tuple(path) for path in trace.get("inspected_paths", [])}
         paths = [p for p in capability.get("relations", []) if
-                 set(p["permnos"]) & set(capability["documents"][sid]["ids"])]
+                 set(p["permnos"]) & set(capability["documents"][sid]["ids"]) and
+                 (p["hops"] == 1 or all(tuple(p.get("path", [])[:depth + 1])
+                  in inspected_paths for depth in range(1, p["hops"])))]
         if capability["network"] and not paths:
             raise ValueError("Network event lacks a frozen retrieval path")
         validated.append({**event, "quote": quote, "quote_origin": "host copied inspected source",
@@ -92,21 +96,29 @@ def validate_evidence(answer, trace, capability):
 
 class Runner:
     def __init__(self, out, client, cases, anchors, manifest, implementation_manifest=None,
-                 context_program=None):
+                 context_program=None, max_hops=None):
         self.out, self.client, self.cases, self.anchors, self.manifest = out, client, cases, anchors, manifest
         self.implementation_manifest = implementation_manifest or manifest
         self.context_program = context_program
+        if max_hops is not None and max_hops not in (1, 2, 3):
+            raise ValueError("Invalid hop ablation radius")
+        self.max_hops = max_hops
 
     def capability(self, case, network):
         saved = pool_file(str(self.out), case["date"])
         pool = saved["pools"][case["case_id"]]
         ids = pool["network_ids"] if network else pool["own_ids"]
         relations = deepcopy(pool["relations"]) if network else []
+        coverage = pool["coverage"]
+        if network and self.max_hops is not None:
+            from .hop_ablation import scope_network_pool
+            ids, relations, coverage = scope_network_pool(pool, saved["documents"], self.max_hops)
         for path in relations:
             for step in path.get("steps", []):
                 step.pop("revenue_pct", None)
             path["materiality"] = "unknown; numerical revenue weights withheld because denominator is unverified"
-        return {**{k: pool[k] for k in ("case", "calendar", "controls", "coverage", "own_packet_hash")},
+        return {**{k: pool[k] for k in ("case", "calendar", "controls", "own_packet_hash")},
+                "coverage": coverage,
                 "network": network, "documents": {s: saved["documents"][s] for s in ids},
                 "relations": relations,
                 "history_ids": [s for s in pool["history_ids"] if s in ids]}
@@ -153,7 +165,10 @@ class Runner:
                     "an economic operating fact. Identify which uncertainty can persist into these five sessions. "
                     "Return at most " + ("5" if network else "8") + " events; reject irrelevant reports.\n"
                     + ("NETWORK SUPPLEMENT ONLY. Call exposure_paths and search_events. Inspect direct-neighbor "
-                       "news; only then explore a concrete two-hop intermediate. Distinguish supplier disruption, "
+                       "news; only then explore a concrete two-hop intermediate. If a three-hop relation is present, "
+                       "inspect the second-hop intermediate on the same path before querying hops=3 with that "
+                       "entity as via. Each path prefix must be inspected; a chain of edges does not verify "
+                       "continuity of the affected product. Distinguish supplier disruption, "
                        "customer demand, shared bottleneck, competitor substitution and a co-mention lead. "
                        "A link does not establish materiality. Do not infer operational geography from headquarters. "
                        "Missing supplier identity or mitigations must remain explicit. Own/common news will be "
@@ -232,7 +247,8 @@ class Runner:
             evidence, context_receipt = apply_context_program(evidence, active_context_program, case["asof"])
         key = digest({"case_id": case["case_id"], "policy": policy, "network": network, "nonce": nonce,
                       "manifest": self.manifest, "evidence": evidence, "context_receipt": context_receipt,
-                      "anchor": self.anchors[case["case_id"]], "model": MODEL})
+                      "anchor": self.anchors[case["case_id"]], "model": MODEL,
+                      "hop_ablation_radius": self.max_hops if network else None})
         path = self.out / "predictions" / (key+".json")
         path.parent.mkdir(parents=True, exist_ok=True)
         with FileLock(str(path)+".lock", timeout=1200):
@@ -242,6 +258,7 @@ class Runner:
                 original = self.score(case, policy, False, nonce, context_program=context_program)
                 record = {**original, "key": key, "network": True,
                           "network_evidence_key": supplement["key"],
+                          "max_hops": self.max_hops,
                           "network_abstention": "No accepted source-backed supplement; copied identical-policy OWN score, no redraw"}
                 write(path, record)
                 return record
@@ -272,6 +289,7 @@ class Runner:
             if not isinstance(answer.get("reason"), str):
                 raise ValueError("Missing forecast explanation")
             record = {"key": key, "case_id": case["case_id"], "network": network, "policy": policy,
+                      "max_hops": self.max_hops if network else None,
                       "score": float(score), "expected_log_risk": self.anchors[case["case_id"]]+score,
                       "prediction": answer, "request": response["request_sha256"],
                       "own_evidence_key": own["key"], "network_evidence_key": supplement["key"] if supplement else None,
