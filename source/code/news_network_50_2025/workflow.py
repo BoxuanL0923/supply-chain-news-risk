@@ -28,6 +28,27 @@ def context_rule(network):
             "for inspection and citation after reading. There is no pre-existing evidence to exclude.")
 
 
+def apply_context_program(evidence, program, asof):
+    """Limit the scoring packet to Python-verified evidence chosen by DSPy."""
+    from .context_selection import select_context
+    candidates = [event for arm in evidence.values() for event in arm["events"]]
+    if not candidates:
+        return evidence, {"tool": "select_context", "tool_called": False,
+                          "selected_ids": [], "empty_candidate_pool": True}
+    prediction = program(candidates=candidates, asof=asof)
+    selected, receipt = select_context(candidates, prediction.ranked_ids, asof=asof,
+                                       max_events=program.max_events)
+    if ([e["source_id"] for e in selected] != [e["source_id"] for e in prediction.events]
+            or not prediction.receipt.get("tool_called")):
+        raise ValueError("Context program bypassed selection tool")
+    rank = {sid: index for index, sid in enumerate(receipt["selected_ids"])}
+    filtered = {name: {**arm, "events": sorted(
+                    (e for e in arm["events"] if e["source_id"] in rank),
+                    key=lambda e: rank[e["source_id"]])}
+                for name, arm in evidence.items()}
+    return filtered, {**receipt, "skill_sha256": prediction.receipt.get("skill_sha256")}
+
+
 def validate_evidence(answer, trace, capability):
     events = answer.get("events")
     if not isinstance(events, list) or len(events) > (5 if capability["network"] else 8):
@@ -70,9 +91,11 @@ def validate_evidence(answer, trace, capability):
 
 
 class Runner:
-    def __init__(self, out, client, cases, anchors, manifest, implementation_manifest=None):
+    def __init__(self, out, client, cases, anchors, manifest, implementation_manifest=None,
+                 context_program=None):
         self.out, self.client, self.cases, self.anchors, self.manifest = out, client, cases, anchors, manifest
         self.implementation_manifest = implementation_manifest or manifest
+        self.context_program = context_program
 
     def capability(self, case, network):
         saved = pool_file(str(self.out), case["date"])
@@ -195,7 +218,7 @@ class Runner:
             write(path, record)
             return record
 
-    def score(self, case, policy, network=False, nonce=""):
+    def score(self, case, policy, network=False, nonce="", *, context_program=None):
         own = self.evidence(case, False)
         supplement = self.evidence(case, True) if network else None
         if supplement and supplement["own_packet_hash"] != own["own_packet_hash"]:
@@ -203,15 +226,20 @@ class Runner:
         evidence = {"own_common": {k: own[k] for k in ("events", "missing", "coverage")}}
         if supplement:
             evidence["network_supplement"] = {k: supplement[k] for k in ("events", "missing", "coverage")}
+        context_receipt = None
+        active_context_program = context_program or self.context_program
+        if active_context_program is not None:
+            evidence, context_receipt = apply_context_program(evidence, active_context_program, case["asof"])
         key = digest({"case_id": case["case_id"], "policy": policy, "network": network, "nonce": nonce,
-                      "manifest": self.manifest, "evidence": evidence, "anchor": self.anchors[case["case_id"]], "model": MODEL})
+                      "manifest": self.manifest, "evidence": evidence, "context_receipt": context_receipt,
+                      "anchor": self.anchors[case["case_id"]], "model": MODEL})
         path = self.out / "predictions" / (key+".json")
         path.parent.mkdir(parents=True, exist_ok=True)
         with FileLock(str(path)+".lock", timeout=1200):
             if path.exists():
                 return read(path)
             if supplement is not None and not supplement["events"]:
-                original = self.score(case, policy, False, nonce)
+                original = self.score(case, policy, False, nonce, context_program=context_program)
                 record = {**original, "key": key, "network": True,
                           "network_evidence_key": supplement["key"],
                           "network_abstention": "No accepted source-backed supplement; copied identical-policy OWN score, no redraw"}
@@ -248,6 +276,7 @@ class Runner:
                       "prediction": answer, "request": response["request_sha256"],
                       "own_evidence_key": own["key"], "network_evidence_key": supplement["key"] if supplement else None,
                       "own_packet_hash": own["own_packet_hash"], "valid": True, "nonce": nonce,
+                      "context_selection": context_receipt,
                       "implementation_manifest": self.implementation_manifest}
             write(path, record)
             return record

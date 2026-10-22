@@ -78,8 +78,8 @@
     },
     {
       "path": "metadata/source_manifest.csv",
-      "bytes": 7549,
-      "sha256": "dc8ec81b7b94fc8d56006a905178e0134569e73b56a6ad81c6f13b9f651d5da5"
+      "bytes": 7704,
+      "sha256": "b544cd5f3ebca9eda44ab264cc7c3fdad6e96a8bd7c063ecbe7fa17c94f19ae0"
     },
     {
       "path": "metadata/verification.json",
@@ -318,8 +318,8 @@
     },
     {
       "path": "source/code/news_network_50_2025/workflow.py",
-      "bytes": 18546,
-      "sha256": "7cd2b8d9e81b3a019874861341b75962d6ad1ce5053a0e4d966d46aa3084f00e"
+      "bytes": 20333,
+      "sha256": "1d2ccd919fbcf1715b6ae686fed33ba23ab166c2cf88da6d7c12650ff1fd35f3"
     },
     {
       "path": "source/code/news_percentile/build.py",
