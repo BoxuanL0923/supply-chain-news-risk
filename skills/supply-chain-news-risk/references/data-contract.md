@@ -40,6 +40,17 @@ calls, tokens, and retrieval steps fixed across OWN, matched extra news,
 industry neighbors, true supply-chain neighbors, and degree-preserving shuffled
 neighbors.
 
+For a cumulative-radius study, freeze the same firm-period panel, target,
+anchor, numerical controls, model, and selection policy. Compare `H1` (direct),
+`H2` (through two hops), and `H3` (through three hops); report the paired
+increments `H2-H1` and `H3-H2`. Mark an increment unidentified when its
+out-of-sample contrast has no support or a regression term has zero rank.
+Report exact-hop candidate and accepted counts, selected source overlap with
+OWN, co-mention exclusions, source availability, graph vintage, token/tool
+cost, and unsupported product links by radius. A cumulative-radius contrast
+can show predictive value of wider retrieval, but a matched-cost graph versus
+generic-news contrast is needed to attribute value to topology itself.
+
 ## Gate 4: causal supply-chain mechanism
 
 Each variable must have these structured fields:
@@ -70,3 +81,11 @@ outcome`.
 Undefined meaning, missing availability time, missing-versus-zero ambiguity,
 uncertified post-cutoff use, or topology-only evidence makes the causal gate
 `BLOCKED`.
+
+For h2/h3, bind the event fact to the endpoint and independent product or
+order-continuity facts at each intermediate and at the focal target. Record
+source IDs and availability times for each link. The current
+`check_network_channel` implementation rejects paths above one hop; a
+model-written receipt, ordered role sequence, or multiple graph paths cannot
+replace that missing validation. A conditional direct receipt itself leaves
+materiality and causal effect unknown.

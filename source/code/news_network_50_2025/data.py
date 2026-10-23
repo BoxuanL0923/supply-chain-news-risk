@@ -222,10 +222,45 @@ def substantive_neighbor(headline):
     return re.search(routine, headline, re.I) is None
 
 
-def prepare(out=OUT):
+def three_hop_candidates(rows, scores, net_idx, relation):
+    """Reserve 8/6/6 places for shortest 1/2/3-hop typed news, then fill to 20."""
+    typed = {h: {p for r in relation if r.get("type") != "comention" and r["hops"] == h
+                 for p in r["permnos"]} for h in (1, 2, 3)}
+    tiers = {h: [] for h in (1, 2, 3)}
+    for i in net_idx:
+        hop = next((h for h in (1, 2, 3) if set(rows[i]["ids"]) & typed[h]), None)
+        if hop is not None:
+            tiers[hop].append(i)
+    chosen = []
+    for hop, quota in ((1, 8), (2, 6), (3, 6)):
+        idx = tiers[hop]
+        chosen += diversified([rows[i] for i in idx], scores[idx], quota)
+    picked = {row["source_id"] for row in chosen}
+    remaining = [i for i in net_idx if rows[i]["source_id"] not in picked]
+    if len(chosen) < 20:
+        chosen += diversified([rows[i] for i in remaining], scores[remaining], 20-len(chosen))
+    return chosen
+
+
+def graph_control_scope(relation, rows, net_idx, max_hops):
+    """Use direct typed neighborhood for fixed controls in the 3-hop study."""
+    neighbors = {p for r in relation if max_hops != 3 or
+                 (r.get("type") != "comention" and r["hops"] == 1)
+                 for p in r["permnos"]}
+    indices = ([i for i in net_idx if set(rows[i]["ids"]) & neighbors]
+               if max_hops == 3 else net_idx)
+    return neighbors, indices
+
+
+def prepare(out=OUT, max_hops=2):
+    if max_hops not in (2, 3):
+        raise ValueError("Preparation supports two or three hops; use a new output directory for each")
     out.mkdir(parents=True, exist_ok=True)
     if (out / "data_manifest.json").exists():
-        for name, sha in read(out / "data_manifest.json")["outputs"].items():
+        saved = read(out / "data_manifest.json")
+        if saved.get("max_hops", 2) != max_hops:
+            raise ValueError("Prepared pool radius differs; use a separate output directory")
+        for name, sha in saved["outputs"].items():
             assert legacy.file_hash(out/name) == sha, name
         return
     idx = indexes()
@@ -237,7 +272,7 @@ def prepare(out=OUT):
     freeze_comentions(graph, july, out)
     paths, eligible = {}, set(firms.permno.astype(int))
     for firm in firms.itertuples():
-        values = graph.paths(firm.ticker, 2)
+        values = graph.paths(firm.ticker, 2) if max_hops == 2 else graph.pool_paths(firm.ticker, 3)
         for cm in graph.data["comention"].get(str(firm.permno), []):
             values.append({"type": "comention", "permnos": [cm["permno"]], "hops": 1,
                            "path": [], "steps": [], "mechanism_verified": False, "vintage": "2025-07-31"})
@@ -282,14 +317,19 @@ def prepare(out=OUT):
             neighbors = {p for r in relation for p in r["permnos"]}
             net_idx = [i for i, r in enumerate(rows) if case["permno"] not in r["ids"] and
                        not prior.relevant_common(r) and set(r["ids"]) & neighbors and substantive_neighbor(r["headline"])]
-            direct = {p for r in relation if r["hops"] == 1 for p in r["permnos"]}
-            direct_idx = [i for i in net_idx if set(rows[i]["ids"]) & direct]
-            higher_idx = [i for i in net_idx if not set(rows[i]["ids"]) & direct]
-            net = diversified([rows[i] for i in direct_idx], scores[direct_idx, 2], 12)
-            net += diversified([rows[i] for i in higher_idx], scores[higher_idx, 2], 8)
+            if max_hops == 2:
+                direct = {p for r in relation if r["hops"] == 1 for p in r["permnos"]}
+                direct_idx = [i for i in net_idx if set(rows[i]["ids"]) & direct]
+                higher_idx = [i for i in net_idx if not set(rows[i]["ids"]) & direct]
+                net = diversified([rows[i] for i in direct_idx], scores[direct_idx, 2], 12)
+                net += diversified([rows[i] for i in higher_idx], scores[higher_idx, 2], 8)
+            else:
+                # Fixed, outcome-free quota gives each exact-hop tier a chance
+                # before the common 20-document cap fills with nearby news.
+                net = three_hop_candidates(rows, scores[:, 2], net_idx, relation)
             picked = {r["source_id"] for r in net}
             remaining = [i for i in net_idx if rows[i]["source_id"] not in picked]
-            if len(net) < 20:
+            if max_hops == 2 and len(net) < 20:
                 net += diversified([rows[i] for i in remaining], scores[remaining, 2], 20-len(net))
             base = {r["source_id"]: r for r in own+common+history}
             base_ids = sorted(base)
@@ -303,13 +343,16 @@ def prepare(out=OUT):
                                       r["headline"], re.I) for r in recent))
             pending = int(any(re.search(r"(?:acquir|buy|takeover|acquisition|merger).*\b(?:cash|agreement|agrees)\b|all-cash",
                                          r["headline"], re.I) for r in history))
+            # In a three-hop ablation, keep conventional graph controls fixed
+            # and direct-only so H1 cannot see a summary of H2/H3 candidates.
+            control_neighbors, control_net_idx = graph_control_scope(relation, rows, net_idx, max_hops)
             control = {"case_id": case["case_id"], "date": day, "ticker": case["ticker"], "b": case["b"],
                        **{f"rv{n}": case["state"][f"log_ret_rv{n}"] for n in (1, 5, 22)},
                        "earnings_confirmed": earnings, "calendar_unknown": int(cal["status"] == "unknown"),
                        "post_earnings": post, "pending_cash_deal": pending,
                        "log_news_count": float(np.log1p(len(recent))),
-                       "log_neighbor_count": float(np.log1p(sum(ages[i] < 7 for i in net_idx))),
-                       "log_degree": float(np.log1p(len(neighbors)))}
+                       "log_neighbor_count": float(np.log1p(sum(ages[i] < 7 for i in control_net_idx))),
+                       "log_degree": float(np.log1p(len(control_neighbors)))}
             daycontrols.append(control)
             pools[case["case_id"]] = {"case": case, "calendar": cal, "controls": control,
                 "own_ids": base_ids, "common_ids": [r["source_id"] for r in common],
@@ -339,6 +382,7 @@ def prepare(out=OUT):
     write(out / "data_manifest.json", {"version": VERSION, "sources": idx, "audit": audits,
         "retrieval": "local frozen MiniLM headline ranking, recency tie-break; native lexical passage search within scoped pool",
         "grouping": "latest version; exact normalized same-day headline, not gold event clustering",
+        "max_hops": max_hops,
         "graph_assumption": graph.data["audit"], "outcomes_exposed_to_tools": False,
         "outputs": {name: legacy.file_hash(out/name) for name in outputs}})
 
@@ -346,4 +390,6 @@ def prepare(out=OUT):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=__import__('pathlib').Path, default=OUT)
-    prepare(parser.parse_args().out)
+    parser.add_argument("--max-hops", type=int, choices=(2, 3), default=2)
+    args = parser.parse_args()
+    prepare(args.out, args.max_hops)
