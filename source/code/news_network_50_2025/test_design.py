@@ -231,7 +231,8 @@ class DesignTests(unittest.TestCase):
                     async with ClientSession(reader, writer) as session:
                         await session.initialize()
                         listed = await session.list_tools()
-                        self.assertEqual(len(listed.tools), 6)
+                        self.assertEqual(len(listed.tools), 8)
+                        self.assertTrue({"sc_graph_degree", "sc_graph_triangles"} <= {t.name for t in listed.tools})
                         result = await session.call_tool("inspect_event", {"source_id": "a", "page": 0})
                         self.assertFalse(result.is_error)
                         self.assertTrue(trace.exists())

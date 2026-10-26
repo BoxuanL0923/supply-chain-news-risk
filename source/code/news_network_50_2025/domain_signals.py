@@ -51,6 +51,29 @@ def _utc(value: str) -> datetime:
 
 
 def finance_graph_signal(row: dict, asof: str, *, event_category: str | None = None) -> dict:
+    result = _finance_graph_signal(row, asof, event_category=event_category)
+    stats = row.get("graph_statistics")
+    fields = ("in_degree", "out_degree", "total_degree", "degree_percentile", "hub",
+              "triangle_count", "clustering", "shared_neighbour_count", "pair_triangle_count",
+              "ra", "ra_percentile", "specialized_shared_exposure", "dense_cluster")
+    result.update({k: None for k in fields})
+    if stats is not None:
+        import math
+        if _utc(stats.get("cutoff")) != _utc(asof) or _utc(stats.get("vintage")) >= _utc(asof):
+            raise ValueError("Invalid graph-statistics clock")
+        for k in fields:
+            value = stats.get(k)
+            if value is not None and (not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0):
+                raise ValueError("Invalid numerical graph statistic")
+            if value is not None and k in {"clustering", "hub", "specialized_shared_exposure", "dense_cluster"} and value > 1:
+                raise ValueError("Invalid bounded graph statistic")
+            if value is not None and k in {"degree_percentile", "ra_percentile"} and value > 100:
+                raise ValueError("Invalid graph percentile")
+            result[k] = value
+    return result
+
+
+def _finance_graph_signal(row: dict, asof: str, *, event_category: str | None = None) -> dict:
     """Extract topology and finance hypotheses without disclosing graph IDs/text.
 
     `verified_paths` are host-joined retrieval paths. This function never

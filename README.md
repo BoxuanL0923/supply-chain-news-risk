@@ -4,6 +4,8 @@ This package documents the inputs, variable definitions, and tool-accessible sea
 
 ## Start here
 
+- [Q1 graph skills and local prompt convergence report](docs/Q1_GRAPH_SKILLS_AND_PROMPT_GD.md): explicit degree/triangle tools, analytic GD, local-Qwen SPSA, and an August-only validation smoke. Engineering evidence, separate from the completed historical experiment.
+
 - Explicit Skill invocation: Claude Code uses `/supply-chain-news-risk`; Codex
   uses `$supply-chain-news-risk`. The provider-neutral bundle is
   `skills/supply-chain-news-risk/`; the thin `.claude/skills/` wrapper disables

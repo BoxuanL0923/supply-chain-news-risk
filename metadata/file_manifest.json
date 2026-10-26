@@ -3,28 +3,33 @@
   "files": [
     {
       "path": ".claude/skills/supply-chain-news-risk/SKILL.md",
-      "bytes": 438,
-      "sha256": "da252fb54805d00eb143becee6c4d7fadb2caa0e98c48c1419d42c9ceee79a4c"
+      "bytes": 449,
+      "sha256": "7a1f94f5204f7a8774325faa2014d658abaf8a3c9592610f1fb8b2fc773571ca"
     },
     {
       "path": ".gitignore",
-      "bytes": 126,
-      "sha256": "54cd4df554f72c8ba2cc3d67f9934c196327e26cd2bca7ff1cd3c04436bb872a"
+      "bytes": 140,
+      "sha256": "b7f12b7e6b0a7358698c6e73fba869dbba4357cf2b9ff04ad6aa89f86aa48b07"
     },
     {
       "path": "DATA_DICTIONARY.md",
-      "bytes": 16597,
-      "sha256": "473f9db89aca49f0236b5b44bcf3a1a6b1e81303f81cc56d0b2bcb50758cc9b2"
+      "bytes": 16709,
+      "sha256": "90fad7a41e3fc8d9737ef165a0641b4d2d505ecbcb2731b0777a8b6c8c5370a8"
+    },
+    {
+      "path": "DSPY_CONTEXT_WORKFLOW.md",
+      "bytes": 17555,
+      "sha256": "a5e06fe7dc6428fa43aae56dc4f84b1033d863dc105fe147202268fde2fe97d5"
     },
     {
       "path": "README.md",
-      "bytes": 6378,
-      "sha256": "eccd0b921f2989f036a0e13498c3f288b76ffd541b8691568df172d63b9f4373"
+      "bytes": 6647,
+      "sha256": "3690b1d3c04596d4d8aa48324e7458392b16829cbf80810c0d4d71e9d05ea52a"
     },
     {
       "path": "TOOL_SEARCH_UNIVERSE.md",
-      "bytes": 9514,
-      "sha256": "dc95d530c37ad0be1a7817afc1bbfbba85c581bd97895d4c70fec9fde80e2e6b"
+      "bytes": 9591,
+      "sha256": "9eed668ba6b65ce735750551694dbf18a24e32d1a966fb02fa05dd417dcb92db"
     },
     {
       "path": "dictionaries/observed_schemas.json",
@@ -33,18 +38,18 @@
     },
     {
       "path": "dictionaries/raw_fields.csv",
-      "bytes": 17798,
-      "sha256": "5363f232ed78e69f4ec25ff9425be45a9e835ed192fe138706fe9e7b580e1398"
+      "bytes": 17913,
+      "sha256": "6d2af4875e185ee3e1889906f6e0e3896b78e2936e726701f97d3ff5d44c277a"
     },
     {
       "path": "dictionaries/tool_registry.json",
-      "bytes": 26811,
-      "sha256": "0435d63495fb9ed909f2e30ab534cb55d1ce5fb93dbcc59431a977407d72ac80"
+      "bytes": 27340,
+      "sha256": "e69d3d91cd1c1c3d4f7ea2529f8c2ba75742e96c7027f6ecdf7d7302ee38b2f7"
     },
     {
       "path": "dictionaries/variables.csv",
-      "bytes": 5764,
-      "sha256": "72e57ab67f6993b44e9c3211f69f1a357559956d5da059d642f80a83bfd2d382"
+      "bytes": 5780,
+      "sha256": "e688cd1475d54a5c49ea6b615f18c547df09d644c649a74aaac978d525447222"
     },
     {
       "path": "dictionaries/variables.json",
@@ -52,9 +57,74 @@
       "sha256": "8777765a1f37233161b1b0897df1f5177e43c295c10347db025efe08abbba78e"
     },
     {
+      "path": "docs/Q1_GRAPH_SKILLS_AND_PROMPT_GD.md",
+      "bytes": 22739,
+      "sha256": "d106c22ccc3e733d1bdb169a5d4b32d67e238d3f632d734163acd1d1963ca1e2"
+    },
+    {
+      "path": "docs/figures/academic_workflow.png",
+      "bytes": 127429,
+      "sha256": "782e6623a963fcc9ca365d400d51550177280520a07515a47fd29aaaf986a23c"
+    },
+    {
+      "path": "docs/figures/q1_convergence.png",
+      "bytes": 279326,
+      "sha256": "a811c12a37b94f5a5a84eb20b39d19883f8d6a47c9ca8379b56c072ba96db90d"
+    },
+    {
+      "path": "docs/figures/q1_parameters.png",
+      "bytes": 238989,
+      "sha256": "31700721e091709abae29e1fbd8618845fa8f4f95cb41341966e95384d3d89a2"
+    },
+    {
+      "path": "docs/figures/senior_workflow.png",
+      "bytes": 135872,
+      "sha256": "b6bd38b69ea52ef9e52d06a668c0b3755c9558ed3556703496d4f142545e9b02"
+    },
+    {
+      "path": "examples/dspy_offline_pilot.py",
+      "bytes": 6383,
+      "sha256": "43f93a4b965979d0cd57cdd67c4190b869ad438c67620fdcc039ac36502845ed"
+    },
+    {
+      "path": "examples/optimized_prompt_example.json",
+      "bytes": 6342,
+      "sha256": "c2cf5579a33652ecaf4b5259eff2de44ad24cde5d794b394e19810f784f059e1"
+    },
+    {
+      "path": "examples/optimized_prompt_example.txt",
+      "bytes": 4555,
+      "sha256": "e7d218aead2dc285d8cf0cc8b200ed1517799d9f81750f8ea07e8f4a6b3022c5"
+    },
+    {
+      "path": "examples/render_workflow_figures.py",
+      "bytes": 8363,
+      "sha256": "324a50bc72a3785427d54c3a7103980b70f8167eb2e8a9af95ff79707eb92366"
+    },
+    {
+      "path": "examples/test_dspy_context_selection.py",
+      "bytes": 28913,
+      "sha256": "cb0b7231cd9dc11a933218293c3d918bc1f0d6d57fd7d20aa5b312279e2adb91"
+    },
+    {
       "path": "examples/test_formulas.py",
-      "bytes": 2202,
-      "sha256": "d89012a309b5f2e98abb838da726b09634b64788e419b8c6e08e76eaa9c4ce98"
+      "bytes": 2260,
+      "sha256": "81117f9ca48b3687c3c458715e6e460f4a58f530ef5ce22d1fbe9498855d9ef7"
+    },
+    {
+      "path": "examples/test_hop_ablation.py",
+      "bytes": 7327,
+      "sha256": "5ff3f531452e1b3ddae6517e92512f2b5a11d8b955c41f0f2037b008eb13953c"
+    },
+    {
+      "path": "examples/test_q1_graph_prompt_gd.py",
+      "bytes": 12491,
+      "sha256": "b26033d2f77bcb3046e26945855915dfb26385586d8e446fb680f44455d184b3"
+    },
+    {
+      "path": "examples/test_three_hop_toolkit.py",
+      "bytes": 6098,
+      "sha256": "60c1175e3db1ac9cedf2ca4a5bee5bf8b4809e5a5dee1768f809f03efdd2c444"
     },
     {
       "path": "metadata/environment.json",
@@ -68,8 +138,8 @@
     },
     {
       "path": "metadata/firm_universe.csv",
-      "bytes": 1835,
-      "sha256": "1e6ec406c4306de42c672d25732634f54696d3d06bfe4e846d6aed855917ccc1"
+      "bytes": 1886,
+      "sha256": "db84c67461c39d77aee109b7dc60d4cbbbae557da345e093458ff13b27d56dda"
     },
     {
       "path": "metadata/import_inventory.json",
@@ -88,13 +158,13 @@
     },
     {
       "path": "metadata/run_schedule.csv",
-      "bytes": 1525,
-      "sha256": "f45f4b2f4b4a17458eadc9b5d795c63915fee6a835b31e29f74d8e5a59f08892"
+      "bytes": 1538,
+      "sha256": "6c9077bbaa8e15647ae21a67ce3d2f8d645a0d6b0b49f30f07365e8ee4e52a55"
     },
     {
       "path": "metadata/source_manifest.csv",
-      "bytes": 8015,
-      "sha256": "e64eabde74bba3b78efe312f045aa5280d669fff890e27f6c0df2bd536bc14db"
+      "bytes": 8064,
+      "sha256": "bcb3a13dcde366a160b94aae702a463ab0ff4fbc2ac6f553714e3b547c570162"
     },
     {
       "path": "metadata/verification.json",
@@ -102,274 +172,339 @@
       "sha256": "5c00d5dea90d41be93196072135dcbdee4469c16a75c0aabc49fec12933acb72"
     },
     {
+      "path": "skills/sc-graph-degree/SKILL.md",
+      "bytes": 2348,
+      "sha256": "5d15e1e388253f49337c13a6ca84f00f61e89b2ef151bd24cbc2527031aef190"
+    },
+    {
+      "path": "skills/sc-graph-degree/agents/openai.yaml",
+      "bytes": 43,
+      "sha256": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94"
+    },
+    {
+      "path": "skills/sc-graph-degree/scripts/graph_degree.py",
+      "bytes": 288,
+      "sha256": "b474dc5bff09c65511620233c95d72007426359dc854bab3843912eda6264c08"
+    },
+    {
+      "path": "skills/sc-graph-triangles/SKILL.md",
+      "bytes": 2554,
+      "sha256": "b7371b9314bacecd34d73fd98bc18ab35bfc0558ac792553fbd41cc8a50e556c"
+    },
+    {
+      "path": "skills/sc-graph-triangles/agents/openai.yaml",
+      "bytes": 43,
+      "sha256": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94"
+    },
+    {
+      "path": "skills/sc-graph-triangles/scripts/graph_triangles.py",
+      "bytes": 291,
+      "sha256": "50f226de883f22642f75bc823c94654fb340e0b2ef4d825cc434a169e4d28d9b"
+    },
+    {
+      "path": "skills/supply-chain-context-selection/SKILL.md",
+      "bytes": 5555,
+      "sha256": "451d98d65016b1f975625d6329c4fa16cdeeb7b1c13d8042dca32421978bb278"
+    },
+    {
+      "path": "skills/supply-chain-context-selection/agents/openai.yaml",
+      "bytes": 43,
+      "sha256": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94"
+    },
+    {
       "path": "skills/supply-chain-news-risk/SKILL.md",
-      "bytes": 3566,
-      "sha256": "84520347370c8eb8f214b719ea64b04f7d092109e206b495dd05d83c140a3e42"
+      "bytes": 3633,
+      "sha256": "6e1f2c0a03b6f94f976521f77612610be7cbbe5a67edf0544c92d96d98529ed7"
     },
     {
       "path": "skills/supply-chain-news-risk/agents/openai.yaml",
-      "bytes": 320,
-      "sha256": "5bdff331585740f7fc6d2c681876c63e3b7564628b9e972c6e6f467ea8eb69ab"
+      "bytes": 330,
+      "sha256": "d52c891536780f6208f89b7932497b96867f955310fca851591132c9251f0573"
     },
     {
       "path": "skills/supply-chain-news-risk/references/data-contract.md",
-      "bytes": 4116,
-      "sha256": "706ea3063c93c9a4783931dde7eccd710d7614682ff4c5a4c392232505854c43"
+      "bytes": 4207,
+      "sha256": "7c9c0ad62b4226b69a884f46753376e370838b25d2436e28601851f1cc0366c3"
     },
     {
       "path": "skills/supply-chain-news-risk/scripts/test_validate_dictionary.py",
-      "bytes": 3969,
-      "sha256": "58f107f7afe394e92f397fda2ccde65e1caadc6cb4f8249e5bee0ae000f55241"
+      "bytes": 4086,
+      "sha256": "8563904a2cae463c2119bc6428254cc3607d095df8f7c58444dc2822f2e1d2d1"
     },
     {
       "path": "skills/supply-chain-news-risk/scripts/validate_dictionary.py",
-      "bytes": 7166,
-      "sha256": "d98308eb29a27192abca0f8eac8bbbf5110e97407a464b8f66ecebb1e133758a"
+      "bytes": 7386,
+      "sha256": "a9f780b1dfb9e957f993dc8cdfe5a1eb25093f27aa8dacc3f914710810d3a5c4"
     },
     {
       "path": "source/code/audit_network30_opus_smoke.py",
-      "bytes": 6400,
-      "sha256": "45a9c9bfa5713dab4427db88e69760e7acc22888fcd627ac8e4da15fceabc8e5"
+      "bytes": 6502,
+      "sha256": "d2916aef22b0927cac96ede4ecd72b823222e96ff782c2000f57d51dd2c508c8"
     },
     {
       "path": "source/code/midcap_standard_2025/benchmarks.py",
-      "bytes": 2895,
-      "sha256": "46f166c918b5cab15c7ae54d77ba289374a5c97e658820eab143a0dffc735fa9"
+      "bytes": 2966,
+      "sha256": "b0910d4989a12fa33f719827b857cec1e67f1911b0ef7e084700643f2e3528c2"
     },
     {
       "path": "source/code/midcap_standard_2025/config.py",
-      "bytes": 2394,
-      "sha256": "27474bd078c2586df6d2335647f2698ddac8d86c5fad7fc5078f68b177d9e8e6"
+      "bytes": 2442,
+      "sha256": "5bcb5b161482eabb22ee91e02a4c76c37849c74a0b9d53e0e37d4f51b67af423"
     },
     {
       "path": "source/code/midcap_tools/config.py",
-      "bytes": 1940,
-      "sha256": "9c5ffffe53c2b2020d22ac8dbb39854d67ee1ad19d30d208e16162c8270c0ebd"
+      "bytes": 1980,
+      "sha256": "b1ff4a38b5bc8443319a3aec95dd66192b21a9fa16dbc56d5d25782c07034b67"
     },
     {
       "path": "source/code/midcap_tools/prepare.py",
-      "bytes": 50932,
-      "sha256": "e9f3c070cb2d598d192501b9f4e3ca721c291aa40a8d53fa818fe3fbe7421056"
+      "bytes": 51778,
+      "sha256": "c81f6edbc8d804018bd9c16d599f5d2eb5e41c60060266cc3177341c16d7e4e2"
     },
     {
       "path": "source/code/midcap_tools/retrieval.py",
-      "bytes": 40155,
-      "sha256": "3c05b045e98373f034aee6e2f9452669e472cf45ebb814cfd14db2c5de62ad4d"
+      "bytes": 41032,
+      "sha256": "9c8a37afa59c23fc060627fee3ca96f7d1d7aa047d94aaa8f3cfe14c652b4bc0"
     },
     {
       "path": "source/code/network50_archive_tools.py",
-      "bytes": 17124,
-      "sha256": "c7dac4da431151c3e2fb6eef6feade84988e302416142540c55648d5a4175041"
+      "bytes": 17426,
+      "sha256": "8b893f1026bb7e84af209275f96f78c8da511d820cd726176794f0621fabeca5"
     },
     {
       "path": "source/code/network50_availability_toolkit.py",
-      "bytes": 8913,
-      "sha256": "ff0d8883ec7dd91ad889d3923f5bcea7905e48be11d1877bec38b9cfe9a66595"
+      "bytes": 9065,
+      "sha256": "cb9d4efcefaf860e097b968464d0ab2a2ab786be6eb31c97ce7433127c52c07d"
     },
     {
       "path": "source/code/network50_cached_followups.py",
-      "bytes": 4382,
-      "sha256": "75f9f4a98988a687e22b668c5d73c1e2fa8031828de7a90172cd651f055c06eb"
+      "bytes": 4454,
+      "sha256": "8d6d08c512ed15b408de7041233a09c91f8756ee4a226d26234280407508c93c"
     },
     {
       "path": "source/code/network50_enhanced_toolkit.py",
-      "bytes": 7447,
-      "sha256": "0b105a80e08bbe0d925e59847f02fa037b5181a5f0130128ef45276af305e83b"
+      "bytes": 7597,
+      "sha256": "b444c4373f7b33e096acaf282c2ae29d4a5c098b61ec587b7ef9ee7f35b5cc3e"
     },
     {
       "path": "source/code/network50_evidence_toolkit.py",
-      "bytes": 19764,
-      "sha256": "6d623ec2adbc4c1c27dd8b991d644c43ec1f0d18454922d5aa387f8f7a7e8244"
+      "bytes": 20075,
+      "sha256": "ff599863c1cef52518045af42b1e26d934815cbca3def588dae837b5f2c2c1c2"
     },
     {
       "path": "source/code/network50_grounded_debug.py",
-      "bytes": 15275,
-      "sha256": "66ae2809f258961b191cbddd2aad803b742a065e6adcc35f56ea20d682fbd936"
+      "bytes": 15510,
+      "sha256": "748a8272cbd0bdea16cb8392c07b71c1993383cfe0acd01f3cc725ab665228bb"
     },
     {
       "path": "source/code/network50_grounded_toolkit.py",
-      "bytes": 40250,
-      "sha256": "d9112e52a1d30829e88f3ba842ef0a963fff3d37de1e142a0c436e939a6a7d5e"
+      "bytes": 40846,
+      "sha256": "6673d0a31c44670942b7627dbd068d92e48941816ed0d44d066be64b533d1c14"
     },
     {
       "path": "source/code/network50_oneweek_diagnostic.py",
-      "bytes": 16004,
-      "sha256": "aafa5db8c5e3a9c23950fc7b6c0937a354c2ce4224f70357a89a9d922c3353b0"
+      "bytes": 16225,
+      "sha256": "5bdb541dec73c119c16330139c9532ee6805b427426e97274118cf2eace5d736"
     },
     {
       "path": "source/code/news_agent_batched_runtime_2025.py",
-      "bytes": 12198,
-      "sha256": "ace66baea495df1f18a663ef58584a8f4b7676d4a66e88f5bc7a298e1f6e4804"
+      "bytes": 12427,
+      "sha256": "3aa895c72a274b950ab462d17b2f831b1ecbc0735b8bb7d513f5211077e30a02"
     },
     {
       "path": "source/code/news_agent_r2_2025/__init__.py",
-      "bytes": 63,
-      "sha256": "3140c240fc65a5c0b26b7daf965e62c428dec0402f808f6cc2921c2470ca3d49"
+      "bytes": 64,
+      "sha256": "a381a64b122063e72bcff2cc3b9d39cdb999fa04dda72578fdd700d0573e2499"
     },
     {
       "path": "source/code/news_agent_r2_2025/config.py",
-      "bytes": 2490,
-      "sha256": "bc7c2bbb7eef1d3596396a4767be071625ef13593243a6615617f56ddd4818c1"
+      "bytes": 2533,
+      "sha256": "d9bc2af1342336773a8c4410de70d9f5b4b3c86402af319d6a40b6d1c351a8c6"
     },
     {
       "path": "source/code/news_event_calendar_2025.py",
-      "bytes": 32163,
-      "sha256": "a3a1635073494e8e8749cc6edc92fb2c225e28799f4082f7db0d3c4fc93b19f0"
+      "bytes": 32785,
+      "sha256": "20b58d6ae2b5b3c55888f370a05abe3369cb3411becbbc7f108925954b8db3bd"
     },
     {
       "path": "source/code/news_event_risk_data_2025.py",
-      "bytes": 38459,
-      "sha256": "53792dba8a58cf6fb2205098653c65919cddf7466508fdecd7a8a0390e8537ff"
+      "bytes": 39162,
+      "sha256": "a2c1d39505737934be4c1576295a332c6f47d1fca1cc33a947684a8e7810ea6c"
     },
     {
       "path": "source/code/news_exposure_2025/__init__.py",
-      "bytes": 85,
-      "sha256": "e18dc4938aa2fe1dbd03baf3dfff9dfda20d92fc2094d300c2fb9cb12db7c4d2"
+      "bytes": 86,
+      "sha256": "4d54896a034858d1e57a6c9698fcb15523ab48fe1715ae7194e26b52ad319fc7"
     },
     {
       "path": "source/code/news_exposure_2025/acceptance.py",
-      "bytes": 2714,
-      "sha256": "a578513ff7285e85cedf9ade26ca248c14a77d120af42f53b4482319bab4679b"
+      "bytes": 2758,
+      "sha256": "02bab72ebe63b2fa80636b6f273f84513c4e8c5f07c20e235b9b13853b5c0de9"
     },
     {
       "path": "source/code/news_exposure_2025/config.py",
-      "bytes": 7405,
-      "sha256": "996b1369782b6320cbe56c68a76fbe5111b7649efc3fe53129ce07c1cc54eff4"
+      "bytes": 7510,
+      "sha256": "a28814d09eb0f524ed5e0e2dd091be2e4f05503dc61933ee64936a189cfe9fbb"
     },
     {
       "path": "source/code/news_exposure_2025/data.py",
-      "bytes": 17999,
-      "sha256": "82310f6ff43d255351ff4511666d8517aae49866674287aa90a0164b36867c54"
+      "bytes": 18332,
+      "sha256": "3b1b88ea255f58a291288239236d73b83cfd89a0fbd2e58c148fb320a361d9c3"
     },
     {
       "path": "source/code/news_exposure_2025/graph.py",
-      "bytes": 8988,
-      "sha256": "b48132c87a2217a6dd1a27172d3ad465d4531f643fb2c8c283e9d91c1d995e68"
+      "bytes": 9151,
+      "sha256": "48f2dea932457f79d0c0b04c3809ad74ccec1c38a4f25c727fd401e592a8fa6a"
     },
     {
       "path": "source/code/news_exposure_2025/metrics.py",
-      "bytes": 5896,
-      "sha256": "82cfe8833105ac3083bdf6809fc6bb92aee875b14278fc59b10ec5c8362a8b34"
+      "bytes": 6008,
+      "sha256": "ceba5bea7101da649404d82799f9c5c1509bcecc361be3ae6c680503a1791a27"
     },
     {
       "path": "source/code/news_exposure_2025/optimize.py",
-      "bytes": 14044,
-      "sha256": "4204baa148b5cd61f6cdb3d511b5bf4c541f2dcf6d0eec8d078181502b30bf97"
+      "bytes": 14255,
+      "sha256": "db3280d7e867a5598c9fdd9a3c2fa21b53ed46960687c61f8bcc3ac43b88703b"
     },
     {
       "path": "source/code/news_exposure_2025/run.py",
-      "bytes": 12739,
-      "sha256": "9879b4c7342448806b7e555e4f46156b21f4bc4490abb5c67146ff09de2e0588"
+      "bytes": 12934,
+      "sha256": "40cd9f289219cc28a7fa6d1a025f8a8cdb649e9ba0989c34c3ab98744142f141"
     },
     {
       "path": "source/code/news_exposure_2025/tools.py",
-      "bytes": 17535,
-      "sha256": "44955d18492af16059840896b5b446ecbe7e146bf25065d4903e9807d1758ed3"
+      "bytes": 17815,
+      "sha256": "7b68a3e28842033dae18d993074d65e87586d91af6b7cef4a7ece76f54f119c2"
     },
     {
       "path": "source/code/news_exposure_2025/workflow.py",
-      "bytes": 9264,
-      "sha256": "4004cc2012eef5e7f2c1c65a186a713bb9f77ab2ad2717d2fdf870d3bd6cecd5"
+      "bytes": 9418,
+      "sha256": "5f294b0c8dbcca0f085cfca986b420d12e44f2d29d524123cc2da98bda9d2f8f"
     },
     {
       "path": "source/code/news_network_50_2025/__init__.py",
-      "bytes": 68,
-      "sha256": "c611daea6c130f2ebeb060f2450341042f7d2f5842422c31c9a3ac61ae4909cf"
+      "bytes": 69,
+      "sha256": "3aec9e68613931f3d829a0b8d5b60eb0c62c304e3b025e04f3070b9777cf5940"
     },
     {
       "path": "source/code/news_network_50_2025/config.py",
-      "bytes": 4100,
-      "sha256": "2e36de5db7876fcd2b7d4ce1c1b40ba28270da8602bd5fc79a39217c248c94d0"
+      "bytes": 4155,
+      "sha256": "17f49e11342bd318c91a931628641c74e7d7eee55d5ff88f42965f1535427198"
     },
     {
       "path": "source/code/news_network_50_2025/context_selection.py",
-      "bytes": 18395,
-      "sha256": "92400ef07809ed2f320fb84a7f0f2a5cf0d706f79390b3c395d0535e2d3974ad"
+      "bytes": 18753,
+      "sha256": "183226f812442d09149a5ff8a2cd8e42852c5bb8601be533d307ad6af3e35a06"
     },
     {
       "path": "source/code/news_network_50_2025/data.py",
-      "bytes": 22942,
-      "sha256": "da91f81f55189c158ba8e7bdef9961afb8e998d55b35138a18cc77d1cff42a96"
+      "bytes": 23337,
+      "sha256": "956b60c812d48ab473a2150086ba46826deaebf2cc87b8bd37cba805c545ded2"
     },
     {
       "path": "source/code/news_network_50_2025/domain_signals.py",
-      "bytes": 6815,
-      "sha256": "1bd610773cfe291012b6809d5933c344a3ffbb6a33ce15158aaad89b5c19eae4"
+      "bytes": 8191,
+      "sha256": "3f5056c6be83be10835aa5f0a0b2084cc75b2cda9317b00e62fbeeeee6676a0a"
+    },
+    {
+      "path": "source/code/news_network_50_2025/graph_skills.py",
+      "bytes": 9347,
+      "sha256": "8dcc88abf62526be4f1f940eaaa857e2371b73655e4e5c2b98df470609f5d6c6"
     },
     {
       "path": "source/code/news_network_50_2025/hop_ablation.py",
-      "bytes": 15631,
-      "sha256": "9a20550bd32f25d31a51ee0508393933e086511663bb3f4fdf2c8e62f8da498c"
+      "bytes": 21744,
+      "sha256": "06aac4c6e61263f8c08f05f4e1874b27836690d6deae4da6ee0b455484473247"
     },
     {
       "path": "source/code/news_network_50_2025/metrics.py",
-      "bytes": 5734,
-      "sha256": "ade97f2c0be91832d18087bdce3c459e539408826ccee20b3b667997357199da"
+      "bytes": 5830,
+      "sha256": "5f93b23c4bb5bd0896d82a379adce1d9195c9f2e7e4a9e285f5a0bca3f375d4b"
     },
     {
       "path": "source/code/news_network_50_2025/optimize.py",
-      "bytes": 9834,
-      "sha256": "7c5957adac2f63e47f6c30e45bb067d1ba8bf40fc660a84f2f0f98aba98c929c"
+      "bytes": 9998,
+      "sha256": "e2870933a23253719653b91660c788d60cb4e106c1c40e07fa68a8dbb9fd2a47"
+    },
+    {
+      "path": "source/code/news_network_50_2025/prompt_gd.py",
+      "bytes": 22425,
+      "sha256": "5695393ae4ba916646d311915e72e567555dd808e7a5de06d0d5bde04b541a30"
+    },
+    {
+      "path": "source/code/news_network_50_2025/q1_prepare.py",
+      "bytes": 8636,
+      "sha256": "d6180f10bf61ee977dd78713e69b825022ca7cb490e905a30a6a1f7d7ea2562a"
+    },
+    {
+      "path": "source/code/news_network_50_2025/q1_report.py",
+      "bytes": 27639,
+      "sha256": "56b199a6dfdc3c472c057b462f04401a37112613db19e100044fbfa0b6626459"
+    },
+    {
+      "path": "source/code/news_network_50_2025/q1_run.py",
+      "bytes": 3428,
+      "sha256": "d29e4c0a2539291d603dde461ee9c9bf4ae538dff764d8d0f6f21e3fad5e932f"
     },
     {
       "path": "source/code/news_network_50_2025/run.py",
-      "bytes": 17024,
-      "sha256": "9caa94f790ba8900513528bd55df19dbd76fb65220114e99354504ee8c045f86"
+      "bytes": 17292,
+      "sha256": "d625b1964de2c29eb13159c7987f9dc541469e709e1fd12394b5c361ab3f3a7c"
     },
     {
       "path": "source/code/news_network_50_2025/runtime.py",
-      "bytes": 4377,
-      "sha256": "2c15de69ca9b459ff25b963d892f03e28f1f8b5b6e84fb6059e9ab658671d6e7"
+      "bytes": 4444,
+      "sha256": "5c0361d748bd082cf1e99b065848bbb13a29f8b4519938de16c53c6ab40dc542"
     },
     {
       "path": "source/code/news_network_50_2025/test_design.py",
-      "bytes": 13979,
-      "sha256": "6583e25554a03178fca96dbe320cdd6985f08b6ecb012e6f3bde846df628a90f"
+      "bytes": 14096,
+      "sha256": "bf988b4d14823494ec76a53e8855a5c72281ae5686d43171f7f7040fd8e2e972"
     },
     {
       "path": "source/code/news_network_50_2025/toolkit.py",
-      "bytes": 12268,
-      "sha256": "dc469265eacc33b9036627f20f0d0f37bcaee23808a9601b2152b4382299a92f"
+      "bytes": 13915,
+      "sha256": "b67d8ee8f681158e276a19de5b6d0ab8f588baa1e8fcaa2e798c4ba0fe2d3183"
     },
     {
       "path": "source/code/news_network_50_2025/transport_smoke.py",
-      "bytes": 916,
-      "sha256": "94e80d0cb4889df2967ba017eb42b5ffade1aa88a653b195e86ba9b67ff2e944"
+      "bytes": 935,
+      "sha256": "63f3c268febad549bb8a5c2805303887fc9f213d236dbc3d9245db758de167d4"
     },
     {
       "path": "source/code/news_network_50_2025/workflow.py",
-      "bytes": 21577,
-      "sha256": "84ef01e6e3d06e195b878efeee4e6df127c2433c966b274bb175fa49f50514e4"
+      "bytes": 23983,
+      "sha256": "155b7668232baba687f78cce1b766635b4afa709623692cf65b5408a565d45b7"
     },
     {
       "path": "source/code/news_percentile/build.py",
-      "bytes": 38267,
-      "sha256": "d45d68c8aacc94ef535f29a586e85fc5b4e9255b2c4674c4b30eb69e025a0bc7"
+      "bytes": 39046,
+      "sha256": "a8825eb977ea89c68e59e05a1ec9a64d95a5b7418411867328b618b96d74810d"
     },
     {
       "path": "source/code/news_percentile/common.py",
-      "bytes": 3800,
-      "sha256": "5a8c82474031efd334694248d3f900eae75e4140f3b1e4ceb60f1bef45a3c323"
+      "bytes": 3905,
+      "sha256": "1c1f5db479528fed653bf8175643421409e8f65eca72f531de91906c74e39a97"
     },
     {
       "path": "source/code/news_source_clock_2025.py",
-      "bytes": 2594,
-      "sha256": "c1a51b698aaf75972ba61dcea8bce1623b591608fd7f87a6f7d299f00035e548"
+      "bytes": 2643,
+      "sha256": "1c507574ca84dfe8ed841cfe14c95033528d1bd80a2072e17dcbe5de8f179a19"
     },
     {
       "path": "source/code/run_network30_frozen_2025.py",
-      "bytes": 22643,
-      "sha256": "b073081a83321df0416df912299ba81062e5812da075c3637ab2789aa5f1c53f"
+      "bytes": 23017,
+      "sha256": "33732949fd73c10f637976a35e26e0e9c8e6088e02ff04fb04eb6bc087003756"
     },
     {
       "path": "source/code/run_network30_mixed_resume.py",
-      "bytes": 7199,
-      "sha256": "bff175af67f596cdee578b95a26f0175c84f058f30fabd9826ab5120728c0043"
+      "bytes": 7343,
+      "sha256": "3e5af9ff916be3ff2ec542b5c6b16130beb314ad710f3dba9694c891ae68e334"
     },
     {
       "path": "specification.json",
-      "bytes": 7714,
-      "sha256": "625614eb7b110ae061d989ff60a7095c1ff66d8be327effefe77a8f39e68e691"
+      "bytes": 7735,
+      "sha256": "49e01365feedbc23eab6e6ed08fb3f1b08c1ac94e1c4bea4ac121650bcc15bcd"
     }
   ],
   "excluded_from_self_hash": "metadata/file_manifest.json"

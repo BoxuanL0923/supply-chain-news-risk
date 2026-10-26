@@ -3,6 +3,7 @@ from datetime import datetime
 import math
 import re
 from news_agent_batched_runtime_2025 import read, write, digest
+from .graph_skills import utc
 
 
 class Toolkit:
@@ -14,15 +15,15 @@ class Toolkit:
         self.inspected_entities = set()
         self.inspected_paths = set()
         self.docs = capability["documents"]
-        cutoff = datetime.fromisoformat(capability["case"]["asof"])
-        if any(datetime.fromisoformat(r["available_at"]) >= cutoff for r in self.docs.values()):
+        cutoff = utc(capability["case"]["asof"])
+        if any(utc(r["available_at"]) >= cutoff for r in self.docs.values()):
             raise ValueError("At/after-cutoff document in tool capability")
         if any(k in capability for k in ("y", "outcome", "residual", "labels")):
             raise ValueError("Forbidden outcome field")
 
     def call(self, tool, **args):
         try:
-            if tool not in {"market_state", "search_events", "inspect_event", "inspect_events", "exposure_paths", "event_logbook"}:
+            if tool not in {"market_state", "search_events", "inspect_event", "inspect_events", "exposure_paths", "event_logbook", "sc_graph_degree", "sc_graph_triangles"}:
                 raise ValueError("Unknown tool")
             result = getattr(self, tool)(**args)
             item = {"tool": tool, "args": args, "ok": True, "result": result}
@@ -43,6 +44,22 @@ class Toolkit:
                 "coverage": self.data["coverage"],
                 "anchor_definition": "Raw GARCH; calendar and news are NOT already included",
                 "asof_note": "Historical close snapshot, not an executable trade exactly at that close"}
+
+    def _graph(self):
+        from .graph_skills import Snapshot
+        if not self.data["network"] or "graph_snapshot" not in self.data:
+            raise ValueError("Dated graph snapshot and monthly universe required in network capability")
+        if not hasattr(self, "_snapshot"):
+            self._snapshot = Snapshot(self.data["graph_snapshot"], self.data["case"]["asof"])
+        return self._snapshot
+
+    def sc_graph_degree(self, max_hops=1, thresh_hub=90):
+        return self._graph().degree_result(self.data["graph_firm_id"], max_hops,
+                                          self.inspected_paths, thresh_hub)
+
+    def sc_graph_triangles(self, neighbour=None, max_hops=1, thresh_ra=75, thresh_clust=.5):
+        return self._graph().triangle_result(self.data["graph_firm_id"], neighbour, max_hops,
+                                            self.inspected_paths, thresh_ra, thresh_clust)
 
     def search_events(self, query: str, limit: int = 5, hops: int = 1, via: str = ""):
         if not isinstance(query, str) or not 0 < len(query) <= 800 or not 1 <= limit <= 10:
@@ -176,6 +193,18 @@ def serve(capability_path, trace_path):
     from mcp.server.mcpserver import MCPServer
     kit = Toolkit(read(capability_path), trace_path)
     server = MCPServer("news")
+
+    @server.tool()
+    def sc_graph_degree(max_hops: int = 1, thresh_hub: float = 90) -> dict:
+        """/sc-graph-degree: dated degree statistics; inspected prefixes required beyond one hop."""
+        return kit.call("sc_graph_degree", max_hops=max_hops, thresh_hub=thresh_hub)
+
+    @server.tool()
+    def sc_graph_triangles(neighbour: str = None, max_hops: int = 1,
+                           thresh_ra: float = 75, thresh_clust: float = .5) -> dict:
+        """/sc-graph-triangles: triangles, clustering and RA; graph paths are leads only."""
+        return kit.call("sc_graph_triangles", neighbour=neighbour, max_hops=max_hops,
+                        thresh_ra=thresh_ra, thresh_clust=thresh_clust)
 
     @server.tool()
     def market_state() -> dict:

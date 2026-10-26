@@ -40,7 +40,8 @@ LIMITS = {
     "thinking_token_budget": 0,
 }
 WORKERS = 8
-TOOL_NAMES = ("market_state", "search_events", "inspect_event", "inspect_events", "exposure_paths", "event_logbook")
+TOOL_NAMES = ("market_state", "search_events", "inspect_event", "inspect_events", "exposure_paths", "event_logbook",
+              "sc_graph_degree", "sc_graph_triangles")
 CONTRACT = (
     "Target: log(mean of the NEXT FIVE exchange sessions' squared decimal total returns). "
     "Return one scalar score in natural-log variance units relative to anchor, the development-only OLS "

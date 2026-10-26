@@ -59,3 +59,12 @@ own instructions in `Runner.evidence`. This file is not a hosted Skill mount.
 
 Only training feedback may revise the ranking instruction. Validation chooses a
 candidate; held-out labels must stay sealed until final evaluation.
+
+
+## Explicit graph-skill integration
+
+`/supply-chain-context-selection rank inspected candidates; inputs: dated events and host graph statistics; script: source/code/news_network_50_2025/context_selection.py; constraints: cutoff and event budget; deliverable: selected IDs and Python receipt.`
+
+Before ranking, the evidence host explicitly invokes `/sc-graph-degree` and `/sc-graph-triangles` with target ID, dated snapshot, monthly universe, cutoff, max_hops <= 3, and inspected exact prefixes. Their Toolkit names are `sc_graph_degree` and `sc_graph_triangles`; run the scripts at `skills/sc-graph-degree/scripts/graph_degree.py` and `skills/sc-graph-triangles/scripts/graph_triangles.py`. Require JSON, verify clocks and prefixes, then stop each skill after its receipt. The selector sees the host-computed numerical fields through `finance_graph_signal`, without raw graph IDs. Missing statistics remain null.
+
+Prompt thresholds: THRESH_HUB=90 percentile (down-weight single-neighbour news for a diversified TARGET); THRESH_RA=75 percentile, RA > 0 (specialized shared exposure); THRESH_CLUST=0.5 (dense common exposure, not independent stories). Default hop discounts lambda2=0.5 and lambda3=0.05, materiality=0.5, evidence budget k=8, final shrinkage w=0.5. Triangles/clustering are not robust effects; three-hop effects are approximately zero. Required success: selected IDs, cutoff/budget verification and Python receipt. Stop once verified; report missing graph coverage instead of fabricating values.
