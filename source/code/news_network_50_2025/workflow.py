@@ -91,15 +91,28 @@ def validate_evidence(answer, trace, capability):
                           "headline": capability["documents"][sid]["headline"],
                           "verified_paths": paths[:5], "additional_inspected_passages":
                           [p for p in inspected[sid].values() if p != quote]})
+        # Never accept model-written graph statistics. Recompute from host capability.
+        validated[-1].pop("graph_statistics", None)
+        if capability.get("graph_snapshot") is not None and paths:
+            from .graph_skills import Snapshot, graph_fields
+            graph = Snapshot(capability["graph_snapshot"], capability["case"]["asof"])
+            target = capability["graph_firm_id"]
+            path = min(paths, key=lambda p: p["hops"])
+            if path.get("type") != "comention":
+                degree = graph.degree_result(target, path["hops"], inspected_paths)
+                triangles = graph.triangle_result(target, path["entity"], path["hops"], inspected_paths)
+                validated[-1]["graph_statistics"] = {**graph_fields(degree, triangles),
+                    "cutoff": graph.cutoff, "vintage": graph.vintage}
     return {"events": validated, "missing": answer.get("missing", []), "coverage": capability["coverage"]}
 
 
 class Runner:
     def __init__(self, out, client, cases, anchors, manifest, implementation_manifest=None,
-                 context_program=None, max_hops=None):
+                 context_program=None, max_hops=None, graph_snapshot=None):
         self.out, self.client, self.cases, self.anchors, self.manifest = out, client, cases, anchors, manifest
         self.implementation_manifest = implementation_manifest or manifest
         self.context_program = context_program
+        self.graph_snapshot = graph_snapshot
         if max_hops is not None and max_hops not in (1, 2, 3):
             raise ValueError("Invalid hop ablation radius")
         self.max_hops = max_hops
@@ -117,7 +130,15 @@ class Runner:
             for step in path.get("steps", []):
                 step.pop("revenue_pct", None)
             path["materiality"] = "unknown; numerical revenue weights withheld because denominator is unverified"
-        return {**{k: pool[k] for k in ("case", "calendar", "controls", "own_packet_hash")},
+        graph_capability = {}
+        snapshot = self.graph_snapshot or pool.get("graph_snapshot")
+        if network and snapshot is not None:
+            roots = snapshot.get("targets", {}).get(case.get("ticker"), [])
+            target = pool.get("graph_firm_id") or (roots[0] if len(roots) == 1 else None)
+            if target is None:
+                raise ValueError("An unambiguous graph target ID is required")
+            graph_capability = {"graph_snapshot": snapshot, "graph_firm_id": target}
+        return {**graph_capability, **{k: pool[k] for k in ("case", "calendar", "controls", "own_packet_hash")},
                 "coverage": coverage,
                 "network": network, "documents": {s: saved["documents"][s] for s in ids},
                 "relations": relations,
@@ -145,6 +166,15 @@ class Runner:
                 headlines = [{"source_id": s, "headline": r["headline"], "available_at": r["available_at"]}
                              for s, r in cap["documents"].items()]
                 prompt = (
+                    ("/sc-graph-degree compute target degree; inputs: dated graph capability and cutoff; "
+                     "script: skills/sc-graph-degree/scripts/graph_degree.py; constraints: max_hops<=3, "
+                     "inspected prefixes; deliverable: JSON degree receipt via sc_graph_degree. "
+                     "/sc-graph-triangles compute target/pair motifs; same inputs and constraints; "
+                     "script: skills/sc-graph-triangles/scripts/graph_triangles.py; deliverable: JSON via sc_graph_triangles. "
+                     "Success: verify dated numerical receipts then stop each skill. THRESH_HUB=90: "
+                     "down-weight single-neighbour news for a high-degree TARGET; THRESH_RA=75 percentile "
+                     "with positive RA flags shared specialized exposure; THRESH_CLUST=0.5 flags "
+                     "common exposure, not independent corroboration.\n" if cap.get("graph_snapshot") else "") +
                     "Prepare source-grounded evidence for a five-session variance forecast; do NOT predict risk yet. "
                     "Use the native news tools. Read sources (inspect_event) before citing. "
                     "Search results marked citation_eligible=false are unread, NOT forbidden. Open their source_id "

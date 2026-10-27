@@ -264,11 +264,102 @@ def execute(out):
         return report
 
 
+def validation_smoke(data, out, client=None):
+    """Q1 local-Qwen engineering smoke: freeze all five arms before validation labels.
+
+    This separate entry point cannot reach the historical execute/test-label path.
+    Frozen source retrieval is replayed through the same scope and Toolkit guards.
+    """
+    from copy import deepcopy
+    from pathlib import Path
+    from .prompt_gd import (MODEL, DEFAULT, LocalQwen, load_cases, load_labels,
+                            prompt_score, read, write, digest)
+    from .toolkit import Toolkit
+    from .graph_skills import graph_fields
+    data, out = Path(data), Path(out)
+    cases = [c for c in load_cases(data/"cases.json") if c["split"] == "valid"][:2]
+    if not cases:
+        raise ValueError("Validation cases required")
+    out.mkdir(parents=True, exist_ok=True)
+    client = client or LocalQwen(out/"responses")
+    snapshot = read(data/"graph_snapshot.json")
+    arms = {a: [] for a in ("OWN", "H1", "H2", "H3", "H3_GRAPH")}
+    audits = []
+    protocol = {"model": MODEL, "engineering_only": True, "arms": list(arms),
+                "cases_hash": digest(cases), "theta": DEFAULT.tolist(), "predictions_before_labels": True,
+                "host_skill_invocations": [
+                    "/sc-graph-degree compute target degree; inputs: snapshot, monthly universe, cutoff, inspected prefixes; script: skills/sc-graph-degree/scripts/graph_degree.py; constraints: max_hops=3, THRESH_HUB=90; deliverable: verified JSON receipt then stop",
+                    "/sc-graph-triangles compute target/pair motifs; inputs: same snapshot and inspected paths; script: skills/sc-graph-triangles/scripts/graph_triangles.py; constraints: max_hops=3, THRESH_RA=75, THRESH_CLUST=0.5; deliverable: verified JSON receipt then stop"]}
+    write(out/"PROTOCOL.json", protocol)
+    for case in cases:
+        for arm in arms:
+            radius = 0 if arm == "OWN" else 3 if arm == "H3_GRAPH" else int(arm[-1])
+            scoped = deepcopy(case)
+            own = [e for e in scoped["candidates"] if e["hop"] == 0]
+            network = [e for e in scoped["candidates"] if e["hop"] > 0]
+            docs = {e["source_id"]: {"source_id": e["source_id"], "ids": e["ids"],
+                    "headline": "Frozen source passage", "body": e["text"],
+                    "available_at": e["available_at"]} for e in network}
+            if radius:
+                ids, relations, coverage = scope_network_pool({"relations": case["relations"],
+                    "network_ids": list(docs), "coverage": {}}, docs, radius, require_radius_three=True)
+                kit = Toolkit({"case": {"asof": case["asof"]}, "documents": {s: docs[s] for s in ids},
+                    "network": True, "relations": relations, "calendar": {}, "controls": {},
+                    "coverage": coverage, "graph_snapshot": snapshot, "graph_firm_id": case["graph_firm_id"]})
+                accepted = []
+                def shortest_hop(event):
+                    return min(p["hops"] for p in relations if set(p["permnos"]) & set(event["ids"]))
+                for e in sorted([e for e in network if e["source_id"] in ids], key=shortest_hop):
+                    receipt = kit.call("inspect_event", source_id=e["source_id"])
+                    if "error" in receipt:
+                        raise ValueError(receipt["error"])
+                    accessible = [p for p in relations if set(p["permnos"]) & set(e["ids"])
+                                  and kit._accessible_path(p, radius)]
+                    selected_path = min(accessible, key=lambda p: (p["hops"], p["path"]))
+                    e["hop"], e["path"], e["verified_paths"] = selected_path["hops"], selected_path["path"], accessible
+                    if arm == "H3_GRAPH":
+                        degree = kit.call("sc_graph_degree", max_hops=radius)
+                        triangle = kit.call("sc_graph_triangles", neighbour=e["path"][-1], max_hops=radius)
+                        if "error" in degree or "error" in triangle:
+                            raise ValueError("Graph skill failed")
+                        e["graph"] = graph_fields(degree, triangle)
+                    accepted.append(e)
+                scoped["candidates"] = own+accepted
+                audits.append({"model": MODEL, "case_id": case["case_id"], "arm": arm,
+                               "counts": exact_hop_counts(accepted, []),
+                               "tool_calls": [{"tool": t["tool"], "ok": t["ok"]} for t in kit.trace]})
+            else:
+                scoped["candidates"] = own
+            arms[arm].append({"case_id": case["case_id"], "score": prompt_score(client, scoped, DEFAULT, graph=arm == "H3_GRAPH")})
+    freeze = {"model": MODEL, "protocol": protocol, "predictions": arms}
+    write(out/"prediction_freeze.json", freeze)
+    # Re-read the durable freeze before the only label-opening operation.
+    if digest(read(out/"prediction_freeze.json")) != digest(freeze):
+        raise ValueError("Prediction freeze verification failed")
+    labels = load_labels(data, cases, "valid")
+    frame = matched_scores(cases, pd.DataFrame([{k: c[k] for k in ("case_id", "anchor")} for c in cases]),
+        pd.DataFrame([{"case_id": k, "y": v} for k, v in labels.items()]),
+        {r: arms[f"H{r}"] for r in RADII}, arms["OWN"])
+    frame["H3_GRAPH"] = frame.case_id.map({r["case_id"]: r["score"] for r in arms["H3_GRAPH"]})
+    frame["model"] = MODEL
+    frame.to_csv(out/"matched_validation.csv", index=False)
+    summary = {"model": MODEL, "status": "PASS", "engineering_only": True, "validation_n": len(cases),
+               "prediction_freeze_sha256": digest(freeze), "all_arms_complete": True,
+               "evaluation_labels_opened": False, "scope_audit": audits,
+               "interpretation": "Pipeline smoke only; small August sample and non-look-ahead-clean model. No empirical claim."}
+    write(out/"summary.json", summary)
+    return summary
+
+
 if __name__ == "__main__":
     import argparse
     from pathlib import Path
     from .config import OUT
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=Path, default=OUT)
+    parser.add_argument("--q1-validation-data", type=Path)
     args = parser.parse_args()
-    execute(args.out)
+    if args.q1_validation_data:
+        validation_smoke(args.q1_validation_data, args.out)
+    else:
+        execute(args.out)

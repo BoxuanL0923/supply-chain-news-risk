@@ -530,6 +530,29 @@
           "docstring": "NET only: total_score, new_events, corroborating_fact_ids, rejected_fact_ids, unknowns. Never copy OWN drivers. Empty new_events requires the identical OWN score; host preserves OWN facts and terms."
         }
       ]
+    },
+    "q1_graph_skills_local_extension": {
+      "OWN": [],
+      "NET": [
+        {
+          "tool": "sc_graph_degree",
+          "signature": "sc_graph_degree(max_hops=1, thresh_hub=90)",
+          "implementation": "source/code/news_network_50_2025/toolkit.py:56",
+          "declaring_class": "Toolkit",
+          "docstring": "Explicit Q1 numerical graph skill; dated snapshot/monthly universe and inspected exact path prefixes required."
+        },
+        {
+          "tool": "sc_graph_triangles",
+          "signature": "sc_graph_triangles(neighbour=None, max_hops=1, thresh_ra=75, thresh_clust=0.5)",
+          "implementation": "source/code/news_network_50_2025/toolkit.py:60",
+          "declaring_class": "Toolkit",
+          "docstring": "Explicit Q1 numerical graph skill; dated snapshot/monthly universe and inspected exact path prefixes required."
+        }
+      ]
     }
+  },
+  "q1_extension": {
+    "model": "qwen3.8-27b",
+    "note": "Additive graph tools on PR2 toolkit; engineering extension, not part of the completed historical experiment."
   }
 }
