@@ -391,5 +391,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=__import__('pathlib').Path, default=OUT)
     parser.add_argument("--max-hops", type=int, choices=(2, 3), default=2)
+    parser.add_argument("--development-only", action="store_true", help="qwen3.8-27b: new train/valid-only pool, no labels")
     args = parser.parse_args()
-    prepare(args.out, args.max_hops)
+    if args.development_only:
+        from .hop3_prepare import prepare as development_prepare
+        development_prepare(args.out, args.max_hops)
+    else:
+        prepare(args.out, args.max_hops)
