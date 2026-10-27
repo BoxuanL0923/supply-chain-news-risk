@@ -1,176 +1,75 @@
 # Q1: graph skills and prompt-parameter convergence
 
-Model: **qwen3.8-27b**, local `http://127.0.0.1:8081/v1`, temperature 0, seed 20261026, thinking disabled. Engineering only: the specified model was released after these historical dates and is not look-ahead-clean.
+Model for the saved diagnostics: **qwen3.8-27b**, engineering only. It is not look-ahead clean for the historical dates. Scheme B remains partial. The user decided not to restart the local model.
 
 ## Verdict
 
-Scheme A: same-parameter convergence **False**; validation improvement **False**. Scheme B: same-parameter convergence **False**; validation improvement **NOT ASSESSED**. The Part-3 pipeline smoke is **BLOCKED (local endpoint unavailable)**, with 0 matched validation cases. These are bounded engineering diagnostics, not evidence of predictive or causal supply-chain effects.
+The graph tools and optimizer machinery are implemented and tested. Scheme A converges to **w = 0 in all 10 runs**, with **80 train / 40 validation cases**, training MSE **0.9925**, and validation MSE **1.5259**, exactly the zero-score baseline. The other **6 directions** are flat at that boundary solution. Full-vector agreement is false. Source: `D:/OptResearch_data/agent_q1/run_v2/gd.json`.
 
-**Incomplete execution:** the local HTTP connection reset after all ten SPSA starts and the endpoint then refused connections. SPSA grid completion/validation and the real-Qwen Part-3 smoke remain blocked. No missing score or validation result is fabricated. The user was asked about endpoint availability; no server process was stopped or restarted.
+Under the studied return-label designs, prompt graph parameters are not identifiable at feasible sample sizes. Only the score scale is practically recoverable with fixed shape and sufficient signal. Fix graph parameters from the numerical intraday and weekly studies. Declare any unestimated thresholds as engineering restrictions. The real-data scale adds no score. No predictive or causal success is established.
 
 ## Implementation and skill invocations
 
-`graph_skills.py` supplies standard-library directed degree, monthly degree percentiles, undirected triangle/clustering statistics, pair shared-partner counts and resource allocation. Standalone repository CLI scripts bootstrap the local numerical module; no package installation or network is required. `Toolkit`, MCP tool registration and `TOOL_NAMES` expose both skills. `Runner(graph_snapshot=...)` can attach a dated host snapshot; the evidence prompt explicitly invokes the skills. `validate_evidence` discards model-written graph statistics and recomputes host fields. `finance_graph_signal` passes only allowlisted numerical values to the existing context selector; missing graph coverage is null. The context-selection Skill documents invocation, thresholds, required outputs, verification and stop conditions.
+Commit `6b18d7f` implements directed degree and monthly percentiles; undirected triangles and clustering; pair shared partners and RA; standalone scripts; toolkit/MCP registration; host recomputation; and context-selection integration. Its recorded **85 tests** comprise **57** example, **25** design, and **3** validator tests. Sources: `D:/OptResearch_data/agent_q1/examples_final_tests.log`, `design_final_tests.log`, and `skill_validator_tests_final_tests.log` in that directory. Later identification/design modules and tests remain uncommitted.
+
+The advisor's invocation format is task + inputs + script + constraints + deliverable + stop. Numerical defaults and path limits come from `D:/OptResearch_data/external/supply-chain-news-risk/skills/sc-graph-degree/SKILL.md` and `D:/OptResearch_data/external/supply-chain-news-risk/skills/sc-graph-triangles/SKILL.md`.
 
 ```text
-/sc-graph-degree compute target degree; inputs: firm_id, cutoff, dated directed snapshot with monthly_universe, max_hops, inspected_prefixes; script: skills/sc-graph-degree/scripts/graph_degree.py; constraints: strictly pre-cutoff edges, max_hops <= 3, inspected exact prefixes, THRESH_HUB=90; deliverable: verified JSON statistics then stop.
-/sc-graph-triangles compute target/pair motifs; inputs: firm_id, neighbour, cutoff, dated directed snapshot with monthly_universe, max_hops, inspected_prefixes; script: skills/sc-graph-triangles/scripts/graph_triangles.py; constraints: strictly pre-cutoff edges, max_hops <= 3, inspected exact prefixes, THRESH_RA=75, THRESH_CLUST=0.5; deliverable: verified JSON statistics then stop.
-/supply-chain-context-selection rank inspected candidates; inputs: dated events and host graph statistics; script: source/code/news_network_50_2025/context_selection.py; constraints: cutoff and event budget; deliverable: selected IDs and Python receipt.
+/sc-graph-degree compute target degree; inputs: firm_id, cutoff, dated snapshot, monthly_universe, max_hops, inspected_prefixes; script: skills/sc-graph-degree/scripts/graph_degree.py; constraints: pre-cutoff edges, max_hops <= 3, exact inspected prefixes, THRESH_HUB=90; deliverable: verified JSON and receipt; stop on success or report coverage/error.
+/sc-graph-triangles compute target/pair motifs; inputs: firm_id, neighbour, cutoff, dated snapshot, monthly_universe, max_hops, inspected_prefixes; script: skills/sc-graph-triangles/scripts/graph_triangles.py; constraints: pre-cutoff edges, max_hops <= 3, exact inspected prefixes, THRESH_RA=75, THRESH_CLUST=0.5; deliverable: verified JSON and receipt; stop on success or report coverage/error.
 ```
 
-Degree counts unique directed partners, excluding self loops and duplicate edges; a reciprocal partner contributes to both in- and out-degree. The monthly percentile is the weak empirical CDF (ties share the upper rank). Triangles and RA use the simple undirected projection, including the supplied supplier/customer and competitor links. Pair triangles are zero for nonadjacent endpoints, while shared-neighbour count and RA remain meaningful. RA is the sum of inverse undirected degrees over shared partners. Its default threshold is the linearly interpolated 75th percentile across target-to-other-month-universe pairs, with an additional positive-RA guard to avoid declaring zero exposure specialized. Targets with percentile >=90 down-weight single-neighbour news. Clustering >=0.5 denotes possible common exposure, not independent corroboration. Triangle/clustering effects are not assumed robust. No graph statistic validates product continuity.
-
-Graph snapshots and each edge's vintage/valid_from must precede cutoff. Expired edges are excluded. Every deeper path needs inspected exact prefixes; an entity visited on a different branch does not unlock the path. Listings are bounded to 200 paths and disclose truncation. An explicitly requested pair can supply a verified branch beyond the display cap. The preparation host actually reads the prefix sources before each next hop.
+The host excludes expired/future edges, duplicates, and self loops. It recomputes model-written statistics. Reciprocal partners enter both directed degrees. RA uses unique undirected degrees and a positive-exposure guard. Truncation means incomplete coverage. Topology does not establish product continuity.
 
 ## Data discipline and local provenance
 
-The live 50-firm config assigns its train/valid cases to October-November 2025. Those labels conflict with the stricter sealed September-December window, so none were opened. The mixed `news_exposure_2025/labels_sealed.parquet` file was also never opened. Instead, nine original **August training** cases were selected by ticker/date alone: AMD, CAT and MSFT on August 1/8/22. Six August 1/8 cases train Scheme A; three August 22 cases validate. Scheme B uses the first two training cases (AMD/CAT, August 1) and two validation cases (AMD/CAT, August 22). No outcome-based selection of cases or sources occurred.
-
-MSE comparisons are within each scheme's panel. Scheme A and B use different case counts, so their raw MSE magnitudes do not rank the two optimization methods.
-
-Read-only source caches: `C:/OptResearch/results/news_exposure_2025/cases.json`, the three dated August corpus gzip files, and `graph.json`; the live code copies supplied path/configuration information only. The graph is the pre-existing June 6 effective-date reconstruction. Its June-mapped entities define the explicit August reference universe; this is a held-fixed membership assumption, not a certified monthly vendor vintage. The anchor is the cached pre-August intercept-plus-GARCH OLS, not a refit of PR #2's expanded eleven-control anchor. The residual-MSE contract is identical, but this engineering panel is not a replication of the 50-firm experiment.
-
-August-only labels were newly derived from a date/ID-filtered projection of `crsp_daily_2025.parquet`: exactly five finite decimal total returns, y=log(mean(r²)), no target floor. All target sessions end by August 29. Validation is separated from training by the unused August 15 origin. No September-December labels, predictions, or evaluation reports were read. The new label files have an explicit development manifest, split allowlists and hashes; loaders validate metadata before opening them. Smoke predictions are durably frozen before the smoke's validation-label loader runs. These validation labels had already served the earlier optimization diagnostics; the smoke is not a fresh statistical holdout.
-
-Large artifacts and source text stay under `D:/OptResearch_data/agent_q1/`; only aggregate figures/results and code enter the branch.
+The final panel replaces the August-only pilot: **80 August-September train / 40 October validation cases**, with evaluation from **2025-11-03** sealed. Scheme B uses **20 training cases**, with **40 validation cases planned**. Sources: `D:/OptResearch_data/agent_q1/data_v2/development_manifest.json` and `D:/OptResearch_data/agent_q1/run_v2/PROTOCOL.json`. The anchor and held-fixed graph membership remain engineering assumptions; this is not a replication of the expanded collaborator regression.
 
 ## Parameterization and predeclared convergence tests
 
-| Parameter | Bounds | Default | Meaning |
-|---|---:|---:|---|
-| lambda2 | [0,1] | 0.5 | Two-hop discount |
-| lambda3 | [0,1] | 0.05 | Three-hop discount |
-| THRESH_HUB | [50,100] percentile | 90 | Target diversification threshold |
-| THRESH_RA | [50,100] percentile | 75 | Positive shared-exposure threshold |
-| THRESH_CLUST | [0,1] | 0.5 | Dense/common-exposure threshold |
-| materiality | [0,1] | 0.5 | Neighbour-news materiality gate |
-| k | fixed at 8 | 8 | Maximum evidence budget |
-| w | [0,1] | 0.5 | score = w × raw score |
-
-Optimization uses seven normalized coordinates x in [0,1], with native theta=LOW+(HIGH-LOW)x. Five seeded starts, two schedules, tolerance epsilon=1e-5, relative change delta=1e-7 for M=5 iterations, and maximum caps were declared in code/PROTOCOL before execution. Same-theta success requires maximum coordinate range <=0.05 across all starts/schedules. Generalization requires the training-selected solution to beat validation's zero-score anchor baseline; validation does not select the reported optimum. Near-flat Gauss-Newton directions use eigenvalues <1e-6. All attempted starts and schedules are reported, including failures to meet stopping tolerances.
+`prompt_gd.py` supplies exact projected gradients for the cached surrogate and SPSA for model-read prompt parameters. It distinguishes loss stability, projected stationarity, full-vector agreement, a training-selected grid comparison, and validation improvement. The evidence budget is fixed. The historical cached LLM ratings are diagnostic inputs only; the user has rejected them as future regression variables.
 
 ### Scheme A: exact gradients of a cached-feature surrogate
 
-Qwen was called once per case (nine requests) to extract relevance, signed variance-risk direction and materiality for every candidate. Host code joins hop and graph statistics; the model cannot overwrite them. Retrieval, source order and the eight-event budget are frozen. Let sigmoid be s, H=s((degree_percentile-THRESH_HUB)/10), R=s((RA_percentile-THRESH_RA)/10) for positive RA (else 0), C=s((clustering-THRESH_CLUST)/0.1), and M=s((materiality_feature-materiality_threshold)/0.1). For network candidates the contribution is relevance × direction × materiality_feature × M × (1-0.5H) × (1+0.25R) × (1-0.5C) × hop_discount / 8. Own candidates omit the threshold gate M and the graph/hop factors. Score is w times the sum. This is a differentiable engineering surrogate, not a calibrated economic model. The loss is mean((y-anchor-score)²), differentiated analytically including normalized-coordinate scaling. Projected GD uses step 0.5 or 0.5/(1+t/10)^0.602 for 400 iterations. Both raw and projected gradient norms are saved; the projected norm is used at box constraints. A full 3^7=2,187-point grid uses normalized levels 0.1/0.5/0.9.
+All **10 runs** reach the zero-score boundary and satisfy the projected-gradient stop. Agreement of the full parameter vector fails. The **2,187-point** grid omits **w = 0** and has higher training MSE (**0.997306**); its validation MSE (**1.525278**) does not change the training-selected conclusion. Source: `D:/OptResearch_data/agent_q1/run_v2/gd.json`.
 
-| Schedule | Start | Iterations | Stop | Initial loss | Train MSE | Validation MSE | Gap | Initial gradient | Final gradient | Final projected gradient |
-|---|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|
-| constant | 0 | 400 | max_iterations | 0.217088 | 0.215197 | 0.630760 | 0.415563 | 0.00800127 | 0.00458224 | 0.000675581 |
-| constant | 1 | 400 | max_iterations | 0.217011 | 0.216276 | 0.625587 | 0.409312 | 0.00238774 | 0.00316549 | 0.00316549 |
-| constant | 2 | 400 | max_iterations | 0.216449 | 0.215284 | 0.630794 | 0.415510 | 0.00650265 | 0.00455724 | 0.000869718 |
-| constant | 3 | 400 | max_iterations | 0.218461 | 0.215134 | 0.627814 | 0.412681 | 0.0093119 | 0.00455298 | 0.000316256 |
-| constant | 4 | 400 | max_iterations | 0.216330 | 0.215149 | 0.632719 | 0.417570 | 0.00667744 | 0.00456645 | 0.000373995 |
-| robbins_monro | 0 | 400 | max_iterations | 0.217088 | 0.215463 | 0.632756 | 0.417293 | 0.00800127 | 0.00516875 | 0.00260282 |
-| robbins_monro | 1 | 400 | max_iterations | 0.217011 | 0.216874 | 0.626073 | 0.409199 | 0.00238774 | 0.0013964 | 0.0013964 |
-| robbins_monro | 2 | 400 | max_iterations | 0.216449 | 0.215523 | 0.630008 | 0.414485 | 0.00650265 | 0.0047424 | 0.00187764 |
-| robbins_monro | 3 | 400 | max_iterations | 0.218461 | 0.216664 | 0.607846 | 0.391182 | 0.0093119 | 0.00443175 | 0.00443175 |
-| robbins_monro | 4 | 400 | max_iterations | 0.216330 | 0.215221 | 0.638114 | 0.422893 | 0.00667744 | 0.00491508 | 0.00157185 |
+### Scheme B: thresholds inside the local-model prompt (PARTIAL)
 
-Training-selected A: constant, start 3; train MSE 0.215134, validation 0.627814, validation baseline 0.572525. Coarse grid train MSE 0.215660, validation 0.611362. Gauss-Newton near-flat directions: 4/7. Eigenvalues: `[-1.6925671121133754e-23, 0.0, 7.484443477336952e-22, 2.2689764480241015e-09, 1.9872744072383903e-06, 8.575607629131201e-05, 0.028031882003761558]`. This is a local sensitivity diagnostic, not a proof about the full nonlinear Hessian. Six training observations cannot identify seven unconstrained directions.
+Only **2 of 3 starts** completed, each with **10 iterations**. Final w values are **0.205840** and **0.304617**. First saved to final training losses are **1.143020 to 1.019592** and **1.309725 to 1.077037**. Both stopped at the cap. The first loss is post-update. Sources: `D:/OptResearch_data/agent_q1/run_v2/spsa.partial.json` and `D:/OptResearch_data/agent_q1/run_v2/PROTOCOL.json`.
 
-The cached training evidence has nonzero signed feature counts by hop {0: 11, 1: 4, 2: 0, 3: 1}. The selected-point score Jacobian has numerical rank 4; its column norms are `{'lambda2': 0.0, 'lambda3': 1.360847236031562e-05, 'THRESH_HUB': 0.052302858066585044, 'THRESH_RA': 0.002815741498050378, 'THRESH_CLUST': 0.0013595517131703065, 'materiality': 0.004250590754638732, 'w': 0.2856491719231438}`. In particular, no nonzero two-hop training feature can identify lambda2 in this cache. This is a data/support limitation, not evidence that the economic two-hop effect is zero.
+The remaining start did not complete. The **2x2 grid**, validation scoring, and end-to-end smoke did not run. The local llama-server failed with CUDA out-of-memory at approximately **21:01 America/New_York on 2026-10-26** during SPSA. Sources: `C:/OptResearch/data/qwen/server.log` (end and failure-time file timestamp), `D:/OptResearch_data/agent_q1/spsa_v2.stderr.log`, and `D:/OptResearch_data/agent_q1/run_v2/PROTOCOL.json`. Convergence and validation improvement are not established. No restart is planned.
 
-### Scheme B: thresholds inside the local-model prompt
+### Identification and design findings
 
-SPSA uses frozen retrieved text, the same seed for both perturbations, temperature zero, and host-applied w shrinkage. The model reads all numeric parameters and emits bounded raw residual scores in [-3,3]. Perturbations use independent Rademacher coordinates, c_t=0.1/(t+1)^0.101, and a_t=0.12/(t+1)^alpha for alpha in {0.602,0.8}. The perturbation center is moved inward so both probes stay in the box; each update is projected to the box. Each run has at most 12 iterations; only relative-loss stability or the cap can stop it, since one zero noisy gradient is not proof of stationarity. An additional four-point coarse grid varies materiality and w over {0.2,0.8}, holding the other five coordinates at defaults. This is a restricted two-dimensional grid comparison, not an exhaustive seven-dimensional prompt search. Response caching uses the full request hash; both the declared and server-returned model IDs are recorded. Requests are strictly serial.
+| Study | Result | Meaning and source |
+|---|---|---|
+| VP, MAP, planted recovery | Recovery fails through **n = 2,000**. | Regularization supplies prior curvature, not identification. [Identification report](Q1_IDENTIFY_REPORT.md). |
+| Reparameterization and L-BFGS-B | Conditioning **139,083 to 431**; required-cell agreement **80-90%**, but largest shape MAE per cell **0.25-0.46**. | Numerical agreement improves; shape recovery fails. [Identification V2 report](Q1_IDENTIFY_V2_REPORT.md). |
+| Daily design | At expected MAE **0.10**, baseline joint-shape budgets are about **60,000-1,000,000 cases**; conditional fixed-shape w-only minima are **50-2,000**. | Local approximations versus simulated grid minima; no universal real-case minimum. [Design report](Q1_DESIGN_REPORT.md). |
+| Daily hop test | Null hop-3 weight **0**, default alternative **0.05**: over **1 million cases** in the baseline design. | Conditional power requirement, not a measured absence of effect. [Design report](Q1_DESIGN_REPORT.md). |
 
-| Schedule | Start | Iterations | Stop | Train MSE | Validation MSE | Gap | First SPSA norm | Last SPSA norm |
-|---|---:|---:|---|---:|---:|---:|---:|---:|
-| rm_0.602 | 0 | 12 | max_iterations | 0.210809 | not run | not run | 0.318011 | 0.288687 |
-| rm_0.602 | 1 | 12 | max_iterations | 0.218194 | not run | not run | 0.636829 | 0.276529 |
-| rm_0.602 | 2 | 12 | max_iterations | 0.218420 | not run | not run | 0.493465 | 0.43243 |
-| rm_0.602 | 3 | 12 | max_iterations | 0.232746 | not run | not run | 1.36435 | 2.05246 |
-| rm_0.602 | 4 | 12 | max_iterations | 0.210238 | not run | not run | 1.72053 | 0.274893 |
-| rm_0.8 | 0 | 12 | max_iterations | 0.207931 | not run | not run | 0.318011 | 0.208029 |
-| rm_0.8 | 1 | 12 | max_iterations | 0.224445 | not run | not run | 0.636829 | 0.51361 |
-| rm_0.8 | 2 | 12 | max_iterations | 0.214921 | not run | not run | 0.493465 | 0.369627 |
-| rm_0.8 | 3 | 12 | max_iterations | 0.108022 | not run | not run | 1.36435 | 2.25049 |
-| rm_0.8 | 4 | 12 | max_iterations | 0.211499 | not run | not run | 1.72053 | 0.301529 |
+![Saved complete Scheme A and partial Scheme B trajectories](figures/q1_convergence_v2_partial.png)
 
-Training-selected B: rm_0.8, start 3; train MSE 0.108022, validation not run, validation baseline not run.
-
-| Grid materiality | Grid w | Train MSE | Validation MSE |
-|---:|---:|---:|---:|
-
-Scheme B grid/validation metrics are not available: the connection failed during the grid. The ten completed optimization trajectories above are genuine local-Qwen results. Resume replays their cached responses before issuing only missing requests.
-
-### Dispersion and schedules
-
-| Coordinate | A normalized final range | B normalized final range | A selected native value | B selected native value |
-|---|---:|---:|---:|---:|
-| lambda2 | 0.484835 | 0.413691 | 0.410418 | 0.356612 |
-| lambda3 | 0.235669 | 0.241866 | 0.474569 | 0.517511 |
-| THRESH_HUB | 0.569924 | 0.512622 | 100.000000 | 73.029425 |
-| THRESH_RA | 0.530391 | 0.502111 | 69.619274 | 78.400100 |
-| THRESH_CLUST | 0.388116 | 0.428184 | 0.562442 | 0.605669 |
-| materiality | 0.324913 | 0.496106 | 0.241749 | 0.091136 |
-| w | 0.250314 | 0.162585 | 0.601702 | 0.562861 |
-
-| Scheme/schedule | Median train MSE | Median validation MSE | Maximum normalized within-schedule range |
-|---|---:|---:|---:|
-| A/constant | 0.215197 | 0.630760 | 0.484835 |
-| A/robbins_monro | 0.215523 | 0.630008 | 0.569924 |
-| B/rm_0.602 | 0.218194 | not run | 0.473906 |
-| B/rm_0.8 | 0.211499 | not run | 0.496106 |
-
-![Loss trajectories and gradient norms](figures/q1_convergence.png)
-
-![Final normalized parameters](figures/q1_parameters.png)
-
-Parameters are not established as uniquely identified: inspect the dispersion, A's flat directions, and the prompt response's finite precision/discontinuities. SPSA norms are noisy directional estimates, not exact gradients; a small last estimate alone is not convergence. The small validation panels do not support inferential claims.
+Sources: `D:/OptResearch_data/agent_q1/run_v2/gd.json` and `D:/OptResearch_data/agent_q1/run_v2/spsa.partial.json`. Scheme A shows the projected norm; Scheme B shows an SPSA estimate. No missing data are imputed.
 
 ## Part-3 smoke
 
-Status: **BLOCKED (local endpoint unavailable)**. Arms: OWN, H1, H2, H3 and H3_GRAPH. These five arms are implemented and covered by the offline smoke test, but the real-model smoke has not run. The host reuses `scope_network_pool`, exact-hop auditing, `Toolkit.inspect_event`, both graph tools and `matched_scores`. Article eligibility follows the shortest accessible typed path in each scope, including multi-tag sources initially discovered through longer chains. Own evidence, parameters and model remain fixed across arms; graph statistics are supplied only in H3_GRAPH. The host freezes every arm before loading validation labels, and checks the saved freeze hash. No regression or empirical performance claim is made for this two-case smoke. Required artifacts, not yet produced: `D:/OptResearch_data/agent_q1/smoke/matched_validation.csv`, `summary.json`, `prediction_freeze.json`, and `PROTOCOL.json`.
+The local-model smoke did not run. The separate PR #2 H1/H2/H3 ablation is **running on real data with deepseek-v4-pro**. Final results are pending at `C:/OptResearch/results/sc_risk/agent_q1/HOP3_ABLATION_REPORT.md`; its earlier pending preparation text is not a DeepSeek result.
 
 ## Execution, resources, and reproduction
 
-| Stage | Exit code | Seconds | Sampled process peak working set (MB) |
-|---|---:|---:|---:|
-| initial/prepare | 0 | 14.0 | 1589.7 |
-| initial/features | 0 | 78.1 | 35.6 |
-| initial/gd | 0 | 18.1 | 38.6 |
-| initial/spsa | 1 | 3191.9 | 37.7 |
+The standard convergence-report function requires completed SPSA fields. The saved-file figure builder is `C:/OptResearch/results/sc_risk/agent_q1/build_q1_trajectories_20261026.py`. It uses no labels, models, or network. The complete final narrative is `C:/OptResearch/results/sc_risk/agent_q1/Q1_REPORT.md`.
 
-The runner samples each child's OS peak working set every two seconds. Preparation was the largest process. The GD row is the initial monitored pass; the corrected rerun is recorded separately in `gd_correction.json` and `gd_corrected.log`, with exit code zero and no new model requests. Small buffers, one worker, and single-threaded BLAS keep this workload below 4 GB per process; the existing model server is external and was not managed. No process was killed, no server stopped/restarted, and no paid provider or non-loopback network endpoint was used. The HTTP client rejects non-authorized endpoints, bypasses proxies and refuses redirects.
+## Decisions and limitations
 
-```powershell
-$env:PYTHONPATH='D:/OptResearch_data/external/supply-chain-news-risk/source/code'
-$env:OMP_NUM_THREADS='1'; $env:OPENBLAS_NUM_THREADS='1'
-python -m news_network_50_2025.q1_prepare  # fresh output only
-python -m news_network_50_2025.prompt_gd cache-features
-python -m news_network_50_2025.prompt_gd gd
-python -m news_network_50_2025.prompt_gd spsa
-python -m news_network_50_2025.hop_ablation --q1-validation-data D:/OptResearch_data/agent_q1/data --out D:/OptResearch_data/agent_q1/smoke
-python -m news_network_50_2025.prompt_gd convergence-report
-python -m news_network_50_2025.q1_report
-```
+The user's October 26 decisions apply. Subjective LLM relevance, direction, and materiality ratings will not enter regressions. Graph parameters come from numerical intraday/weekly regressions. The LLM proposes interpretable mechanisms for deterministic acceptance or rejection. DeepSeek is approved for engineering, including Reuters text. It is used for O4 proposer rounds and the hop ablation; the O4 v4 tool-using agent is being finalized.
 
-`q1_run` executes these computational stages sequentially with background logs/status files. Resume uses content-addressed model responses. Do not run the historical unqualified `hop_ablation` entry point for Q1: it opens test labels and uses the old provider.
-
-Once the existing local endpoint is available, resume with `python -m news_network_50_2025.q1_run`, then regenerate this report with `python -m news_network_50_2025.q1_report`. The runner does not manage llama-server. The requested local commit message is prepared at `D:/OptResearch_data/agent_q1/COMMIT_MESSAGE.txt`; committing still requires write access to this checkout's `.git`.
+Numerical slopes do not identify every prompt threshold or amplitude. Fixed thresholds require declared assumptions and sensitivity checks. Simulated sample sizes depend on correct shape, signal, selection, and noise. Repeated cached evidence is not fresh graph support. Endpoint flatness limits solver certificates. The model is a historical contamination risk. Partial SPSA supplies no validation evidence.
 
 ## Possible errors and checks performed
 
-- Test suites: 57 example tests (including 13 Q1 tests), 25 PR #2 design tests, and 3 dictionary-validator tests passed. Both new skill frontmatter validators passed. Logs are under `D:/OptResearch_data/agent_q1/`.
-- The forecasting dictionary validator is QUALIFIED with zero errors and zero package-manifest mismatches. Existing qualifications concern unrecomputed counts/GARCH, a rank-deficient historical training design, and source differences from the recorded historical run. The package manifest was refreshed for this Windows checkout and the new artifacts.
-- Known-value graph tests cover directed degree, triangle/clustering, RA=1/3, isolates, duplicates, self loops, expired/future edges, monthly universes and three-hop prefixes. A real-data display-cap failure was corrected and regression-tested.
-- All 108 prepared typed path steps were checked against the dated graph's supplier/customer/competitor directions, with zero mismatches. Each selected target has exactly one graph entity. Preparation now selects direction from actual supply edges, avoiding competitor-direction ambiguity in future inputs.
-- Analytic derivatives agree with central finite-difference checks to eight decimal places; a five-start quadratic verifies the optimizer and stopping condition. Zero shrinkage remains differentiable.
-- Guards reject evaluation splits/dates before label I/O, target sessions in September, future source passages, duplicate source IDs and invalid feature values. Cached hop/graph fields must match their host-owned inputs.
-- An offline smoke test asserts that all five prediction arms are on disk before the validation label loader is called. Existing staged-path and context-selector tests remain intact; native MCP exposes eight tools.
-- The smoke integration test includes a multi-tag H3-discovered article with a direct eligible tag and verifies that it enters H1. This corrected an initial selected-path filter before any real smoke execution.
-- August preparation initially encountered a string-versus-timestamp Parquet filter mismatch. The bounded string-date filter was corrected; no label file was opened to work around it. Test coverage also exposed mixed timezone notation, now normalized to UTC.
-- A specification audit caught the first Scheme A implementation applying the neighbour-materiality threshold to own news. It was corrected and regression-tested; GD was rerun using the same nine cached responses, starts and schedules. The superseded result is preserved as `run/gd_pre_neighbor_gate_fix.json`. Scheme B already applied that threshold only to neighbours and was unaffected. Reported Scheme A numbers use the corrected function.
-- After all ten SPSA starts, the local HTTP connection reset and the endpoint refused connections. The runner stopped on the error. Completed request-hashed responses and the original failure log are preserved; resume can reuse them without restarting or stopping the model server.
-- All local model responses identify qwen3.8-27b. One extraction response per case is reused for every Scheme A start, schedule and grid point; labels never enter model request bodies.
-- Source article reads support retrieval only. Reuters tags, a graph edge, and a hop sequence do not prove event materiality or product continuity. The narrow recency-selected chains are not exhaustive or independent evidence.
-- Limitations: tiny samples, revised/non-certified vendor vintage, fixed June membership, a reduced anchor, smooth-gate design choices, flat directions, bounded optimization caps, a restricted Scheme B grid, and a model released after the observation dates. No claim of economic generalization follows.
+Saved counts, scales, stopping reasons, baseline equality, and missing SPSA outputs were checked. The terminal CUDA error and SPSA traceback agree. The figure builder verifies unchanged input hashes; the figure was visually inspected. Prior reports document gradient, graph, sufficient-statistic, registration, and leakage checks. These recorded checks are distinguished from new model execution. Each rewritten document was backed up as `.bak_20261026`. Finalization made no model or network call and preserved unrelated changes.
 
 ## Local commit status
 
-The requested branch is `pr2-local-extensions`. The managed sandbox marks this checkout's `.git` read-only. `git add` failed with `Unable to create .../.git/index.lock: Permission denied`; consequently no new local commit can be created in this session. No push was attempted. The intended commit must end with:
-
-```text
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
-```
+Commit `6b18d7f` contains the graph/optimizer implementation. `prompt_gd_identify.py`, `prompt_gd_identify_v2.py`, `prompt_gd_design.py`, their tests, and the current documentation changes remain uncommitted. No commit or push was attempted.

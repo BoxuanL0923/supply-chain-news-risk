@@ -7,6 +7,7 @@ smooth surrogate, predeclared tests, and interpretation of SPSA diagnostics.
 from __future__ import annotations
 
 import argparse
+import os
 import hashlib
 import itertools
 import json
@@ -23,12 +24,20 @@ LOW = np.array([0, 0, 50, 50, 0, 0, 0.])
 HIGH = np.array([1, 1, 100, 100, 1, 1, 1.])
 DEFAULT = np.array([.5, .05, .8, .5, .5, .5, .5])
 BUDGET = 8
+# Configurable seal and SPSA sample sizes (2026-10-26 amendment). Defaults reproduce the first, August-only run.
+SEAL = os.environ.get("Q1_SEAL_DATE", "2025-09-01")
+SPSA_TRAIN = int(os.environ.get("Q1_SPSA_TRAIN", "2"))
+SPSA_VALID = int(os.environ.get("Q1_SPSA_VALID", "2"))
+SPSA_STARTS = int(os.environ.get("Q1_SPSA_STARTS", "5"))
+SPSA_ALPHAS = tuple(float(a) for a in os.environ.get("Q1_SPSA_ALPHAS", "0.602,0.8").split(","))
+SPSA_ITERS = int(os.environ.get("Q1_SPSA_ITERS", "12"))
+
 PROTOCOL = {"model": MODEL, "engineering_only": True, "seed": 20261026,
     "starts": 5, "schedules": ["constant", "robbins_monro"], "gd_iterations": 400,
-    "spsa_iterations": 12, "epsilon": 1e-5, "delta": 1e-7, "patience": 5,
+    "spsa_iterations": SPSA_ITERS, "spsa_train_n": SPSA_TRAIN, "spsa_valid_n": SPSA_VALID, "spsa_starts": SPSA_STARTS, "spsa_alphas": list(SPSA_ALPHAS), "epsilon": 1e-5, "delta": 1e-7, "patience": 5,
     "same_theta_max_normalized_range": .05, "flat_eigenvalue_cutoff": 1e-6,
     "grid_levels": [.1, .5, .9], "k_fixed": BUDGET,
-    "label_guard": "train/valid only; origins AND next sessions before 2025-09-01",
+    "label_guard": f"train/valid only; origins AND next sessions before {SEAL}",
     "validation_rule": "validation MSE below zero-score baseline; no selection on validation",
     "spsa_a": .12, "spsa_c": .10, "spsa_alpha": .602, "spsa_gamma": .101,
     "spsa_stability_warning": "A zero SPSA estimate is not proof of a zero true gradient."}
@@ -54,10 +63,10 @@ def validate_cases(cases):
     if not cases or len({c["case_id"] for c in cases}) != len(cases):
         raise ValueError("Unique nonempty development cases required")
     for c in cases:
-        if c.get("split") not in {"train", "valid"} or c["date"] >= "2025-09-01" or c["asof"][:10] != c["date"]:
+        if c.get("split") not in {"train", "valid"} or c["date"] >= SEAL or c["asof"][:10] != c["date"]:
             raise ValueError("Sealed evaluation origin or invalid development split")
-        if len(c.get("next_sessions", [])) != 5 or any(d >= "2025-09-01" or d <= c["date"] for d in c["next_sessions"]):
-            raise ValueError("Only five pre-September future sessions permitted")
+        if len(c.get("next_sessions", [])) != 5 or any(d >= SEAL or d <= c["date"] for d in c["next_sessions"]):
+            raise ValueError(f"Only five future sessions before {SEAL} permitted")
         if c["next_sessions"] != sorted(set(c["next_sessions"])):
             raise ValueError("Target sessions must be unique and ordered")
         if any(k in c for k in ("y", "label", "labels", "residual", "outcome")):
@@ -89,7 +98,7 @@ def load_labels(directory, cases, split):
     if split not in {"train", "valid"}:
         raise ValueError("Evaluation labels forbidden")
     manifest = read(Path(directory) / "development_manifest.json")
-    if manifest["latest_origin"] >= "2025-09-01" or manifest["latest_target_session"] >= "2025-09-01":
+    if manifest["latest_origin"] >= SEAL or manifest["latest_target_session"] >= SEAL:
         raise ValueError("Unsafe development-label manifest")
     expected = {c["case_id"] for c in cases if c["split"] == split}
     declared = set(manifest["splits"][split])
@@ -308,15 +317,15 @@ def prompt_score(client, case, x, graph=True):
 
 
 def spsa(cases, directory, out, client):
-    train = [c for c in cases if c["split"] == "train"][:2]
-    valid = [c for c in cases if c["split"] == "valid"][:2]
+    train = [c for c in cases if c["split"] == "train"][:SPSA_TRAIN]
+    valid = [c for c in cases if c["split"] == "valid"][:SPSA_VALID]
     labels = load_labels(directory, cases, "train")
     def loss(x):
         return float(np.mean([(labels[c["case_id"]]-c["anchor"]-prompt_score(client, c, x))**2 for c in train]))
-    starts = np.random.default_rng(PROTOCOL["seed"]).uniform(.2, .8, (5, 7))
+    starts = np.random.default_rng(PROTOCOL["seed"]).uniform(.2, .8, (SPSA_STARTS, 7))
     runs = []
     # Both tested schedules obey Robbins-Monro asymptotics; alpha=.8 is slower.
-    for alpha in (.602, .8):
+    for alpha in SPSA_ALPHAS:
         for i, initial in enumerate(starts):
             rng = np.random.default_rng(PROTOCOL["seed"]+i)
             x, trajectory, previous, stable = initial.copy(), [], None, 0
@@ -382,7 +391,7 @@ def convergence_report(out, reports=None):
         axes[i, 1].set_title(name.upper()+" gradient norm" + (" (SPSA estimate)" if name == "spsa" else ""))
         axes[i, 1].set_yscale("log")
         for ax in axes[i]: ax.set_xlabel("Iteration")
-    fig.suptitle(MODEL+" — engineering only, August development cases")
+    fig.suptitle(MODEL+f" — engineering only, development cases before {SEAL}")
     fig.tight_layout(); fig.savefig(out/"convergence.png", dpi=150); plt.close(fig)
     write(out/"convergence_summary.json", {"model": MODEL, **{n: {k: r[k] for k in ("same_theta", "theta_range", "generalizes")} for n, r in reports.items()}})
 
