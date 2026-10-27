@@ -39,12 +39,16 @@ own instructions in `Runner.evidence`. This file is not a hosted Skill mount.
    | All-supplier path plus supplier disruption | `upstream_input_risk` is a hypothesis for focal input availability, including h2/h3, with product continuity still unverified. |
    | All-customer path plus customer demand | `downstream_demand_risk` is a hypothesis for sales or order exposure; no sign or magnitude follows. |
    | Direct competitor plus substitution event | `competitive_substitution_risk` is a hypothesis; competitor-containing multi-hop paths are ambiguous. |
+   | Shared supplier fork `i <- s -> j` (`supplier`, then `customer` when traversed from i) | `shared_supplier_fork`: common input / possible dated disruption at s. News bound to peer j is not an event at s. This is a retrieval hypothesis (`path_only`); separately inspected, source-bound facts must establish the supplier event, affected product and focal i exposure. It is a fork in the input network, never a serial j-to-s-to-i transmission path or an unaligned direction change. |
    | Mixed direction, conflicting shortest motifs, or unaligned event | `unaligned_or_ambiguous`; do not invent a finance mechanism. |
    | Co-mention or no typed path | Retrieval lead or unlinked event only; never a supply edge. |
 
    `alternative_route` records observed path topology, **not** supplier
    redundancy or substitution capacity. `path_count_bin=multiple` does not
-   measure independent routes. A FactSet supplier revenue percentage is not
+   measure independent routes; neither the number of paths
+   nor the number of shared suppliers measures either quantity. Missing product
+   evidence keeps the fork `path_only`, including when peer news mentions s.
+   A FactSet supplier revenue percentage is not
    the focal firm's procurement dependence. `event_state=resolved` needs
    source-backed remaining exposure before priority rises. Preserve
    uncertainty, mitigations, and contradictions; do not infer the sign of a

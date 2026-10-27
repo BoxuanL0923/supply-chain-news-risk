@@ -12,6 +12,7 @@ from pathlib import Path
 import dspy
 
 from .domain_signals import finance_graph_signal
+from .label_firewall import check_payload
 
 
 SKILL_PATH = Path(__file__).resolve().parents[3] / "skills" / "supply-chain-context-selection" / "SKILL.md"
@@ -58,6 +59,7 @@ def _time(value: str) -> datetime:
 
 def _model_metadata(candidates: list[dict], asof: str):
     """No raw headline, free text, source ID, or exact timestamp reaches a model."""
+    check_payload(candidates)
     cutoff = _time(asof)
     metadata, alias_to_id = [], {}
     for row in candidates:
@@ -83,10 +85,11 @@ def _resolve_aliases(ids, alias_to_id):
 
 def select_context(candidates: list[dict], ranked_ids: list[str], *, asof: str, max_events: int):
     """The only route from model ranking to forecast evidence."""
+    check_payload(candidates)
     cutoff = _time(asof)
     if not isinstance(max_events, int) or isinstance(max_events, bool) or max_events < 1:
         raise ValueError("Invalid context budget")
-    if not isinstance(ranked_ids, list) or not ranked_ids or any(not isinstance(s, str) or not s for s in ranked_ids):
+    if not isinstance(ranked_ids, list) or (not ranked_ids and candidates) or any(not isinstance(s, str) or not s for s in ranked_ids):
         raise ValueError("Missing ranked IDs")
     if len(set(ranked_ids)) != len(ranked_ids):
         raise ValueError("Duplicate ranked IDs")
@@ -102,10 +105,22 @@ def select_context(candidates: list[dict], ranked_ids: list[str], *, asof: str, 
     if set(ranked_ids) - by_id.keys():
         raise ValueError("Unknown ranked ID")
     future = [sid for sid in ranked_ids if _time(by_id[sid]["available_at"]) >= cutoff]
-    selected = [by_id[sid] for sid in ranked_ids if sid not in future][:max_events]
+    selected, seen_stories, duplicates = [], set(), []
+    for sid in ranked_ids:
+        if sid in future:
+            continue
+        event = by_id[sid]
+        story = event.get("story_id") or sid
+        if story in seen_stories:
+            duplicates.append(sid)
+            continue
+        seen_stories.add(story)
+        if len(selected) < max_events:
+            selected.append(event)
     receipt = {"tool": "select_context", "tool_called": True,
                "selected_ids": [e["source_id"] for e in selected],
-               "excluded_future": future, "candidate_count": len(candidates), "max_events": max_events}
+               "excluded_future": future, "excluded_duplicate_stories": duplicates,
+               "candidate_count": len(candidates), "max_events": max_events}
     return selected, receipt
 
 

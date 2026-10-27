@@ -5,10 +5,13 @@ import json
 import math
 from pathlib import Path
 import re
+import os
 from filelock import FileLock
 from news_agent_batched_runtime_2025 import digest, read, write
 from news_exposure_2025.workflow import json_answer
 from .config import CONTRACT, MODEL, VERSION
+from .label_firewall import guarded_case, check_payload, boundary, current_accesses
+from .graph_projection import bound_paths, indexed_snapshot
 
 
 @lru_cache(maxsize=2)
@@ -55,6 +58,13 @@ def validate_evidence(answer, trace, capability):
     if not isinstance(events, list) or len(events) > (5 if capability["network"] else 8):
         raise ValueError("Expected at most five network or eight own/common evidence events")
     inspected = trace.get("reads", {})
+    router = None
+    if capability.get("enable_graph_router") and capability["network"]:
+        from .runner_receipts import route_capability
+        from .graph_router import RouterRules
+        router, _ = route_capability(capability, inspected, inspected_paths=trace.get("inspected_paths", []),
+                                    rules=RouterRules(max_hops=capability.get("router_max_hops", 3)))
+    routed_paths = {tuple(p["path"]) for p in router["paths"]} if router else None
     has_direct = any(p["hops"] == 1 and set(p["permnos"]) & set(d["ids"])
                      for p in capability.get("relations", []) for d in capability["documents"].values())
     if capability["documents"] and not inspected and (not capability["network"] or has_direct):
@@ -62,7 +72,8 @@ def validate_evidence(answer, trace, capability):
     tool_names = {t["tool"] for t in trace["calls"] if t["ok"]}
     if capability["network"] and not {"exposure_paths", "search_events"} <= tool_names:
         raise ValueError("Network evidence requires native graph lookup and related-news search")
-    validated = []
+    validated, seen_stories = [], set()
+    projection = indexed_snapshot(capability["graph_snapshot"]) if capability.get("enable_graph_router") and capability.get("graph_snapshot") else None
     for event in events:
         sid = event.get("source_id")
         if sid not in inspected or sid not in capability["documents"]:
@@ -80,19 +91,36 @@ def validate_evidence(answer, trace, capability):
             if not isinstance(event.get(field), str):
                 raise ValueError("Missing evidence field " + field)
         inspected_paths = {tuple(path) for path in trace.get("inspected_paths", [])}
-        paths = [p for p in capability.get("relations", []) if
-                 set(p["permnos"]) & set(capability["documents"][sid]["ids"]) and
+        from .graph_skills import utc
+        if utc(capability['documents'][sid]['available_at']) >= utc(capability['case']['asof']):
+            raise ValueError('News must be available strictly before cutoff')
+        bound = (bound_paths(capability.get("relations", []), capability["documents"][sid],
+                            capability["case"]["asof"], projection) if capability.get('enable_graph_router') else
+                 [dict(p, news_binding='peer_endpoint' if [s.get('neighbor_role') for s in p.get('steps', [])] == ['supplier', 'customer']
+                       else 'path_endpoint') for p in capability.get('relations', [])
+                  if set(p['permnos']) & set(capability['documents'][sid]['ids'])])
+        paths = [p for p in bound if
+                 (routed_paths is None or p.get("type") == "comention" or tuple(p.get("path", [])) in routed_paths) and
                  (p["hops"] == 1 or all(tuple(p.get("path", [])[:depth + 1])
                   in inspected_paths for depth in range(1, p["hops"])))]
         if capability["network"] and not paths:
             raise ValueError("Network event lacks a frozen retrieval path")
+        story = capability["documents"][sid].get("story_id") or sid
+        if story in seen_stories:
+            continue
+        seen_stories.add(story)
         validated.append({**event, "quote": quote, "quote_origin": "host copied inspected source",
                           "available_at": capability["documents"][sid]["available_at"],
                           "headline": capability["documents"][sid]["headline"],
+                          "story_id": story,
+                          "source_endpoint_bindings": [{"entity": p.get("entity"), "news_binding": p["news_binding"]} for p in paths],
                           "verified_paths": paths[:5], "additional_inspected_passages":
                           [p for p in inspected[sid].values() if p != quote]})
         # Never accept model-written graph statistics. Recompute from host capability.
         validated[-1].pop("graph_statistics", None)
+        validated[-1].pop("router_evidence_weight", None)
+        if router is not None:
+            validated[-1]["router_evidence_weight"] = router["evidence_weight"]
         if capability.get("graph_snapshot") is not None and paths:
             from .graph_skills import Snapshot, graph_fields
             graph = Snapshot(capability["graph_snapshot"], capability["case"]["asof"])
@@ -108,15 +136,23 @@ def validate_evidence(answer, trace, capability):
 
 class Runner:
     def __init__(self, out, client, cases, anchors, manifest, implementation_manifest=None,
-                 context_program=None, max_hops=None, graph_snapshot=None):
+                 context_program=None, max_hops=None, graph_snapshot=None, enable_graph_router=None,
+                 acceptance_bundles=None):
         self.out, self.client, self.cases, self.anchors, self.manifest = out, client, cases, anchors, manifest
         self.implementation_manifest = implementation_manifest or manifest
         self.context_program = context_program
         self.graph_snapshot = graph_snapshot
+        self.enable_graph_router = (os.environ.get("SC_ENABLE_GRAPH_ROUTER", "0") == "1"
+                                    if enable_graph_router is None else bool(enable_graph_router))
+        self.acceptance_bundles = acceptance_bundles or {}
+        from .runner_receipts import acceptance_manifest
+        self.frozen_acceptance_inputs = acceptance_manifest(self.acceptance_bundles) if self.enable_graph_router else {}
+        self.policy_receipts = {}
         if max_hops is not None and max_hops not in (1, 2, 3):
             raise ValueError("Invalid hop ablation radius")
         self.max_hops = max_hops
 
+    @guarded_case
     def capability(self, case, network):
         saved = pool_file(str(self.out), case["date"])
         pool = saved["pools"][case["case_id"]]
@@ -138,14 +174,29 @@ class Runner:
             if target is None:
                 raise ValueError("An unambiguous graph target ID is required")
             graph_capability = {"graph_snapshot": snapshot, "graph_firm_id": target}
-        return {**graph_capability, **{k: pool[k] for k in ("case", "calendar", "controls", "own_packet_hash")},
+        capability = {**graph_capability, **{k: pool[k] for k in ("case", "calendar", "controls", "own_packet_hash")},
                 "coverage": coverage,
                 "network": network, "documents": {s: saved["documents"][s] for s in ids},
                 "relations": relations,
                 "history_ids": [s for s in pool["history_ids"] if s in ids]}
+        capability['enable_graph_router'] = self.enable_graph_router
+        if self.enable_graph_router:
+            check_payload(capability)
+            capability.update(enable_graph_router=True, router_max_hops=self.max_hops or 3)
+            if network:
+                from .runner_receipts import route_capability
+                from .graph_router import RouterRules
+                route_capability(capability, rules=RouterRules(max_hops=self.max_hops or 3))
+        return capability
 
+    @guarded_case
     def evidence(self, case, network=False):
         cap = self.capability(case, network)
+        routing_events = []
+        if self.enable_graph_router and network:
+            from .runner_receipts import route_capability
+            from .graph_router import RouterRules
+            _, routing_events = route_capability(cap, rules=RouterRules(max_hops=self.max_hops or 3))
         if network:
             own = self.evidence(case, False)
             cap["own_evidence_key"] = own["key"]
@@ -258,11 +309,31 @@ class Runner:
                           "completion_request": response.get("completion_request"),
                           "retrieval_turn_limit": response.get("retrieval_turn_limit", False),
                           "tool_calls": response["trace"]["calls"], "capability_hash": digest(cap)}
+                if self.enable_graph_router and network:
+                    _, final_events = route_capability(cap, response["trace"].get("reads", {}),
+                        inspected_paths=response["trace"].get("inspected_paths", []),
+                        rules=RouterRules(max_hops=self.max_hops or 3))
+                    routing_events += response["trace"].get("router_events", []) + final_events
+            if self.enable_graph_router:
+                recorded_tools = any(e["event"] == "tool_call" for e in routing_events)
+                record["skill_python_trace"] = routing_events + ([] if recorded_tools else
+                    [dict(event="tool_call", receipt=c) for c in record["tool_calls"]])
             record.update(case_id=case["case_id"], network=network, own_packet_hash=cap["own_packet_hash"], key=key,
                           implementation_manifest=self.implementation_manifest)
             write(path, record)
             return record
 
+    def accept_candidate(self, policy, cases):
+        from .runner_receipts import training_gate, acceptance_manifest
+        with boundary(training=True):
+            if acceptance_manifest(self.acceptance_bundles) != self.frozen_acceptance_inputs:
+                raise ValueError("Acceptance inputs changed after runner initialization")
+            receipt = training_gate(self.out, policy, cases, self.acceptance_bundles.get(digest(policy)))
+        self.policy_receipts[digest(policy)] = receipt
+        write(self.out / "acceptance" / (digest(policy) + ".json"), receipt)
+        return receipt
+
+    @guarded_case
     def score(self, case, policy, network=False, nonce="", *, context_program=None):
         own = self.evidence(case, False)
         supplement = self.evidence(case, True) if network else None
@@ -275,10 +346,38 @@ class Runner:
         active_context_program = context_program or self.context_program
         if active_context_program is not None:
             evidence, context_receipt = apply_context_program(evidence, active_context_program, case["asof"])
+        case_trace = None
+        if self.enable_graph_router:
+            from .runner_receipts import skill_read, verify_case_trace
+            from .context_selection import select_context
+            # Even an empty/default ranking goes through the real Python tool.
+            candidates = [{**e, "_scope": name} for name, arm in evidence.items() for e in arm["events"]]
+            events = own.get("skill_python_trace", []) + (supplement.get("skill_python_trace", []) if supplement else [])
+            events += self.policy_receipts.get(digest(policy), {}).get("events", [])
+            if digest(policy) not in self.policy_receipts:
+                events.append(dict(event="acceptance_status", decision="NOT_RUN",
+                    reason="Fixed/seed or provisional candidate prediction; replacement requires acceptance gates"))
+            events.append(skill_read("supply-chain-context-selection", "context_selection.select_context"))
+            if candidates:
+                chosen, host_receipt = select_context(candidates, [e["source_id"] for e in candidates],
+                    asof=case["asof"], max_events=len(candidates))
+                selected = {e["source_id"] for e in chosen}
+                evidence = {n: {**a, "events": [e for e in a["events"] if e["source_id"] in selected]} for n, a in evidence.items()}
+            else:
+                _, host_receipt = select_context([], [], asof=case["asof"], max_events=1)
+            events.append(dict(event="select_context", receipt=host_receipt, selector_receipt=context_receipt))
+            body = dict(case_id=case["case_id"], cutoff=case["asof"], policy_sha256=digest(policy),
+                        events=events, label_accesses=current_accesses(),
+                        test_labels_accessed=False, evaluation_labels_accessed=False)
+            case_trace = dict(body, sha256=digest(body))
+            verify_case_trace(case_trace)
+            write(self.out / "case_traces" / (digest(case_trace) + ".json"), case_trace)
         key = digest({"case_id": case["case_id"], "policy": policy, "network": network, "nonce": nonce,
                       "manifest": self.manifest, "evidence": evidence, "context_receipt": context_receipt,
                       "anchor": self.anchors[case["case_id"]], "model": MODEL,
                       "hop_ablation_radius": self.max_hops if network else None})
+        if case_trace is not None:
+            key = digest(dict(prediction_key=key, case_trace=case_trace["sha256"]))
         path = self.out / "predictions" / (key+".json")
         path.parent.mkdir(parents=True, exist_ok=True)
         with FileLock(str(path)+".lock", timeout=1200):
@@ -288,6 +387,7 @@ class Runner:
                 original = self.score(case, policy, False, nonce, context_program=context_program)
                 record = {**original, "key": key, "network": True,
                           "network_evidence_key": supplement["key"],
+                          "skill_python_trace": case_trace,
                           "max_hops": self.max_hops,
                           "network_abstention": "No accepted source-backed supplement; copied identical-policy OWN score, no redraw"}
                 write(path, record)
@@ -325,6 +425,7 @@ class Runner:
                       "own_evidence_key": own["key"], "network_evidence_key": supplement["key"] if supplement else None,
                       "own_packet_hash": own["own_packet_hash"], "valid": True, "nonce": nonce,
                       "context_selection": context_receipt,
+                      "skill_python_trace": case_trace,
                       "implementation_manifest": self.implementation_manifest}
             write(path, record)
             return record

@@ -39,12 +39,20 @@ def progress(out, **values):
     (out / "LIVE.md").write_text("\n".join(text)+"\n", encoding="utf-8")
 
 
-def preflight(out):
+def preflight(out, enable_graph_router=False, acceptance_bundles=None):
     data = read(out / "data_manifest.json")
+    sealed_outputs = {}
     for name, sha in data["outputs"].items():
+        if enable_graph_router and ('label' in Path(name).name.lower() or 'outcome' in Path(name).name.lower()) and name not in ('labels_train.parquet', 'labels_valid.parquet'):
+            # Keep the declared seal, without even hashing evaluation bytes.
+            sealed_outputs[name] = sha
+            continue
         if file_hash(out/name) != sha:
             raise ValueError("Prepared artifact changed: " + name)
     cases = read(out / "cases.json")
+    if enable_graph_router:
+        from .label_firewall import check_payload
+        check_payload(cases)
     if len(cases) != 600 or len({c["case_id"] for c in cases}) != 600:
         raise ValueError("Expected 600 unique firm-periods")
     plan = {"version": VERSION, "model": MODEL, "schedule": SPLITS, "firms": sorted({c["ticker"] for c in cases}),
@@ -58,6 +66,11 @@ def preflight(out):
             "primary": "Pooled explanatory delta R2; separate development-fitted regression forecast R2",
             "target": "Five-session mean squared close-to-close returns, log units; not intraday RV or IV",
             "revision_note": "Frozen seed retained when validation does not justify a challenger; no guaranteed improvement"}
+    if enable_graph_router:
+        from .runner_receipts import acceptance_manifest
+        plan['gate4'] = dict(enabled=True, ends_before_evaluation=True,
+                            sealed_outputs_not_opened=sealed_outputs,
+                            acceptance_inputs=acceptance_manifest(acceptance_bundles or {}))
     plan = json.loads(json.dumps(plan))
     locked_write(out / "PROTOCOL.json", plan)
     sources = list((ROOT / "code/news_network_50_2025").glob("*.py"))
@@ -68,6 +81,10 @@ def preflight(out):
                 "workers": WORKERS,
                 "sources": {str(p.relative_to(ROOT)): file_hash(p) for p in sources},
                 "dependencies": {p: importlib.metadata.version(p) for p in ("dspy", "gepa", "mcp", "numpy", "pandas", "pyarrow")}}
+    if enable_graph_router:
+        skill_root = Path(__file__).resolve().parents[3] / 'skills'
+        manifest['gate4_skill_sources'] = {p.relative_to(skill_root).as_posix(): file_hash(p)
+            for p in skill_root.rglob('*') if p.is_file() and p.suffix in ('.py', '.md')}
     return cases, manifest
 
 
@@ -135,9 +152,17 @@ def resource_limits(out):
     return limits
 
 
-def execute(out=OUT, smoke=False):
+def execute(out=OUT, smoke=False, enable_graph_router=False, acceptance_bundles=None):
+    if enable_graph_router:
+        from .label_firewall import boundary
+        with boundary(training=True):
+            return _execute(out, smoke, enable_graph_router, acceptance_bundles)
+    return _execute(out, smoke, enable_graph_router, acceptance_bundles)
+
+
+def _execute(out, smoke, enable_graph_router, acceptance_bundles):
     with FileLock(str(out / ".run.lock"), timeout=0):
-        cases, manifest = preflight(out)
+        cases, manifest = preflight(out, enable_graph_router, acceptance_bundles)
         acceptance(out, cases)
         if not smoke:
             review = read(out / "toolkit_review.json")
@@ -150,7 +175,8 @@ def execute(out=OUT, smoke=False):
         client = NativeClient(out, resource_limits(out), CLAUDE)
         client.semaphore = threading.BoundedSemaphore(WORKERS)
         client.budget.start()
-        runner = Runner(out, client, cases, anchors, digest(cache_manifest), digest(manifest))
+        runner = Runner(out, client, cases, anchors, digest(cache_manifest), digest(manifest),
+                        enable_graph_router=enable_graph_router, acceptance_bundles=acceptance_bundles)
         progress(out, status="running", stage="smoke" if smoke else "development", active_job=True, error=None, traceback=None,
                  implementation_manifest=digest(manifest), runtime_limits=client.limits,
                  resource_extension=(file_hash(out / "RESOURCE_EXTENSION.json")
@@ -230,6 +256,18 @@ def execute(out=OUT, smoke=False):
                                     ("OWN_OPT", False, policies["OWN_OPT"]), ("NET_OPT", True, policies["NET_OPT"])):
                 records[arm] += panel(test_cases, policy, net)
             locked_write(out / "all_prediction_keys.json", {a: [r["key"] for r in rs] for a, rs in records.items()})
+            if enable_graph_router:
+                # Gate-4 execution ends at sealed predictions. Evaluation is a
+                # separate operator action, outside the label-free runner.
+                from .runner_receipts import verify_case_trace
+                from .label_firewall import static_verify
+                traces = [read(p) for p in (out / "case_traces").glob("*.json")]
+                for trace in traces:
+                    verify_case_trace(trace)
+                write(out / "gate4_verification.json", dict(static=static_verify(), case_traces=len(traces),
+                      runtime_verified=True, test_labels_accessed=False, evaluation_labels_accessed=False))
+                progress(out, status="sealed_predictions_complete", stage="gate4_verified", active_job=False)
+                return
             progress(out, stage="final_evaluation")
             test = matched(out, cases, records, "test")
             summary = summarize(train, test)
@@ -264,5 +302,8 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--out", type=Path, default=OUT)
     p.add_argument("--smoke", action="store_true")
+    p.add_argument("--enable-graph-router", action="store_true", help="Gate-4 receipts; requires dated snapshots; ends before evaluation")
+    p.add_argument("--acceptance-bundles", type=Path, help="JSON mapping policy hashes to local gate-bundle files")
     args = p.parse_args()
-    execute(args.out, args.smoke)
+    execute(args.out, args.smoke, args.enable_graph_router,
+            read(args.acceptance_bundles) if args.acceptance_bundles else None)

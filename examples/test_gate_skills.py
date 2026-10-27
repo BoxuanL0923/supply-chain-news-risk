@@ -231,7 +231,9 @@ class LedgerTests(unittest.TestCase):
                     root/"refresh.patch", root/"snapshot")
             entries = json.loads((root/"manifest.json").read_text())["files"]
             self.assertNotIn("metadata/file_manifest.json", {e["path"] for e in entries})
-            self.assertNotIn("source/code/news_network_50_2025/hop3_qwen.py", {e["path"] for e in entries})
+            # PR4 has since tracked this module. The helper must cover tracked
+            # files as well as the explicit candidate additions.
+            self.assertIn("source/code/news_network_50_2025/hop3_qwen.py", {e["path"] for e in entries})
             self.assertEqual((root/"snapshot/source/code/news_network_50_2025/graph_router.py").read_bytes(),
                              (toy.REPO/"source/code/news_network_50_2025/graph_router.py").read_bytes())
             for name in ("data.py", "runtime.py"):

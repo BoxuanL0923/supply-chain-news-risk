@@ -2,12 +2,18 @@
 from datetime import datetime
 import math
 import re
+import os
 from news_agent_batched_runtime_2025 import read, write, digest
 from .graph_skills import utc
+from .graph_projection import bound_paths, indexed_snapshot, project_path
+from .label_firewall import boundary, check_payload
+from contextlib import nullcontext
 
 
 class Toolkit:
     def __init__(self, capability, trace_path=None):
+        if 'enable_graph_router' not in capability and os.environ.get('SC_ENABLE_GRAPH_ROUTER', '0') == '1':
+            capability = dict(capability, enable_graph_router=True)
         self.data = capability
         self.trace_path = trace_path
         self.trace = []
@@ -15,13 +21,30 @@ class Toolkit:
         self.inspected_entities = set()
         self.inspected_paths = set()
         self.docs = capability["documents"]
+        check_payload(capability)
+        self.router_events, self.router_receipts = [], []
+        self.router_paths = None
+        self.projection = indexed_snapshot(capability["graph_snapshot"]) if capability.get("enable_graph_router") and capability.get("graph_snapshot") else None
         cutoff = utc(capability["case"]["asof"])
         if any(utc(r["available_at"]) >= cutoff for r in self.docs.values()):
             raise ValueError("At/after-cutoff document in tool capability")
-        if any(k in capability for k in ("y", "outcome", "residual", "labels")):
-            raise ValueError("Forbidden outcome field")
+        if capability.get("enable_graph_router") and capability["network"]:
+            self.refresh_router()
+
+    def refresh_router(self):
+        from .runner_receipts import route_capability
+        from .graph_router import RouterRules
+        route, events = route_capability(self.data, self.reads, inspected_paths=self.inspected_paths,
+            rules=RouterRules(max_hops=self.data.get("router_max_hops", 3)))
+        self.router_paths = {tuple(p["path"]) for p in route["paths"]}
+        self.router_receipts.append(route)
+        self.router_events.extend(events)
 
     def call(self, tool, **args):
+        with boundary() if self.data.get("enable_graph_router") else nullcontext():
+            return self._call(tool, **args)
+
+    def _call(self, tool, **args):
         try:
             if tool not in {"market_state", "search_events", "inspect_event", "inspect_events", "exposure_paths", "event_logbook", "sc_graph_degree", "sc_graph_triangles"}:
                 raise ValueError("Unknown tool")
@@ -31,9 +54,12 @@ class Toolkit:
             result = {"error": str(exc), "instruction": "Correct arguments or report the coverage gap; do not invent evidence"}
             item = {"tool": tool, "args": args, "ok": False, "result": result}
         self.trace.append(item)
+        if self.data.get("enable_graph_router"):
+            self.router_events.append(dict(event="tool_call", receipt=item))
         if self.trace_path:
             write(self.trace_path, {"capability_hash": digest(self.data), "calls": self.trace,
                                    "reads": self.reads, "inspected_entities": sorted(self.inspected_entities),
+                                   "router_events": self.router_events, "router_receipts": self.router_receipts,
                                    "inspected_paths": [list(path) for path in sorted(self.inspected_paths)]})
         return result
 
@@ -108,7 +134,11 @@ class Toolkit:
         return result or [doc["headline"]]
 
     def paths_for(self, doc):
-        return [p for p in self.data.get("relations", []) if set(p["permnos"]) & set(doc["ids"])]
+        if self.data.get('enable_graph_router'):
+            return bound_paths(self.data.get("relations", []), doc, self.data["case"]["asof"], self.projection)
+        # Preserve legacy staged-retrieval fixtures/caches when the new gate is
+        # disabled. The selector still enforces its own dated path contract.
+        return [p for p in self.data.get('relations', []) if set(p['permnos']) & set(doc['ids'])]
 
     def _valid_via(self, hops, via):
         if hops == 1:
@@ -124,6 +154,8 @@ class Toolkit:
         if path.get("type") == "comention":
             return hops == 1 and chain == []
         if type(hops) is not int or not 1 <= hops <= max_hops or len(chain) != hops + 1:
+            return False
+        if self.router_paths is not None and tuple(chain) not in self.router_paths:
             return False
         if any(tuple(chain[:depth + 1]) not in self.inspected_paths
                for depth in range(1, hops)):
@@ -142,9 +174,12 @@ class Toolkit:
             paths = [p for p in paths if self._accessible_path(p, 3)]
             if not paths:
                 raise ValueError("Inspect every preceding intermediate before reading a deeper-hop source")
+        before = set(self.inspected_paths)
         self.inspected_entities.update(p["entity"] for p in paths if p.get("entity"))
         self.inspected_paths.update(tuple(p["path"]) for p in paths if p.get("path"))
         self.reads.setdefault(source_id, {})[str(page)] = paragraphs[page]
+        if self.data.get("enable_graph_router") and self.data["network"] and before != self.inspected_paths:
+            self.refresh_router()
         return {"source_id": source_id, "headline": doc["headline"], "available_at": doc["available_at"],
                 "page": page, "page_count": len(paragraphs), "text": paragraphs[page],
                 "paths": paths[:5], "citation_eligible": True,
@@ -163,6 +198,8 @@ class Toolkit:
         target_query = bool(normalized) and normalized in target_aliases
         terms = set(re.findall(r"[a-z0-9]+", normalized)) if not target_query else set()
         available = [p for p in self.data["relations"] if self._accessible_path(p, hops, via)]
+        if self.data.get('enable_graph_router'):
+            available = [project_path(p, self.data["case"]["asof"], self.projection) for p in available]
         paths = [p for p in available if terms <= set(re.findall(r"[a-z0-9]+",
                  " ".join(str(p.get(k, "")) for k in ("name", "entity", "permnos")).lower()))]
         return {"paths": paths[offset:offset+15], "next_offset": offset+15 if len(paths) > offset+15 else None,

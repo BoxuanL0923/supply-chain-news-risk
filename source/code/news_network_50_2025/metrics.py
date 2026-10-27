@@ -17,7 +17,8 @@ def fit(frame, controls=CONTROLS, score=None):
 
 def anchor(out, cases):
     controls = pd.read_parquet(out / "controls.parquet")
-    labels = pd.read_parquet(out / "labels_train.parquet")
+    from .label_firewall import development_labels
+    labels = development_labels(out, "train")
     train = labels[["case_id", "y"]].merge(controls, on="case_id", validate="one_to_one")
     assert len(train) == 200
     fitted = fit(train)
@@ -33,7 +34,9 @@ def anchor(out, cases):
 def matched(out, cases, records, split):
     expected = {c["case_id"] for c in cases if c["split"] == split}
     controls = pd.read_parquet(out / "controls.parquet")
-    frame = pd.read_parquet(out / f"labels_{split}.parquet")[["case_id", "y"]].merge(
+    from .label_firewall import development_labels, in_boundary
+    labels = development_labels(out, split) if in_boundary() else pd.read_parquet(out / f"labels_{split}.parquet")
+    frame = labels[["case_id", "y"]].merge(
         controls, on="case_id", validate="one_to_one")
     if set(frame.case_id) != expected:
         raise ValueError("Missing outcomes/controls; no silent row dropping")

@@ -180,11 +180,57 @@ The independent corrected-pool audit found zero radius mismatches. The earlier c
 
 The report records 77 passing pre-run checks, 45 citation-flagged responses, five exact unique ID alias resolutions and one response with unresolved IDs; all finite scores were retained. Every response identified the Qwen model and ended with `finish_reason=stop`. Maximum actual prompt length was 8,961 tokens; maximum prompt plus the 7,000-token allowance was 15,961 of 32,768. One sequential request and fixed temperature/seed do not imply bitwise backend determinism.
 
+## Cached exact-hop missingness and cost
+
+Derived offline from frozen development artifacts; zero new model calls. Evaluation labels remain sealed.
+
+| Mode | Split | Contrast | n | Any exact-hop evidence | Missing | Raw MSE | Raw gain | Nested MSE | Nested gain | Calls (additional unique) | Cumulative tokens | Cumulative articles | Model seconds |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| all_paths | train | H1 | 200 | 100.0% | 0.0% | 1.360484 | 0.016600 | 0.880489 | 0.046663 | 200 (200) | 1,283,727 | 6254 | 755.09 |
+| all_paths | train | H2-H1 | 200 | 98.0% | 2.0% | 1.366398 | -0.005915 | 0.877868 | 0.002621 | 200 (196) | 1,430,414 | 6968 | 720.35 |
+| all_paths | train | H3-H2 | 200 | 95.0% | 5.0% | 1.365296 | 0.001103 | 0.877839 | 0.000029 | 200 (190) | 1,567,765 | 7625 | 716.59 |
+| all_paths | valid | H1 | 100 | 100.0% | 0.0% | 0.954624 | 0.001546 | 0.935706 | -0.072828 | 100 (100) | 634,054 | 3307 | 388.76 |
+| all_paths | valid | H2-H1 | 100 | 100.0% | 0.0% | 0.952103 | 0.002522 | 0.941227 | -0.005521 | 100 (100) | 711,602 | 3711 | 365.88 |
+| all_paths | valid | H3-H2 | 100 | 95.0% | 5.0% | 0.962951 | -0.010849 | 0.944518 | -0.003291 | 100 (95) | 776,495 | 4041 | 358.95 |
+| continuity_only | train | H1 | 200 | 100.0% | 0.0% | 1.360484 | 0.016600 | 0.880489 | 0.046663 | 200 (200) | 1,283,727 | 6254 | 755.09 |
+| continuity_only | train | H2-H1 | 200 | 0.0% | 100.0% | 1.360484 | 0.000000 | 0.880489 | 0.000000 | 200 (0) | 1,283,727 | 6254 | 755.09 |
+| continuity_only | train | H3-H2 | 200 | 0.0% | 100.0% | 1.360484 | 0.000000 | 0.880489 | 0.000000 | 200 (0) | 1,283,727 | 6254 | 755.09 |
+| continuity_only | valid | H1 | 100 | 100.0% | 0.0% | 0.954624 | 0.001546 | 0.935706 | -0.072828 | 100 (100) | 634,054 | 3307 | 388.76 |
+| continuity_only | valid | H2-H1 | 100 | 0.0% | 100.0% | 0.954624 | 0.000000 | 0.935706 | 0.000000 | 100 (0) | 634,054 | 3307 | 388.76 |
+| continuity_only | valid | H3-H2 | 100 | 0.0% | 100.0% | 0.954624 | 0.000000 | 0.935706 | 0.000000 | 100 (0) | 634,054 | 3307 | 388.76 |
+
+| Mode | Split | Contrast | Additional-request tokens | Additional-request seconds | Article change | Token change | Model-second change |
+|---|---|---|---:|---:|---:|---:|---:|
+| all_paths | train | H1 | 1,283,727 | 755.09 | +1583 | +324,851 | -88.48 |
+| all_paths | train | H2-H1 | 1,398,609 | 692.55 | +714 | +146,687 | -34.74 |
+| all_paths | train | H3-H2 | 1,488,430 | 668.49 | +657 | +137,351 | -3.76 |
+| all_paths | valid | H1 | 634,054 | 388.76 | +800 | +156,081 | -51.55 |
+| all_paths | valid | H2-H1 | 711,602 | 365.88 | +404 | +77,548 | -22.88 |
+| all_paths | valid | H3-H2 | 737,858 | 337.53 | +330 | +64,893 | -6.93 |
+| continuity_only | train | H1 | 1,283,727 | 755.09 | +1583 | +324,851 | -88.48 |
+| continuity_only | train | H2-H1 | 0 | 0.00 | +0 | +0 | +0.00 |
+| continuity_only | train | H3-H2 | 0 | 0.00 | +0 | +0 | +0.00 |
+| continuity_only | valid | H1 | 634,054 | 388.76 | +800 | +156,081 | -51.55 |
+| continuity_only | valid | H2-H1 | 0 | 0.00 | +0 | +0 | +0.00 |
+| continuity_only | valid | H3-H2 | 0 | 0.00 | +0 | +0 | +0.00 |
+
+No retained scoring article at this exact hop; not a zero forecast increment or absence of economic exposure.
+Retained source IDs per case in cumulative scoring packets, including OWN; repeated across cases count separately. Host-only supporting reads are excluded.
+Unique cached scoring requests per arm/split/mode. Additional requests are set difference from previous arm; signed cost changes are separate. Shared requests are counted once in unique_run_cost.
+Recorded model response service seconds. Retrieval and end-to-end timing were not cached and remain null; no timing is imputed.
+Raw residual MSE and nested OLS MSE with coefficients fitted on training cases only. Positive gain means lower loss. H1 is compared with OWN.
+
+Cumulative costs describe standalone arms. They are not matched compute. The JSON also reports signed cost changes and additional-request cost.
+
+The source index, freeze and existing development CSV are hashed in the external derived-report JSON. Across all arms/panels there are 1,778 unique cached scoring requests, 12,346,412 total tokens and 7,916.83 recorded model seconds. No live label file is opened by this reporting command. The H1 comparison is against OWN; H2-H1 and H3-H2 retain identical cases within each split.
+
 ## Router decision
 
-PR #3's [router documentation](SKILLS_AND_ROUTER.md) proposes future integration immediately before selection and explicitly says no workflow hook is included. It names a future default-off `enable_graph_router=False` flag; the current standalone router has no active workflow flag or hook. The completion condition is now satisfied, but safe integration would also require a new contract mapping host-inspected candidate IDs and receipts into selection, persisting router receipts, and defining how returned weights/statistics affect provider-safe selector metadata. It would alter selection/scoring semantics and the frozen-code contract without a tested integration specification. Therefore the hook remains documented and **unwired** in this commit. The standalone deterministic router and its existing tests are unchanged; all existing workflow behavior remains the default.
+PR5 wires the deterministic router into Runner and Toolkit, with actual host-inspection prefix receipts, persisted Skill/Python traces, provider-safe weights and training acceptance-gate receipts. The flag defaults **OFF** because legacy fixtures/capabilities do not meet the enabled dated-snapshot contract. Enabled execution ends before evaluation labels open. See [PR5_IMPLEMENTATION.md](PR5_IMPLEMENTATION.md). This integration does not resume or modify the frozen Qwen run.
 
 ## Offline checks and operator manifest patch
+
+The following paragraphs retain the original PR4 preparation record. PR5's final check is **216 passing tests**, four helper imports and a clean 29-path scan; its allowlist is `docs/PR5_COMMIT_FILES.txt`. Use [PR5_IMPLEMENTATION.md](PR5_IMPLEMENTATION.md) for the current manifest, trace and default-off compatibility instructions.
 
 Run every `examples/*.py` file in its own `python -m unittest examples.<stem>` process with `PYTHONPATH=source/code`. Set `Q1_SEAL_DATE=2025-11-03` only for `test_q1_identify`, `test_q1_identify_v2` and `test_q1_design`; remove it for other suites (the graph/prompt suite uses its September 1 default). Also run:
 

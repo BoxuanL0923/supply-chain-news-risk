@@ -33,4 +33,7 @@ truncation, bound inspection receipts, input/code hashes, receipt SHA256 and
 `model_calls:0`. Verify with `verify_receipt`; recompute with `route_case` for
 full replay. Stop at path budget and mark incomplete coverage. A receipt hash
 is tamper evidence, not proof of source inspection or product continuity.
-No existing workflow hook is enabled; the active Qwen run remains untouched.
+Runner/Toolkit integrate this contract behind `enable_graph_router` (default
+off for legacy snapshot compatibility). Persist Skill/Python traces and require
+the source-bound prefix receipts before expanding. See
+`docs/PR5_IMPLEMENTATION.md`; the frozen Qwen run remains untouched.

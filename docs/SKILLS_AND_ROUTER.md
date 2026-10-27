@@ -1,8 +1,9 @@
 # Numerical gate skills and pre-model graph routing
 
-This extension adds deterministic screening adapters and graph-tool routing.
-Every implementation file is new. No active Qwen/DeepSeek ablation module,
-toolkit, workflow, selector or model transport is modified. All examples are
+This document records the original PR3 screening adapters and graph router.
+PR5 now connects them to retrieval/training behind a default-off flag; see
+[PR5_IMPLEMENTATION.md](PR5_IMPLEMENTATION.md). Frozen Qwen/DeepSeek artifacts
+are preserved. All standalone examples are
 invented sufficient statistics and toy graphs. No private data, news text,
 credentials, fitted research outputs or remote calls are needed.
 
@@ -30,7 +31,7 @@ None import `sc_risk` or use paths to private source/data at runtime.
 ## Gate policies and provenance
 
 Implementation semantics were inspected in the local reference files
-`C:/OptResearch/code/sc_risk/llm_mech_agent.py` (`heldout_gain`,
+the external `sc_risk/llm_mech_agent.py` (`heldout_gain`,
 `HostEngine.evaluate`), `llm_mech_loop.py` (`validation`, `supported`,
 `industry_benchmark`, `placebo_test`), and `o2_acceptance_gate.py` (`score`,
 `null_scores`, `report`), together with section 8.3 of the project guideline.
@@ -174,10 +175,10 @@ Use the real **sampled** score, not a full-sample score, with sampled nulls.
 PowerShell, repository root, no network:
 
 ```powershell
-$py = 'C:/OptResearch/.venv_dspy/Scripts/python.exe'
+$py = $env:PR5_PYTHON # operator's existing offline interpreter
 $env:PYTHONPATH = 'source/code'
 $env:PYTHONDONTWRITEBYTECODE = '1'
-$demo = 'C:/OptResearch/results/pr2_gate_demo_new' # choose a fresh output folder
+$demo = $env:PR5_DEMO_ROOT # choose a fresh output folder
 & $py examples/gate_skills_synthetic.py --out $demo
 & $py skills/sc-gate-validation/scripts/gate_validation.py --input "$demo/validation.csv"
 & $py skills/sc-gate-sign-stability/scripts/gate_sign_stability.py --input "$demo/sign.json"
@@ -253,13 +254,13 @@ paths, truncation and model_calls=0. `verify_receipt` checks its hash;
 that a host really inspected a source. A truncated result means incomplete
 coverage. Graph paths and RA do not establish a product channel.
 
-Future integration belongs immediately before the selector/model call:
-construct the case from host candidates, call route_case, persist its receipt,
-and pass returned statistics/weights to selection. Add an explicit flag such
-as `enable_graph_router=False` before hooking toolkit/context_selection/
-workflow/domain_signals. Do that only after
-`D:/OptResearch_data/agent_q1/hop3_run/QWEN_RUN_DONE_v2.json` exists. No hook or
-change to an imported ablation module is included in this extension.
+PR5 adds the actual Runner/Toolkit hook, source-prefix receipt construction,
+bounded retrieval and allowlisted selector weights. The explicit
+`enable_graph_router=False` default preserves legacy capabilities without dated
+snapshots; enabled runs fail closed on them. The completed Qwen artifacts are
+unchanged. See [PR5_IMPLEMENTATION.md](PR5_IMPLEMENTATION.md) for the active
+trace, training-gate and label-firewall contracts. The following verification
+and allowlist notes describe the original PR3 preparation, not the PR5 file set.
 
 ## Offline checks and manifest review
 
@@ -288,7 +289,7 @@ The exact recommended commit allowlist is
 manifest. To prepare a reviewable patch and clean candidate snapshot:
 
 ```powershell
-& $py examples/prepare_review_manifest.py --files docs/PR2_EXTENSION_COMMIT_FILES.txt --out C:/OptResearch/results/pr2_gate_router_review/final/file_manifest.review.json --patch C:/OptResearch/results/pr2_gate_router_review/final/manifest_refresh.patch --snapshot C:/OptResearch/results/pr2_gate_router_review/final/candidate_snapshot
+& $py examples/prepare_review_manifest.py --files docs/PR2_EXTENSION_COMMIT_FILES.txt --out $env:PR5_REVIEW_ROOT/file_manifest.review.json --patch $env:PR5_REVIEW_ROOT/manifest_refresh.patch --snapshot $env:PR5_REVIEW_ROOT/candidate_snapshot
 ```
 
 Use fresh output names if these task review artifacts already exist. This
@@ -299,8 +300,8 @@ byte-specific: line-ending conversion on another checkout requires review and
 regeneration there. Inspect the exact manifest diff, then the operator can run:
 
 ```powershell
-git apply --check C:/OptResearch/results/pr2_gate_router_review/final/manifest_refresh.patch
-git apply C:/OptResearch/results/pr2_gate_router_review/final/manifest_refresh.patch
+git apply --check $env:PR5_REVIEW_ROOT/manifest_refresh.patch
+git apply $env:PR5_REVIEW_ROOT/manifest_refresh.patch
 & $py skills/supply-chain-news-risk/scripts/validate_dictionary.py --repo . --mode forecasting
 ```
 

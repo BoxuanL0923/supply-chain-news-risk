@@ -208,8 +208,8 @@ class ContextSelectionTests(unittest.TestCase):
         mixed = finance_graph_signal({**base, "event_type": "supplier disruption",
             "verified_paths": [path("supplier", "customer")]},
             "2025-10-03T12:00:00")
-        self.assertEqual(mixed["role_motif"], "direction_change")
-        self.assertEqual(mixed["finance_hypothesis"], "unaligned_or_ambiguous")
+        self.assertEqual(mixed["role_motif"], "shared_supplier_fork")
+        self.assertEqual(mixed["finance_hypothesis"], "common_input_possible_dated_supplier_disruption")
 
         competitor = finance_graph_signal({**base, "event_type": "competitor substitution",
             "verified_paths": [path("competitor", "supplier")]},

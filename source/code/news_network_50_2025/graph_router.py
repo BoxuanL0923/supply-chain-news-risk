@@ -1,7 +1,7 @@
 """Deterministic graph-tool routing before a selector/model call.
 
-Standalone entry point only: no active workflow, toolkit or ablation imports
-this module. Rules may be serialized for later training-only GEPA/prompt GD.
+Used by the opt-in runner and Toolkit as well as the standalone CLI. Rules may
+be serialized for training-only GEPA/prompt GD; evaluation labels are excluded.
 """
 from __future__ import annotations
 

@@ -7,6 +7,7 @@ realized return signals. Only allowlisted categories leave this module.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from .graph_projection import role_motif, project_path
 
 
 ROLES = {"supplier", "customer", "competitor"}
@@ -20,19 +21,13 @@ CHANNEL_HINTS = {
 
 def _role_motif(pattern: tuple[str, ...]) -> str:
     """Classify the ordered path without assuming input or sales transmission."""
-    if all(role == "supplier" for role in pattern):
-        return "all_upstream"
-    if all(role == "customer" for role in pattern):
-        return "all_downstream"
-    if len(pattern) == 1 and pattern[0] == "competitor":
-        return "direct_competitor"
-    if "competitor" in pattern:
-        return "competitor_mixed"
-    return "direction_change"
+    return role_motif(pattern)
 
 
 def _finance_hypothesis(motif: str, category: str) -> str:
     """Map aligned topology and event class to a *testable* risk hypothesis."""
+    if motif == "shared_supplier_fork":
+        return "common_input_possible_dated_supplier_disruption"
     if motif == "all_upstream" and category == "supplier disruption":
         return "upstream_input_risk"
     if motif == "all_downstream" and category == "customer demand":
@@ -52,6 +47,10 @@ def _utc(value: str) -> datetime:
 
 def finance_graph_signal(row: dict, asof: str, *, event_category: str | None = None) -> dict:
     result = _finance_graph_signal(row, asof, event_category=event_category)
+    weight = row.get("router_evidence_weight")
+    if weight is not None and (isinstance(weight, bool) or not isinstance(weight, (int, float)) or not 0 <= weight <= 1):
+        raise ValueError("Invalid router evidence weight")
+    result["router_evidence_weight"] = weight
     stats = row.get("graph_statistics")
     fields = ("in_degree", "out_degree", "total_degree", "degree_percentile", "hub",
               "triangle_count", "clustering", "shared_neighbour_count", "pair_triangle_count",
@@ -113,6 +112,7 @@ def _finance_graph_signal(row: dict, asof: str, *, event_category: str | None = 
             raise ValueError("Invalid graph path length")
         if any(not isinstance(step, dict) or step.get("neighbor_role") not in ROLES for step in steps):
             raise ValueError("Invalid graph role")
+        project_path(path, asof)
         typed.append(tuple(step["neighbor_role"] for step in steps))
 
     if not typed:
@@ -143,6 +143,11 @@ def _finance_graph_signal(row: dict, asof: str, *, event_category: str | None = 
     gap = ("path_and_product_ambiguity" if len(unique_patterns) > 1 else
            "intermediate_product_continuity" if shortest > 1 else
            "direct_product_exposure")
+    if motif == "shared_supplier_fork":
+        pattern = "shared_supplier_fork"
+        role = "shared_supplier_peer"
+        hint = "common_input_retrieval_hypothesis"
+        gap = "supplier_event_and_focal_product_exposure"
     alternative = ("longer_typed_path_observed" if any(len(p) > shortest for p in typed) else
                    "different_shortest_motifs" if len(unique_patterns) > 1 else
                    "none_observed")
@@ -150,4 +155,5 @@ def _finance_graph_signal(row: dict, asof: str, *, event_category: str | None = 
             "path_pattern": pattern, "path_count_bin": "one" if len(shortest_patterns) == 1 else "multiple",
             "channel_status": "path_only", "mechanism_hint": hint, "event_state": state,
             "role_motif": motif, "finance_hypothesis": hypothesis,
+            "news_binding": "peer_endpoint" if motif == "shared_supplier_fork" else "path_endpoint",
             "evidence_gap": gap, "alternative_route": alternative}

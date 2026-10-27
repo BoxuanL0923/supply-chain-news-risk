@@ -119,7 +119,8 @@ class Graph:
                 seen.add(neighbor)
                 new_chain = chain + [neighbor]
                 new_steps = steps + [{"from": node, "to": neighbor, "neighbor_role": role,
-                                      "edge_id": edge["id"], "revenue_pct": edge["revenue_pct"]}]
+                                      "edge_id": edge["id"], "revenue_pct": edge["revenue_pct"],
+                                      **{k: edge[k] for k in ("source", "target", "type", "vintage", "valid_from", "valid_to") if k in edge}}]
                 yield (neighbor, new_chain, new_steps)
 
         queue, result = [(r, [r], []) for r in roots], []
@@ -156,8 +157,10 @@ class Graph:
                     continue
                 following.append(found)
                 if not via or via in chain:
+                    from news_network_50_2025.graph_projection import role_motif
                     result.append({"entity": neighbor, **self.data["nodes"][neighbor], "hops": len(steps),
                                    "path": chain, "steps": steps, "degree": len(self.adj[neighbor]),
+                                   "role_motif": role_motif(s["neighbor_role"] for s in steps),
                                    "vintage": GRAPH_DATE, "mechanism_verified": False})
             queue = following
         return result

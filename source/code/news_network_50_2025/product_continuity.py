@@ -11,6 +11,7 @@ The current FactSet cache contains none of these product receipts: path_only.
 """
 from __future__ import annotations
 from .graph_skills import utc
+from .graph_projection import role_motif
 
 def validate_continuity(path, cutoff, *, edges, facts=(), inspected_sources=None, affected_item=None):
     inspected_sources=inspected_sources or {}
@@ -51,6 +52,15 @@ def validate_continuity(path, cutoff, *, edges, facts=(), inspected_sources=None
         if len(unique)!=1:
             reasons.append('missing_or_ambiguous_edge_product'); items.append(None)
         else: items.append(next(iter(unique))); evidence.extend(matched)
+    motif=role_motif(s.get('neighbor_role') for s in steps)
+    if motif=='shared_supplier_fork':
+        # s has two outputs to i and j. A serial input/output receipt at s
+        # cannot establish a supplier event or focal input exposure.
+        return {'model':'qwen3.8-27b','status':'path_only','hops':hops,'path':chain,'cutoff':cutoff,
+                'role_motif':motif,'intermediates':[],
+                'reasons':sorted(set(reasons+['shared_supplier_event_and_focal_exposure_unverified'])),
+                'evidence':evidence,
+                'meaning':'Common input retrieval hypothesis; requires separate source-bound supplier event and focal exposure, not serial product flow'}
     if len(set(roles))!=1: reasons.append('direction_change')
     if not affected_item or not any(f.get('kind')=='affected_item' and f.get('entity')==chain[-1]
             and f.get('item')==affected_item for f in valid):

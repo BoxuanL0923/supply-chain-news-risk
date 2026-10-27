@@ -47,17 +47,48 @@ def reflection_context(runner, case, network):
     return context
 
 
+def choose_with_gates(runner, candidates, residuals, valid_cases, development_cases):
+    chosen, selection = choose(candidates, residuals, valid_cases)
+    if runner.enable_graph_router:
+        # A heuristic validation win alone cannot replace the seed in this mode.
+        gate = runner.accept_candidate(chosen['policy'], development_cases) if selection['changed'] else None
+        selection['acceptance_gate_receipt'] = gate
+        if gate is not None and not gate['accepted']:
+            chosen = candidates[0]
+            selection.update(changed=False, gate_blocked=True)
+    return chosen, selection
+
+
 def optimize(runner, cases, network, panel):
+    if runner.enable_graph_router:
+        from .label_firewall import boundary
+        with boundary(training=True):
+            return _optimize(runner, cases, network, panel)
+    return _optimize(runner, cases, network, panel)
+
+
+def _optimize(runner, cases, network, panel):
     from gepa import optimize as gepa_optimize
     from gepa.core.adapter import EvaluationBatch
     from gepa.utils.stop_condition import MaxCandidateProposalsStopper
     name = "NET" if network else "OWN"
     out = runner.out / "optimization" / name
     if (out / "decision.json").exists():
-        return read(out / "decision.json")
+        saved = read(out / "decision.json")
+        if runner.enable_graph_router and not saved.get("gate4_enabled"):
+            raise ValueError("Legacy optimization cache has no gate-4 receipts; use a fresh run directory")
+        if runner.enable_graph_router and saved['selection']['changed']:
+            # Restore the policy's verified receipt in a fresh Runner process;
+            # a cached decision alone must not bypass current gate inputs.
+            gate = runner.accept_candidate(saved['policy'], [c for c in cases if c['split'] in ('train', 'valid')])
+            previous = saved['selection']['acceptance_gate_receipt']
+            if not gate['accepted'] or gate['binding'] != previous['binding']:
+                raise ValueError('Cached selected policy has no matching acceptance receipts')
+        return saved
     train_cases = [c for c in cases if c["split"] == "train"]
     valid_cases = [c for c in cases if c["split"] == "valid"]
-    labels = pd.concat([pd.read_parquet(runner.out/f"labels_{s}.parquet") for s in ("train", "valid")])
+    from .label_firewall import development_labels
+    labels = pd.concat([development_labels(runner.out, s) for s in ("train", "valid")])
     residuals = {r.case_id: float(r.y-runner.anchors[r.case_id]) for r in labels.itertuples()}
     lookup = {c["case_id"]: c for c in cases if c["split"] != "test"}
     firms = sorted({c["ticker"] for c in cases})
@@ -157,8 +188,9 @@ def optimize(runner, cases, network, panel):
     for policy in policies.values():
         rows = panel(valid_cases, policy, network)
         candidates.append({"policy": policy, "scores": {r["case_id"]: r["score"] for r in rows}})
-    chosen, selection = choose(candidates, residuals, valid_cases)
+    chosen, selection = choose_with_gates(runner, candidates, residuals, valid_cases, train_cases + valid_cases)
     decision = {"policy": chosen["policy"], "selection": selection, "candidate_count": len(candidates),
+                "gate4_enabled": runner.enable_graph_router,
                 "test_labels_accessed": False, "frozen": True}
     locked_write(out / "decision.json", decision)
     return decision

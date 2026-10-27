@@ -30,6 +30,15 @@ Invoke explicitly as `/supply-chain-news-risk` in Claude Code or
    publication time against the forecast origin and the graph vintage against
    the same origin. A path motif and a finance hypothesis are selector inputs,
    not evidence that the affected product reaches the focal firm.
+   An explicit common-supplier fork `i <- s -> j` is `shared_supplier_fork`
+   in the input network, not a serial path with a direction change. Its
+   finance hypothesis is common input / possible dated disruption at s.
+   Bind peer-j news to j, supplier-s news to s; identity tags alone do not
+   establish a supplier event. Keep `path_only` until separate inspected,
+   source-bound supplier-event, affected-product and focal-exposure facts
+   exist. All edge vintages and news availability must precede the cutoff;
+   count a duplicated story only once. Path counts measure neither procurement
+   dependence nor redundancy.
 5. Report the repository commit, validator mode, qualified findings, blocking
    gaps, and the smallest next action. Distinguish verified checks from author
    assertions and untested code.
