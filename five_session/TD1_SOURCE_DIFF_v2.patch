@@ -1,0 +1,789 @@
+--- D:\OptResearch_data\external\supply-chain-news-risk\five_session\amend_freeze.py
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\amend_freeze.py
+@@ -1,25 +1,2 @@
+-"""Append a code-only freeze amendment; never refit or overwrite an artifact."""
+-from runtime import limit, OUT, CODE, sha, new_json, utc
+-limit()
+-import json
+-
+-def main():
+-    parent=OUT/'MODEL_FREEZE.json'
+-    freeze=json.loads(parent.read_text())
+-    for field in ['input_sha256','manifest_sha256','prediction_sha256','selection_sha256']:
+-        for p,h in freeze[field].items():
+-            if sha(p)!=h: raise ValueError('Immutable experiment artifact changed: '+p)
+-    if sha(OUT/'model_frozen.pkl')!=freeze['model_sha256']:
+-        raise ValueError('Model changed')
+-    freeze['parent_freeze_sha256']=sha(parent)
+-    freeze['amendment']='Verifier reconstructs fitting array in C order, preserving exact preprocessing equality. No data, model, prediction, selection or numerical fitting change.'
+-    freeze['code_sha256']={str(p):sha(p) for p in sorted(CODE.glob('*.py'))}
+-    freeze['utc']=utc(); path=OUT/'MODEL_FREEZE_v2.json'; new_json(path,freeze)
+-    request={'schema':'TD1_CLEARANCE_v1','status':'CLEARED','freeze_sha256':sha(path),
+-        'scope':'2023-2024 exploratory paired losses only; all label ends <=2024-12-31'}
+-    for key in ['version','model_sha256','code_sha256','manifest_sha256','input_sha256','prediction_sha256','selection_sha256']:
+-        request[key]=freeze[key]
+-    new_json(OUT/'CLEARANCE_REQUEST_v2.json',request)
+-    print('Amended freeze:',path,flush=True)
+-
+-if __name__=='__main__': main()
++"""The correction requires repair.py, not the legacy code-only amendment."""
++raise RuntimeError("Use run_td1.py repair; all reviewed freezes are immutable")
+--- /dev/null
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\audit_adapter.py
+@@ -0,0 +1,9 @@
++"""Redirect the preserved independent traps to append-only private fixtures."""
++from pathlib import Path
++import uuid
++import runtime
++from runtime import sha as hash_file
++REVIEW = runtime.OUT/'repair_v2'/('traps_'+uuid.uuid4().hex)
++REVIEW.mkdir(parents=True)
++def write_json(name, value):
++    runtime.new_json(REVIEW/name, value)
+--- D:\OptResearch_data\external\supply-chain-news-risk\five_session\core.py
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\core.py
+@@ -61,8 +61,9 @@
+     # No winsorization or clipping estimated using selection/evaluation rows.
+     return np.column_stack([z,missing.astype(float)]) if indicators else z
+ 
+-def old_fit(x,y):
+-    p=prepare_fit(x); z=np.column_stack([np.ones(len(x)),transform(x,p,False)])
++def old_fit(x,y,preprocess=None):
++    p=prepare_fit(x) if preprocess is None else {k:v.copy() for k,v in preprocess.items()}
++    z=np.column_stack([np.ones(len(x)),transform(x,p,False)])
+     beta=np.linalg.solve(z.T@z+1e-6*np.diag(np.r_[0.,np.ones(x.shape[1])]),z.T@y)
+     return {'preprocess':p,'beta':beta}
+ 
+--- /dev/null
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\correction_tests.py
+@@ -0,0 +1,81 @@
++"""Regression tests for the comparator repair and active artifact gate."""
++import copy
++import json
++import pickle
++import unittest
++import uuid
++from unittest.mock import patch
++import numpy as np
++import pandas as pd
++from runtime import OUT, CODE, sha, new_json, peak_bytes, freeze_path
++import core
++import sources
++import evaluate
++from validate_correction import independent_statistics, assert_preprocessing, extreme_selection_missingness_trap
++
++class Correction(unittest.TestCase):
++    def fixture(self):
++        x = np.array([[1.,np.nan],[3.,4.],[5.,8.],[7.,12.]])
++        p = independent_statistics(x)
++        return x, {'selection_old': {'preprocess': copy.deepcopy(p)}, 'old': {'preprocess': copy.deepcopy(p)}}
++
++    def test_01_extreme_selection_missingness(self):
++        self.assertTrue(extreme_selection_missingness_trap())
++
++    def test_02_independent_statistics_never_calls_prepare_fit(self):
++        x, b = self.fixture()
++        with patch('core.prepare_fit', side_effect=AssertionError('Refitted preprocessing')):
++            self.assertEqual(assert_preprocessing(x, b), 6)
++
++    def test_03_each_selection_statistic_rejected_independently(self):
++        x, b = self.fixture()
++        for k in ('median','mean','scale'):
++            damaged = copy.deepcopy(b); damaged['selection_old']['preprocess'][k][0] += 1
++            with self.assertRaisesRegex(ValueError, 'independent 2015-2020'):
++                assert_preprocessing(x, damaged)
++
++    def test_04_each_final_statistic_rejected_exactly(self):
++        x, b = self.fixture()
++        for k in ('median','mean','scale'):
++            damaged = copy.deepcopy(b)
++            damaged['old']['preprocess'][k][0] = np.nextafter(damaged['old']['preprocess'][k][0], np.inf)
++            with self.assertRaisesRegex(ValueError, 'differs from selection'):
++                assert_preprocessing(x, damaged)
++
++    def test_05_reuse_copies_without_fitting(self):
++        x, b = self.fixture(); p = b['selection_old']['preprocess']
++        with patch('core.prepare_fit', side_effect=AssertionError('Refitted preprocessing')):
++            m = core.old_fit(x, np.arange(len(x),dtype=float), preprocess=p)
++        for k in p:
++            np.testing.assert_array_equal(m['preprocess'][k],p[k])
++            self.assertFalse(np.shares_memory(m['preprocess'][k],p[k]))
++
++    def test_06_active_artifact_paths(self):
++        self.assertEqual(freeze_path(), OUT/'MODEL_FREEZE_v3.json')
++        self.assertEqual(evaluate.CLEARANCE, OUT/'clearance/TD1_CLEARANCE_v2.json')
++        with patch('sources.pickle', create=True):
++            with patch('pathlib.Path.open', side_effect=FileNotFoundError) as opened:
++                with self.assertRaises(FileNotFoundError): sources.read_frozen_model()
++                self.assertEqual(opened.call_args.args, ('rb',))
++        self.assertIn('model_frozen_v2.pkl', (CODE/'sources.py').read_text())
++        self.assertIn('predictions_v2/year_', (CODE/'evaluate.py').read_text())
++
++    def test_07_old_clearance_schema_rejected(self):
++        f={k:{} for k in evaluate.BINDINGS}; f.update(version='synthetic',model_sha256='m')
++        c=dict(f,schema='TD1_CLEARANCE_v1',status='CLEARED',freeze_sha256='h')
++        with self.assertRaises(PermissionError): evaluate.validate_clearance(c,f,'h')
++
++    def test_08_real_bundle_preserves_training_preprocessing(self):
++        freeze=json.loads(freeze_path().read_text())
++        self.assertEqual(sha(OUT/'model_frozen_v2.pkl'),freeze['model_sha256'])
++        b=sources.read_frozen_model()
++        for k in ('median','mean','scale'):
++            np.testing.assert_array_equal(b['old']['preprocess'][k], b['selection_old']['preprocess'][k])
++
++def run():
++    result=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(Correction))
++    report={'tests_run':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),
++        'evaluation_labels_read_or_computed':False,**peak_bytes()}
++    new_json(OUT/'repair_v2'/('CORRECTION_TESTS_'+uuid.uuid4().hex+'.json'),report)
++    if not result.wasSuccessful(): raise SystemExit(1)
++    return report
+--- D:\OptResearch_data\external\supply-chain-news-risk\five_session\evaluate.py
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\evaluate.py
+@@ -10,11 +10,11 @@
+ from runtime import OUT, CODE, guard, sha, new_json, utc, peak_bytes, freeze_path
+ from spec import VERSION
+ 
+-CLEARANCE=OUT/'clearance/TD1_CLEARANCE_v1.json'
++CLEARANCE=OUT/'clearance/TD1_CLEARANCE_v2.json'
+ BINDINGS=['version','model_sha256','code_sha256','manifest_sha256','input_sha256','prediction_sha256','selection_sha256']
+ 
+ def validate_clearance(clearance,freeze,freeze_hash):
+-    if clearance.get('schema')!='TD1_CLEARANCE_v1' or clearance.get('status')!='CLEARED':
++    if clearance.get('schema')!='TD1_CLEARANCE_v2' or clearance.get('status')!='CLEARED':
+         raise PermissionError('Clearance schema/status not CLEARED')
+     if clearance.get('freeze_sha256')!=freeze_hash:
+         raise PermissionError('Freeze hash does not match clearance')
+@@ -25,7 +25,7 @@
+ def admit():
+     guard()
+     if not CLEARANCE.is_file():
+-        raise PermissionError('STOP: TD1_CLEARANCE_v1.json absent; no evaluation target computed')
++        raise PermissionError('STOP: TD1_CLEARANCE_v2.json absent; no evaluation target computed')
+     if (OUT/'EVALUATION_STARTED.json').exists() or (OUT/'EVALUATION_RESULT.json').exists():
+         raise PermissionError('Evaluation already started; once-only runner refuses replay')
+     clearance=json.loads(CLEARANCE.read_text())
+@@ -40,7 +40,7 @@
+             root=CODE.resolve() if field=='code_sha256' else OUT.resolve()
+             if not resolved.is_relative_to(root) or sha(resolved)!=h:
+                 raise PermissionError('Frozen artifact changed: '+p)
+-    if sha(OUT/'model_frozen.pkl')!=freeze['model_sha256']:
++    if sha(OUT/'model_frozen_v2.pkl')!=freeze['model_sha256']:
+         raise PermissionError('Frozen model changed')
+     receipt={'freeze_sha256':sha(path),'clearance_sha256':sha(CLEARANCE),
+              'version':VERSION,'exploratory':True}
+@@ -66,7 +66,7 @@
+         dates=pd.DatetimeIndex(sorted(d.date.unique()))
+         returns=d.pivot(index='date',columns='permno',values='ret').reindex(dates)
+         idmap={hashlib.sha256(f'TD1-firm:{int(p)}'.encode()).hexdigest()[:24]:p for p in returns.columns}
+-        pred=io.dated(OUT/f'predictions/year_{year}.parquet',
++        pred=io.dated(OUT/f'predictions_v2/year_{year}.parquet',
+             ['firm_id','origin_session','cutoff','b','old_b'],date_col='origin_session',
+             lo=f'{year}-01-01',hi=f'{year}-12-31')
+         rows=[]
+--- D:\OptResearch_data\external\supply-chain-news-risk\five_session\fit.py
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\fit.py
+@@ -20,7 +20,7 @@
+ 
+ def run():
+     start=time.perf_counter(); guard()
+-    if (OUT/'MODEL_FREEZE.json').exists(): raise FileExistsError('Freeze already exists')
++    if (OUT/'MODEL_FREEZE_v3.json').exists(): raise FileExistsError('Freeze already exists')
+     cols=['firm_id','cutoff','origin_session']+FEATURES+['y','label_end','fit_included','selection_included','refit_included']
+     f=pd.concat([io.dated(OUT/f'firm_week_manifest/year_{y}.parquet',cols,
+         date_col='origin_session',lo=f'{y}-01-01',hi=f'{y}-12-31') for y in range(2015,2023)],ignore_index=True)
+@@ -71,11 +71,11 @@
+     xr=x[ref]; yr=target[ref]
+     for epoch in range(selected['best_epoch']):
+         guard(); final.partial_fit(xr,yr)
+-    old_final=old_fit(f.loc[ref,OLD].to_numpy(float),y[ref])
++    old_final=old_fit(f.loc[ref,OLD].to_numpy(float),y[ref],preprocess=old['preprocess'])
+     bundle={'version':VERSION,'features':FEATURES,'old_features':OLD,'preprocess':prep,
+         'ymean':ymean,'yscale':yscale,'mlp':final,'old':old_final,
+         'selection_mlp':chosen,'selection_old':old,'selected':selected}
+-    with (OUT/'model_frozen.pkl').open('xb') as stream: pickle.dump(bundle,stream,protocol=5)
++    with (OUT/'model_frozen_v2.pkl').open('xb') as stream: pickle.dump(bundle,stream,protocol=5)
+     predictions={}
+     for year in range(2015,2025):
+         guard()
+@@ -88,7 +88,7 @@
+         pred['old_b']=old_predict(v[OLD].to_numpy(float),old_final)
+         pred['model_version']=VERSION
+         pred['prediction_role']='refit_in_sample' if year<=2022 else 'features_only_exploratory'
+-        path=OUT/f'predictions/year_{year}.parquet'; io.write_parquet(path,pred)
++        path=OUT/f'predictions_v2/year_{year}.parquet'; io.write_parquet(path,pred)
+         predictions[str(path)]=sha(path)
+     hashes={str(p):sha(p) for p in sorted(CODE.glob('*.py'))}
+     manifests={str(p):sha(p) for p in sorted((OUT/'firm_week_manifest').glob('*.parquet'))}
+@@ -97,19 +97,19 @@
+     freeze={'version':VERSION,'exploratory':True,'architecture':[len(FEATURES)*2,64,32,1],
+         'activation':'ReLU','loss':'squared_error','seed':SEED,'selected':selected,
+         'rules':CLOCK_RULES,'training_selection_summary_sha256':sha(OUT/'SELECTION.json'),
+-        'model_sha256':sha(OUT/'model_frozen.pkl'),'code_sha256':hashes,
++        'model_sha256':sha(OUT/'model_frozen_v2.pkl'),'code_sha256':hashes,
+         'selection_sha256':selection_hashes,
+         'manifest_sha256':manifests,'input_sha256':inputs,'prediction_sha256':predictions,
+         'versions':{'python':platform.python_version(),'numpy':np.__version__,'pandas':pd.__version__,'sklearn':sklearn.__version__},
+         'fit_rows':int(tr.sum()),'selection_rows':int(va.sum()),'refit_rows':int(ref.sum()),
+         'elapsed_seconds':time.perf_counter()-start,**peak_bytes(),'free_bytes':guard(),
+-        'evaluation_run':False,'clearance_expected':'D:/OptResearch_data/five_session/clearance/TD1_CLEARANCE_v1.json'}
+-    freeze['utc']=utc(); new_json(OUT/'MODEL_FREEZE.json',freeze)
+-    expected={'schema':'TD1_CLEARANCE_v1','status':'CLEARED','freeze_sha256':sha(OUT/'MODEL_FREEZE.json'),
++        'evaluation_run':False,'clearance_expected':'D:/OptResearch_data/five_session/clearance/TD1_CLEARANCE_v2.json'}
++    freeze['utc']=utc(); new_json(OUT/'MODEL_FREEZE_v3.json',freeze)
++    expected={'schema':'TD1_CLEARANCE_v2','status':'CLEARED','freeze_sha256':sha(OUT/'MODEL_FREEZE_v3.json'),
+               'version':VERSION,'scope':'2023-2024 exploratory paired losses only; all label ends <=2024-12-31',
+               'code_sha256':hashes,'model_sha256':freeze['model_sha256'],
+               'selection_sha256':selection_hashes,
+               'manifest_sha256':manifests,'input_sha256':inputs,'prediction_sha256':predictions}
+     # This is a REQUEST in the root, never a self-issued clearance in clearance/.
+-    new_json(OUT/'CLEARANCE_REQUEST.json',expected)
+-    print('frozen',str(OUT/'MODEL_FREEZE.json'),'selection',json.dumps(result),flush=True)
++    new_json(OUT/'CLEARANCE_REQUEST_v3.json',expected)
++    print('frozen',str(OUT/'MODEL_FREEZE_v3.json'),'selection',json.dumps(result),flush=True)
+--- D:\OptResearch_data\five_session_review\td1c\lookahead_traps.py
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\lookahead_traps.py
+@@ -1,5 +1,5 @@
+ """Fresh TD1C traps. No real evaluation outcomes and no original source reads."""
+-import offline_base as audit
++import audit_adapter as audit
+ import contextlib
+ import copy
+ import hashlib
+@@ -136,13 +136,13 @@
+             p=root/(field+'.bin'); p.write_bytes(b'invented, no outcomes')
+             files[field]={str(p):audit.hash_file(p)}
+         files['code_sha256']={str(py):audit.hash_file(py)}
+-        model=root/'model_frozen.pkl'; model.write_bytes(b'invented, not a pickle')
++        model=root/'model_frozen_v2.pkl'; model.write_bytes(b'invented, not a pickle')
+         f=dict(files,version='synthetic-review',model_sha256=audit.hash_file(model))
+         if bad_field:
+             if bad_field=='model_sha256': f[bad_field]='0'*64
+             else: f[bad_field][next(iter(f[bad_field]))]='0'*64
+         fp=root/'freeze.json'; fp.write_text(json.dumps(f))
+-        cp=root/'clearance.json'; cp.write_text(json.dumps(dict(f,schema='TD1_CLEARANCE_v1',status='CLEARED',freeze_sha256=audit.hash_file(fp))))
++        cp=root/'clearance.json'; cp.write_text(json.dumps(dict(f,schema='TD1_CLEARANCE_v2',status='CLEARED',freeze_sha256=audit.hash_file(fp))))
+         return root,code,fp,cp
+ 
+     def test_11_every_hash_checked_before_payload(self):
+--- /dev/null
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\repair.py
+@@ -0,0 +1,119 @@
++"""Refit only HAR coefficients; preserve MLP state and every reviewed artifact."""
++import copy
++import hashlib
++import json
++import pickle
++from pathlib import Path
++import numpy as np
++import pandas as pd
++import sources as io
++from core import old_fit, old_predict
++from runtime import OUT, CODE, guard, sha, new_json, utc, peak_bytes
++from spec import OLD
++from validate_correction import assert_preprocessing, independent_beta, extreme_selection_missingness_trap
++
++RECEIPTS=OUT/'repair_v2'
++
++def object_hash(value):
++    return hashlib.sha256(pickle.dumps(value,protocol=5)).hexdigest()
++
++def weight_hash(model):
++    h=hashlib.sha256()
++    for name in ('coefs_', 'intercepts_'):
++        for i,a in enumerate(getattr(model,name)):
++            h.update(f'{name}/{i}/{a.dtype.str}/{a.shape}'.encode())
++            h.update(np.ascontiguousarray(a).tobytes())
++    return h.hexdigest()
++
++def check_originals():
++    baseline=json.loads((RECEIPTS/'baseline.json').read_text())['sha256']
++    for p,expected in baseline.items():
++        if sha(p)!=expected: raise ValueError('Original artifact changed: '+p)
++    return baseline
++
++def run():
++    guard()
++    for p in (OUT/'model_frozen_v2.pkl', OUT/'predictions_v2', OUT/'MODEL_FREEZE_v3.json', OUT/'CLEARANCE_REQUEST_v3.json'):
++        if p.exists(): raise FileExistsError('Preserve existing output: '+str(p))
++    original_hashes=check_originals()
++    parent=OUT/'MODEL_FREEZE_v2.json'; frozen=json.loads(parent.read_text())
++    if sha(OUT/'model_frozen.pkl')!=frozen['model_sha256']: raise ValueError('Original model hash')
++    with (OUT/'model_frozen.pkl').open('rb') as stream: original=pickle.load(stream)
++    cols=OLD+['y','fit_included','refit_included','label_end','origin_session']
++    f=pd.concat([io.dated(OUT/f'firm_week_manifest/year_{year}.parquet',cols,
++        date_col='origin_session',lo=f'{year}-01-01',hi=f'{year}-12-31') for year in range(2015,2023)],ignore_index=True)
++    tr=f.fit_included.to_numpy(bool); ref=f.refit_included.to_numpy(bool)
++    if not (f.loc[tr,'origin_session'].dt.year.between(2015,2020).all() and
++            f.loc[tr,'label_end'].le(pd.Timestamp('2020-12-31')).all() and
++            f.loc[ref,'label_end'].le(pd.Timestamp('2022-12-31')).all()):
++        raise ValueError('Development split/date boundary')
++    y=f.y.to_numpy(float)
++    final=old_fit(f.loc[ref,OLD].to_numpy(float), y[ref], preprocess=original['selection_old']['preprocess'])
++    corrected=dict(original,old=final)
++    checks=assert_preprocessing(f.loc[tr,OLD].to_numpy(float),corrected)
++    np.testing.assert_array_equal(final['beta'],independent_beta(f.loc[ref,OLD].to_numpy(float),y[ref],original['selection_old']['preprocess']))
++    assert extreme_selection_missingness_trap()
++    for key in original:
++        if key!='old': assert object_hash(original[key])==object_hash(corrected[key]), key
++    with (OUT/'model_frozen_v2.pkl').open('xb') as stream: pickle.dump(corrected,stream,protocol=5)
++    with (OUT/'model_frozen_v2.pkl').open('rb') as stream: reloaded=pickle.load(stream)
++    mlp_hashes={}
++    for key in ('mlp','selection_mlp'):
++        before=weight_hash(original[key]); after=weight_hash(reloaded[key])
++        assert before==after
++        assert object_hash(original[key])==object_hash(reloaded[key])
++        mlp_hashes[key]={'original_weights_sha256':before,'corrected_weights_sha256':after,
++            'original_complete_state_sha256':object_hash(original[key]),'corrected_complete_state_sha256':object_hash(reloaded[key])}
++    predictions={}; partition_facts=[]
++    for year in range(2015,2025):
++        guard()
++        path=OUT/f'firm_week_manifest/year_{year}.parquet'
++        if year>=2023 and set(io.schema_names(path)) & {'y','label_end','label_observed','fit_included','selection_included','refit_included'}:
++            raise ValueError('Evaluation label fields in manifest')
++        v=io.dated(path,['firm_id','cutoff','origin_session','eligible_features']+OLD,
++            date_col='origin_session',lo=f'{year}-01-01',hi=f'{year}-12-31')
++        v=v[v.eligible_features]
++        before=io.dated(OUT/f'predictions/year_{year}.parquet',io.schema_names(OUT/f'predictions/year_{year}.parquet'),
++            date_col='origin_session',lo=f'{year}-01-01',hi=f'{year}-12-31')
++        if set(before.columns)&{'y','label_end','target','loss'}: raise ValueError('Outcome in original predictions')
++        pd.testing.assert_frame_equal(before[['firm_id','cutoff','origin_session']],v[['firm_id','cutoff','origin_session']].reset_index(drop=True))
++        pred=before.copy(); pred['old_b']=old_predict(v[OLD].to_numpy(float),final)
++        pd.testing.assert_frame_equal(before.drop(columns='old_b'),pred.drop(columns='old_b'),check_exact=True)
++        dest=OUT/f'predictions_v2/year_{year}.parquet'; io.write_parquet(dest,pred)
++        saved=io.dated(dest,list(pred.columns),date_col='origin_session',lo=f'{year}-01-01',hi=f'{year}-12-31')
++        pd.testing.assert_frame_equal(pred,saved,check_exact=True)
++        b_before=hashlib.sha256(before.b.to_numpy().tobytes()).hexdigest()
++        b_after=hashlib.sha256(saved.b.to_numpy().tobytes()).hexdigest(); assert b_before==b_after
++        partition_facts.append({'year':year,'rows':len(saved),'old_b_changed_over_1e_8':int((np.abs(saved.old_b-before.old_b)>1e-8).sum()),
++            'original_b_sha256':b_before,'corrected_b_sha256':b_after,'other_columns_exactly_preserved':True})
++        predictions[str(dest)]=sha(dest)
++        print('Recreated old_b partition',year,len(saved),flush=True)
++    check_originals()
++    preserved={'original_artifacts_sha256':original_hashes,'original_artifact_count':len(original_hashes),
++        'mlp_hashes':mlp_hashes,'partitions':partition_facts,
++        'fit_rows':int(tr.sum()),'refit_rows':int(ref.sum()),'independent_preprocessing_assertions':checks,
++        'extreme_selection_missingness_trap_passed':True,'all_non_old_bundle_fields_preserved_by_hash':True,
++        'source_manifests_sha256':{str(OUT/n):sha(OUT/n) for n in ('SOURCE_SNAPSHOTS.json','MANIFEST_BUILD.json')},
++        'evaluation_labels_read_or_computed':False,**peak_bytes(),'free_bytes':guard()}
++    new_json(RECEIPTS/'PRESERVATION_v2.json',preserved)
++    freeze=copy.deepcopy(frozen)
++    freeze.update(parent_freeze_path=str(parent),parent_freeze_sha256=sha(parent),
++        artifact_revision='TD1B-comparator-preprocessing-v2',model_path=str(OUT/'model_frozen_v2.pkl'),
++        model_sha256=sha(OUT/'model_frozen_v2.pkl'),code_sha256={str(p):sha(p) for p in sorted(CODE.glob('*.py'))},
++        prediction_sha256=predictions,clearance_expected=str(OUT/'clearance/TD1_CLEARANCE_v2.json'),
++        reviewed_code_sha256=frozen['code_sha256'],preservation_sha256=sha(RECEIPTS/'PRESERVATION_v2.json'),
++        source_diff_sha256=sha(RECEIPTS/'SOURCE_DIFF_v2.patch'),evaluation_run=False,
++        amendment='HAR refit coefficients through 2022 with copied selection HAR preprocessing fitted only on 2015-2020. MLPs and source manifests unchanged.')
++    # Do not carry old fitting-stage resource measurements into this repair.
++    for key in ('utc','elapsed_seconds','peak_working_set_bytes','peak_private_bytes','free_bytes'):
++        freeze.pop(key,None)
++    freeze['utc']=utc(); new_json(OUT/'MODEL_FREEZE_v3.json',freeze)
++    request={'schema':'TD1_CLEARANCE_v2','status':'CLEARED','request_only':True,
++        'freeze_sha256':sha(OUT/'MODEL_FREEZE_v3.json'),
++        'scope':'2023-2024 exploratory paired losses only; all label ends <=2024-12-31'}
++    for key in ('version','model_sha256','code_sha256','manifest_sha256','input_sha256','prediction_sha256','selection_sha256'):
++        request[key]=freeze[key]
++    new_json(OUT/'CLEARANCE_REQUEST_v3.json',request)
++    print('MODEL:',OUT/'model_frozen_v2.pkl',flush=True)
++    print('FREEZE:',OUT/'MODEL_FREEZE_v3.json',flush=True)
++    print('REQUEST:',OUT/'CLEARANCE_REQUEST_v3.json',flush=True)
+--- D:\OptResearch_data\external\supply-chain-news-risk\five_session\run_td1.py
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\run_td1.py
+@@ -5,8 +5,20 @@
+ 
+ def main():
+     p=argparse.ArgumentParser()
+-    p.add_argument('step',choices=['snapshots','manifest','fit','verify','evaluate','tests'])
++    p.add_argument('step',choices=['snapshots','manifest','fit','verify','evaluate','tests','repair','correction-tests','traps'])
+     a=p.parse_args()
++    if a.step!='evaluate':
++        import runtime_safety_checked
++        runtime_safety_checked.seal_labels()
++    if a.step=='repair':
++        from repair import run
++        return run()
++    if a.step=='correction-tests':
++        from correction_tests import run
++        return run()
++    if a.step=='traps':
++        import lookahead_traps
++        return
+     if a.step in ['snapshots','manifest']:
+         import build
+         return build.snapshots() if a.step=='snapshots' else build.manifests()
+--- D:\OptResearch_data\external\supply-chain-news-risk\five_session\runtime.py
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\runtime.py
+@@ -84,5 +84,4 @@
+     return {'peak_working_set_bytes': p.peak, 'peak_private_bytes': p.peakpage}
+ 
+ def freeze_path():
+-    amended=OUT/'MODEL_FREEZE_v2.json'
+-    return amended if amended.exists() else OUT/'MODEL_FREEZE.json'
++    return OUT/'MODEL_FREEZE_v3.json'  # Correction delivery; no fallback to reviewed artifacts.
+--- /dev/null
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\runtime_safety.py
+@@ -0,0 +1,53 @@
++"""Task-local offline guard. Install after the Windows memory cap, before science."""
++import os
++from pathlib import Path
++import platform
++import socket
++import sys
++from runtime import OUT, guard
++
++READ_EVENTS = set()
++platform._uname_cache = platform.uname_result('Windows', 'td1b-offline', '11', '10.0', 'AMD64')
++socket.gethostname = lambda: 'td1b-offline'
++sys.dont_write_bytecode = True
++
++def audit_hook(event, args):
++    if event.startswith('socket.') or event in ('os.remove', 'os.rmdir', 'os.rename'):
++        raise RuntimeError('TD1B forbids network/deletion/renaming: ' + event)
++    if event == 'subprocess.Popen':
++        argv = args[1]
++        if not isinstance(argv, (list, tuple)) or list(argv) != [
++                'C:/Program Files/Git/usr/bin/date.exe', '-u', '+%Y-%m-%dT%H:%M:%SZ']:
++            raise RuntimeError('Only date -u is permitted as a child process')
++    if event != 'open' or not isinstance(args[0], (str, bytes, os.PathLike)):
++        return
++    path = Path(os.fsdecode(args[0])).resolve()
++    name = str(path).replace('\\', '/').lower()
++    if any(s in name for s in ('/verified_security_v2/', '/idsens2/', '/ids2/', 'wrds.lock')):
++        raise RuntimeError('Protected path: ' + str(path))
++    mode, flags = args[1:3]
++    writing = (isinstance(mode, str) and any(c in mode for c in 'wax+')) or (
++        isinstance(flags, int) and flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC))
++    if writing:
++        guard()
++        if not path.is_relative_to(OUT.resolve()):
++            raise RuntimeError('Runtime writes must stay under the private root: ' + str(path))
++        if path.exists():
++            raise FileExistsError('Preserve existing file: ' + str(path))
++    if path.is_relative_to(OUT.resolve()):
++        if '2025' in path.name or '/evaluation/' in name or '/evaluation_v2/' in name:
++            raise RuntimeError('Forbidden data: ' + str(path))
++        READ_EVENTS.add(str(path))
++    if name.endswith(('.parquet', '.csv')) and not path.is_relative_to(OUT.resolve()):
++        raise RuntimeError('Only bounded private snapshots may be opened: ' + str(path))
++
++sys.addaudithook(audit_hook)
++
++def seal_labels():
++    import core
++    original = core.label
++    def development_only(dates, returns, pos, allowed_end):
++        if str(dates[pos])[:4] >= '2023':
++            raise AssertionError('TD1B cannot compute any evaluation label')
++        return original(dates, returns, pos, min(allowed_end, '2022-12-31'))
++    core.label = development_only
+--- /dev/null
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\runtime_safety_checked.py
+@@ -0,0 +1,55 @@
++"""Task-local offline guard. Install after the Windows memory cap, before science."""
++import os
++from pathlib import Path
++import platform
++import socket
++import sys
++from runtime import OUT, guard
++
++READ_EVENTS = set()
++platform._uname_cache = platform.uname_result('Windows', 'td1b-offline', '11', '10.0', 'AMD64')
++socket.gethostname = lambda: 'td1b-offline'
++sys.dont_write_bytecode = True
++
++def audit_hook(event, args):
++    if event.startswith('socket.') or event in ('os.remove', 'os.rmdir', 'os.rename'):
++        raise RuntimeError('TD1B forbids network/deletion/renaming: ' + event)
++    if event == 'subprocess.Popen':
++        argv = args[1]
++        import subprocess
++        expected = ['C:/Program Files/Git/usr/bin/date.exe', '-u', '+%Y-%m-%dT%H:%M:%SZ']
++        # Windows audits the serialized command line; POSIX audits argv.
++        if argv != expected and argv != subprocess.list2cmdline(expected):
++            raise RuntimeError('Only date -u is permitted as a child process')
++    if event != 'open' or not isinstance(args[0], (str, bytes, os.PathLike)):
++        return
++    path = Path(os.fsdecode(args[0])).resolve()
++    name = str(path).replace('\\', '/').lower()
++    if any(s in name for s in ('/verified_security_v2/', '/idsens2/', '/ids2/', 'wrds.lock')):
++        raise RuntimeError('Protected path: ' + str(path))
++    mode, flags = args[1:3]
++    writing = (isinstance(mode, str) and any(c in mode for c in 'wax+')) or (
++        isinstance(flags, int) and flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC))
++    if writing:
++        guard()
++        if not path.is_relative_to(OUT.resolve()):
++            raise RuntimeError('Runtime writes must stay under the private root: ' + str(path))
++        if path.exists():
++            raise FileExistsError('Preserve existing file: ' + str(path))
++    if path.is_relative_to(OUT.resolve()):
++        if '2025' in path.name or '/evaluation/' in name or '/evaluation_v2/' in name:
++            raise RuntimeError('Forbidden data: ' + str(path))
++        READ_EVENTS.add(str(path))
++    if name.endswith(('.parquet', '.csv')) and not path.is_relative_to(OUT.resolve()):
++        raise RuntimeError('Only bounded private snapshots may be opened: ' + str(path))
++
++sys.addaudithook(audit_hook)
++
++def seal_labels():
++    import core
++    original = core.label
++    def development_only(dates, returns, pos, allowed_end):
++        if str(dates[pos])[:4] >= '2023':
++            raise AssertionError('TD1B cannot compute any evaluation label')
++        return original(dates, returns, pos, min(allowed_end, '2022-12-31'))
++    core.label = development_only
+--- /dev/null
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\setup_v2.py
+@@ -0,0 +1,94 @@
++"""Create an isolated, append-only correction delivery from reviewed sources."""
++import sys
++from pathlib import Path
++sys.dont_write_bytecode = True
++CODE = Path(__file__).resolve().parent
++BASE = CODE.parent
++sys.path.insert(0, str(BASE))
++import runtime
++runtime.limit()
++import difflib
++import json
++
++OUT = runtime.OUT
++RECEIPTS = OUT/'repair_v2'
++RECEIPTS.mkdir(exist_ok=True)
++
++def replace_one(text, old, new):
++    if text.count(old) != 1:
++        raise ValueError('Expected exactly one source fragment: ' + old)
++    return text.replace(old, new)
++
++def create(path, text):
++    runtime.guard()
++    with path.open('x', encoding='utf-8', newline='\n') as stream:
++        stream.write(text)
++
++def main():
++    frozen = json.loads((OUT/'MODEL_FREEZE_v2.json').read_text())
++    baseline = {}
++    for field in ('code_sha256', 'input_sha256', 'manifest_sha256', 'prediction_sha256', 'selection_sha256'):
++        for name, expected in frozen[field].items():
++            actual = runtime.sha(name)
++            if actual != expected:
++                raise ValueError('Reviewed artifact changed: ' + name)
++            baseline[name] = actual
++    for name in ('model_frozen.pkl', 'SOURCE_SNAPSHOTS.json', 'MANIFEST_BUILD.json',
++                 'MODEL_FREEZE.json', 'MODEL_FREEZE_v2.json', 'CLEARANCE_REQUEST.json', 'CLEARANCE_REQUEST_v2.json'):
++        baseline[str(OUT/name)] = runtime.sha(OUT/name)
++    runtime.new_json(RECEIPTS/'baseline.json', {'sha256': baseline})
++    for path in sorted(BASE.glob('*.py')):
++        text = path.read_text(encoding='utf-8')
++        if path.name == 'core.py':
++            text = replace_one(text,
++                'def old_fit(x,y):\n    p=prepare_fit(x); z=np.column_stack([np.ones(len(x)),transform(x,p,False)])',
++                'def old_fit(x,y,preprocess=None):\n    p=prepare_fit(x) if preprocess is None else {k:v.copy() for k,v in preprocess.items()}\n    z=np.column_stack([np.ones(len(x)),transform(x,p,False)])')
++        if path.name == 'fit.py':
++            text = replace_one(text, 'old_final=old_fit(f.loc[ref,OLD].to_numpy(float),y[ref])',
++                "old_final=old_fit(f.loc[ref,OLD].to_numpy(float),y[ref],preprocess=old['preprocess'])")
++            text = text.replace("MODEL_FREEZE.json", "MODEL_FREEZE_v3.json").replace("CLEARANCE_REQUEST.json", "CLEARANCE_REQUEST_v3.json")
++        if path.name in ('fit.py', 'sources.py', 'verify.py', 'evaluate.py'):
++            text = text.replace('model_frozen.pkl', 'model_frozen_v2.pkl').replace('predictions/year_', 'predictions_v2/year_')
++        if path.name in ('fit.py', 'evaluate.py', 'verify.py', 'tests.py'):
++            text = text.replace('TD1_CLEARANCE_v1', 'TD1_CLEARANCE_v2')
++        if path.name == 'runtime.py':
++            text = replace_one(text,
++                "    amended=OUT/'MODEL_FREEZE_v2.json'\n    return amended if amended.exists() else OUT/'MODEL_FREEZE.json'",
++                "    return OUT/'MODEL_FREEZE_v3.json'  # Correction delivery; no fallback to reviewed artifacts.")
++        if path.name == 'run_td1.py':
++            text = replace_one(text, 'limit()\nimport argparse', 'limit()\nimport runtime_safety\nruntime_safety.seal_labels()\nimport argparse')
++            text = replace_one(text, "'evaluate','tests'", "'evaluate','tests','repair','correction-tests','traps'")
++            text = replace_one(text, "    if a.step in ['snapshots','manifest']:",
++                "    if a.step=='repair':\n        from repair import run\n        return run()\n    if a.step=='correction-tests':\n        from correction_tests import run\n        return run()\n    if a.step=='traps':\n        import lookahead_traps\n        return\n    if a.step in ['snapshots','manifest']:")
++        if path.name == 'amend_freeze.py':
++            # The old code-only amendment must never target the new numerical delivery.
++            text = '"""The correction requires repair.py, not the legacy code-only amendment."""\nraise RuntimeError("Use run_td1.py repair; all reviewed freezes are immutable")\n'
++        if path.name == 'verify.py':
++            text = replace_one(text, 'from spec import FEATURES', 'from spec import FEATURES, OLD\nfrom validate_correction import assert_preprocessing')
++            text = replace_one(text, 'checks+=2; training=[]; training_y=[]; selection=[]',
++                'checks+=2; training=[]; training_y=[]; selection=[]; training_old=[]; refit_old=[]')
++            text = replace_one(text, '            if year<=2020:\n',
++                "            refit_old.append(f.loc[f.refit_included,OLD+['y']])\n            if year<=2020:\n                training_old.append(f.loc[f.fit_included,OLD])\n")
++            text = replace_one(text, '    ty=np.concatenate(training_y)',
++                "    # Independent statistics retain the fitter's column-major OLD layout.\n    checks+=assert_preprocessing(pd.concat(training_old,ignore_index=True)[OLD].to_numpy(float),bundle)\n    rf=pd.concat(refit_old,ignore_index=True)\n    from validate_correction import independent_beta\n    beta=independent_beta(rf[OLD].to_numpy(float),rf.y.to_numpy(float),bundle['selection_old']['preprocess'])\n    if not np.array_equal(beta,bundle['old']['beta']): raise ValueError('Comparator coefficients were not refit through 2022')\n    checks+=1\n    ty=np.concatenate(training_y)")
++            text = replace_one(text, "target=OUT/'VERIFICATION.json'", "target=OUT/'VERIFICATION_v2.json'")
++            text = text.replace("f'VERIFICATION_{uuid.uuid4().hex}.json'", "f'VERIFICATION_v2_{uuid.uuid4().hex}.json'")
++        create(CODE/path.name, text)
++    # Keep the independent 16 traps, adapting only their delivery paths and schema.
++    review = Path('D:/OptResearch_data/five_session_review/td1c')
++    traps = (review/'lookahead_traps.py').read_text(encoding='utf-8')
++    traps = traps.replace('import offline_base as audit', 'import audit_adapter as audit')
++    traps = traps.replace('model_frozen.pkl', 'model_frozen_v2.pkl').replace('TD1_CLEARANCE_v1', 'TD1_CLEARANCE_v2')
++    create(CODE/'lookahead_traps.py', traps)
++    diff = []
++    for path in sorted(CODE.glob('*.py')):
++        old = BASE/path.name
++        if path.name == 'lookahead_traps.py': old = review/path.name
++        before = old.read_text(encoding='utf-8') if old.exists() else ''
++        diff.extend(difflib.unified_diff(before.splitlines(True), path.read_text(encoding='utf-8').splitlines(True),
++            fromfile=str(old) if old.exists() else '/dev/null', tofile=str(path)))
++    create(RECEIPTS/'SOURCE_DIFF_v2.patch', ''.join(diff))
++    print('Versioned source:', CODE)
++    print('Preserved artifact hashes:', len(baseline))
++
++if __name__ == '__main__': main()
+--- /dev/null
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\setup_v2_1.py
+@@ -0,0 +1,13 @@
++"""Active source constructor; keep task-only seals out of later cleared evaluation."""
++import setup_v2
++
++create_original = setup_v2.create
++def create(path, text):
++    if path.name == 'run_td1.py':
++        text=setup_v2.replace_one(text, 'import runtime_safety\nruntime_safety.seal_labels()\n', '')
++        text=setup_v2.replace_one(text, '    a=p.parse_args()',
++            "    a=p.parse_args()\n    if a.step!='evaluate':\n        import runtime_safety_checked\n        runtime_safety_checked.seal_labels()")
++    create_original(path, text)
++
++setup_v2.create=create
++if __name__=='__main__': setup_v2.main()
+--- D:\OptResearch_data\external\supply-chain-news-risk\five_session\sources.py
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\sources.py
+@@ -99,5 +99,5 @@
+ def read_frozen_model():
+     """Trusted, locally produced pickle; caller verifies frozen SHA256 first."""
+     import pickle
+-    with (OUT/'model_frozen.pkl').open('rb') as stream:
++    with (OUT/'model_frozen_v2.pkl').open('rb') as stream:
+         return pickle.load(stream)
+--- D:\OptResearch_data\external\supply-chain-news-risk\five_session\tests.py
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\tests.py
+@@ -104,12 +104,12 @@
+     def test_28_clearance_hash_mismatch(self):
+         f={k:{} for k in ['code_sha256','manifest_sha256','input_sha256','prediction_sha256','selection_sha256']}
+         f.update(version='v',model_sha256='m')
+-        c=dict(f,schema='TD1_CLEARANCE_v1',status='CLEARED',freeze_sha256='wrong')
++        c=dict(f,schema='TD1_CLEARANCE_v2',status='CLEARED',freeze_sha256='wrong')
+         with self.assertRaises(PermissionError): validate_clearance(c,f,'right')
+     def test_29_each_clearance_binding_checked(self):
+         f={k:{} for k in ['code_sha256','manifest_sha256','input_sha256','prediction_sha256','selection_sha256']}
+         f.update(version='v',model_sha256='m')
+-        c=dict(f,schema='TD1_CLEARANCE_v1',status='CLEARED',freeze_sha256='right')
++        c=dict(f,schema='TD1_CLEARANCE_v2',status='CLEARED',freeze_sha256='right')
+         validate_clearance(c,f,'right')
+         for key in f:
+             bad=copy.deepcopy(c); bad[key]='altered'
+--- /dev/null
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\validate_correction.py
+@@ -0,0 +1,39 @@
++"""Independent training statistics and the extreme-selection/missingness trap."""
++import numpy as np
++
++def independent_statistics(x):
++    # Deliberately do not call core.prepare_fit. Preserve the fitter's layout.
++    med = np.array([np.median(c[np.isfinite(c)]) if np.isfinite(c).any() else 0. for c in x.T])
++    filled = np.where(np.isfinite(x), x, med)
++    scale = np.std(filled, axis=0)
++    scale[scale == 0] = 1.
++    return {'median': med, 'mean': filled.mean(axis=0), 'scale': scale}
++
++def assert_preprocessing(training, bundle):
++    expected = independent_statistics(training)
++    for key in ('median', 'mean', 'scale'):
++        if not np.array_equal(expected[key], bundle['selection_old']['preprocess'][key]):
++            raise ValueError('Selection comparator preprocessing differs from independent 2015-2020 statistics: ' + key)
++        if not np.array_equal(bundle['old']['preprocess'][key], bundle['selection_old']['preprocess'][key]):
++            raise ValueError('Final comparator preprocessing differs from selection comparator: ' + key)
++    return 6
++
++def independent_beta(x, y, p):
++    filled = np.where(np.isfinite(x), x, p['median'])
++    z = np.column_stack([np.ones(len(x)), (filled-p['mean'])/p['scale']])
++    ridge = np.diag(np.r_[0., np.full(x.shape[1], 1e-6)])
++    return np.linalg.solve(z.T@z + ridge, z.T@y)
++
++def extreme_selection_missingness_trap():
++    from core import old_fit
++    train = np.array([[1.,np.nan],[3.,4.],[5.,8.],[7.,12.]])
++    initial = old_fit(train, np.array([1.,2.,3.,4.]))
++    extreme = np.array([[1e6,1e9],[np.nan,-1e9],[5e6,1e8]])
++    joined = np.vstack([train, extreme]); response = np.arange(len(joined), dtype=float)
++    fixed = old_fit(joined, response, preprocess=initial['preprocess'])
++    unsafe = old_fit(joined, response)
++    assert all(np.array_equal(fixed['preprocess'][k], initial['preprocess'][k]) for k in initial['preprocess'])
++    assert any(not np.array_equal(unsafe['preprocess'][k], initial['preprocess'][k]) for k in initial['preprocess'])
++    assert all(not np.shares_memory(fixed['preprocess'][k], initial['preprocess'][k]) for k in initial['preprocess'])
++    np.testing.assert_array_equal(fixed['beta'], independent_beta(joined, response, initial['preprocess']))
++    return True
+--- D:\OptResearch_data\external\supply-chain-news-risk\five_session\verify.py
++++ D:\OptResearch_data\external\supply-chain-news-risk\five_session\v2\verify.py
+@@ -5,7 +5,8 @@
+ import pandas as pd
+ import sources as io
+ from runtime import OUT, CODE, guard, sha, new_json, utc, peak_bytes, freeze_path
+-from spec import FEATURES
++from spec import FEATURES, OLD
++from validate_correction import assert_preprocessing
+ from core import transform, old_predict, prepare_fit
+ 
+ def run():
+@@ -15,14 +16,14 @@
+         for p,h in freeze[field].items():
+             if sha(p)!=h: raise ValueError('Hash mismatch: '+p)
+             checks+=1
+-    if sha(OUT/'model_frozen.pkl')!=freeze['model_sha256']: raise ValueError('Model hash')
++    if sha(OUT/'model_frozen_v2.pkl')!=freeze['model_sha256']: raise ValueError('Model hash')
+     checks+=1
+     bundle=io.read_frozen_model()
+     if bundle['features']!=FEATURES or bundle['version']!=freeze['version']:
+         raise ValueError('Model version or feature order')
+     if [v.shape for v in bundle['mlp'].coefs_]!=[(36,64),(64,32),(32,1)]:
+         raise ValueError('Model architecture')
+-    checks+=2; training=[]; training_y=[]; selection=[]
++    checks+=2; training=[]; training_y=[]; selection=[]; training_old=[]; refit_old=[]
+     for year in range(2015,2025):
+         guard(); path=OUT/f'firm_week_manifest/year_{year}.parquet'
+         names=io.schema_names(path)
+@@ -45,11 +46,13 @@
+             if (f.loc[valid,'label_end']>pd.Timestamp('2022-12-31')).any(): raise ValueError('Development label boundary')
+             if (f.loc[f.fit_included,'label_end']>pd.Timestamp('2020-12-31')).any(): raise ValueError('Fitting boundary')
+             checks+=2
++            refit_old.append(f.loc[f.refit_included,OLD+['y']])
+             if year<=2020:
++                training_old.append(f.loc[f.fit_included,OLD])
+                 training.append(f.loc[f.fit_included,FEATURES].to_numpy(float))
+                 training_y.append(f.loc[f.fit_included,'y'].to_numpy(float))
+             else: selection.append(f.loc[f.selection_included,['firm_id','cutoff','origin_session','y']+FEATURES])
+-        p=OUT/f'predictions/year_{year}.parquet'; pn=io.schema_names(p)
++        p=OUT/f'predictions_v2/year_{year}.parquet'; pn=io.schema_names(p)
+         if any(c in pn for c in ['y','label_end','target','loss']): raise ValueError('Outcomes in prediction file')
+         pr=io.dated(p,pn,date_col='origin_session',lo=f'{year}-01-01',hi=f'{year}-12-31')
+         expected=f.loc[f.eligible_features,['firm_id','cutoff']]
+@@ -75,6 +78,13 @@
+     for k,v in actual.items():
+         if not np.array_equal(v,bundle['preprocess'][k]): raise ValueError('Preprocessing was not fit on fitting rows only')
+         checks+=1
++    # Independent statistics retain the fitter's column-major OLD layout.
++    checks+=assert_preprocessing(pd.concat(training_old,ignore_index=True)[OLD].to_numpy(float),bundle)
++    rf=pd.concat(refit_old,ignore_index=True)
++    from validate_correction import independent_beta
++    beta=independent_beta(rf[OLD].to_numpy(float),rf.y.to_numpy(float),bundle['selection_old']['preprocess'])
++    if not np.array_equal(beta,bundle['old']['beta']): raise ValueError('Comparator coefficients were not refit through 2022')
++    checks+=1
+     ty=np.concatenate(training_y)
+     if float(ty.mean())!=bundle['ymean'] or float(ty.std())!=bundle['yscale']:
+         raise ValueError('Target transform was not fit on fitting rows only')
+@@ -91,9 +101,9 @@
+     if not np.allclose(se.old_squared_loss,(se.y-so)**2,rtol=1e-11,atol=1e-11): raise ValueError('Selection old loss mismatch')
+     checks+=5
+     report={'contract_checks_passed':checks,'manifest_rows':rows,'prediction_rows':predictions,
+-        'evaluation_targets_computed':False,'evaluation_gate_file_exists':(OUT/'clearance/TD1_CLEARANCE_v1.json').exists(),
++        'evaluation_targets_computed':False,'evaluation_gate_file_exists':(OUT/'clearance/TD1_CLEARANCE_v2.json').exists(),
+         **peak_bytes(),'free_bytes':guard()}
+-    target=OUT/'VERIFICATION.json'
+-    if target.exists(): target=OUT/f'VERIFICATION_{uuid.uuid4().hex}.json'
++    target=OUT/'VERIFICATION_v2.json'
++    if target.exists(): target=OUT/f'VERIFICATION_v2_{uuid.uuid4().hex}.json'
+     report['utc']=utc(); new_json(target,report)
+     print(json.dumps(report),flush=True)
